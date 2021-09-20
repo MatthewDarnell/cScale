@@ -45,7 +45,8 @@ void _encode_fixed_int16_to_scale(_scale_fixed_int *fixed_int_elem, int16_t data
 void _encode_fixed_uint16_to_scale(_scale_fixed_int *fixed_int_elem, uint16_t data);
 void _encode_fixed_int32_to_scale(_scale_fixed_int *fixed_int_elem, int32_t data);
 void _encode_fixed_uint32_to_scale(_scale_fixed_int *fixed_int_elem, uint32_t data);
-
+void _encode_fixed_int64_to_scale(_scale_fixed_int *fixed_int_elem, int64_t data);
+void _encode_fixed_uint64_to_scale(_scale_fixed_int *fixed_int_elem, uint64_t data);
 //Tries to convert a hex string "0xFFFFFF00" to a _scale_fixed_int
 //Returns 0 if successful, -1 otherwise
 int8_t _encode_fixed_hex_to_scale(_scale_fixed_int *fixed_int_elem, bool is_signed, const char *hex);

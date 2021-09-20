@@ -96,6 +96,8 @@ size_t hex_to_data(const char *hex, uint8_t **out) {
   }
 	len /= 2;
 	*out = (uint8_t*)malloc(len);
+  memset(*out, 0, len*sizeof(uint8_t));
+
 	for (size_t i = 0; i < len; i++) {
   	char b1;
   	char b2;
@@ -104,5 +106,6 @@ size_t hex_to_data(const char *hex, uint8_t **out) {
 		}
 		(*out)[i] = (b1 << 4) | b2;
 	}
+
 	return len;
 }

@@ -46,6 +46,11 @@ static void run_test(uint64_t value, size_t width, uint8_t is_signed, const char
       else _encode_fixed_uint32_to_scale(&s_e, (uint32_t)value);
       break;
     }
+    case 8: {
+      if(is_signed) _encode_fixed_int64_to_scale(&s_e, (int64_t)value);
+      else _encode_fixed_uint64_to_scale(&s_e, (uint64_t)value);
+      break;
+    }
     default: {
       fprintf(stderr, "Invalid Byte Width for Fixed Int: %zu\n", width);
       assert(1==0);
@@ -54,6 +59,7 @@ static void run_test(uint64_t value, size_t width, uint8_t is_signed, const char
   hex = decode_scale_fixed_to_hex(&s_e);
   uint64_t output = 0;
   decode_scale_fixed_int((void*)&output, &s_e);
+  printf("output: %llu %llu ", value, output);
   assert(value == output);
   free(hex);
   memset(serialized, 0, 64 * sizeof(uint8_t));
@@ -98,6 +104,7 @@ int run_fixed_int_test() {
     run_test(1030404040, 4, 1, "C8B76A3D"); //int32_t
     run_test(4294967294, 4, 0, "FEFFFFFF");
     run_test(16777215, 4, 0, "FFFFFF00"); //uint32_t
+    run_test(4294967296, 8, 0, "0000000001000000"); //uint64_t
 
     printf("\tEncoding Fixed Scale Hex to Fixed Scale:\n");
     run_test_fixed_hex("0x45", 0, 69);

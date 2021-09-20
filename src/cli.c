@@ -9,7 +9,7 @@
 #include "scale.h"
 
 #define help  "Usage:\n" \
-              "\tapp encode fixed [signed (0/1)] [size (1/2/4)] [value]\n" \
+              "\tapp encode fixed [signed (0/1)] [size (1/2/4/8)] [value]\n" \
               "\tapp decode fixed [signed (0/1)] [value (hex)]\n\n" \
               "\tapp encode compact [size (1/2/4/8/16)] [value]\t(Note: 16 byte encoding requires hex value. Others are decimal)\n" \
               "\tapp decode compact [value (hex)]\n" \
@@ -41,6 +41,12 @@
         _encode_fixed_int32_to_scale(&scale_fixed, (int32_t)value);
       } else {
         _encode_fixed_uint32_to_scale(&scale_fixed, (uint32_t)value);
+      }
+    } else {
+      if (is_signed) {
+        _encode_fixed_int64_to_scale(&scale_fixed, (int64_t)value);
+      } else {
+        _encode_fixed_uint64_to_scale(&scale_fixed, (uint64_t)value);
       }
     }
 
@@ -174,8 +180,8 @@ int main(int argc, char **argv) {
 
 
 
-  if(dType == 0 && dCommand == 0 && size > 4) {
-    fprintf(stderr, "Invalid Size. Fixed Size Ints Valid Sizes: 1/2/4 \n");
+  if(dType == 0 && ( (dCommand == 0 && size > 8) || (dCommand == 0 && size > 1 && size % 2 != 0))) {
+    fprintf(stderr, "Invalid Size. Fixed Size Ints Valid Sizes: 1/2/4/8 \n");
     return -1;
   }
 

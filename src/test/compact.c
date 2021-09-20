@@ -113,7 +113,7 @@ int run_compact_test() {
   run_test(16161616, 4, "0x426dda03"); //uint32_t max 32 uint compact: 2^30 - 1
   run_test(4611686018427387903, 8, "0x13ffffffffffffff3f"); //uint64_t max 64 uint compact: 2^62 - 1
 
-  printf("\tEncoding Hex to Compact Scale:\n");
+  printf("\tEncoding Hex to Compact Scale:");
   run_compact_128("0x3fffffffffffffffffffffffffffffff", "33ffffffffffffffffffffffffffffff3f"); //85070591730234615865843651857942052863
   run_compact_128("0x0EFBBEEFBBEEFBBEEFBBEEFBBE003FDF", "33df3f00befbeebbefbefbeebbefbefb0e"); //19916331103999208699774735698886672351
   run_compact_128("0x1C8E02B7B2367C5E1C8A7787CB3816C5", "33c51638cb87778a1c5e7c36b2b7028e1c"); //37955745154616738430225574257755690693
