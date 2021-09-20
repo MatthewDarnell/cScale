@@ -63,19 +63,13 @@ static void run_test(uint64_t value, size_t width, const char *expected_hex_seri
     printf("Comparing: <%s> / <%s>\n", expected_hex_serialized, hex);
     assert(strcasecmp(expected_hex_serialized, hex) == 0);
     free(hex);
+    _cleanup_scale_compact_int(&s_e);
   }
 
 void run_compact_128(const char *value, const char *expected_hex_serialized) {
   _scale_compact_int compact;
-  printf("\t\tEncoding <%s>: ", value);
-
+  printf("\n\t\tEncoding <%s>: ", value);
   assert(_encode_compact_128_from_hex(&compact, (char*)value) == 0);
-
- char *hex_out = _decode_compact_to_hex(&compact);
- assert(hex_out);
-
- free(hex_out);
-
  uint8_t serialized[64] = { 0 };
  uint64_t serialized_len = 0;
  serialize_compact_int(serialized, &serialized_len, &compact);
@@ -84,6 +78,7 @@ void run_compact_128(const char *value, const char *expected_hex_serialized) {
  free(str_serialized);
 
  assert_hash_matches_bytes(serialized, serialized_len, expected_hex_serialized);
+ _cleanup_scale_compact_int(&compact);
 }
 
 static void run_test_fixed_hex(const char *hex, uint64_t expected) {
@@ -95,6 +90,7 @@ static void run_test_fixed_hex(const char *hex, uint64_t expected) {
   uint64_t value = strtoul(hex_out, NULL, 16);
   printf("Output: <0x%s> Yields: %llu\n", hex_out, value);
   assert(expected == value);
+  _cleanup_scale_compact_int(&s_e);
 }
 
 static void run_test_fixed_hex_128(const char *hex, const char *expected) {
@@ -105,6 +101,7 @@ static void run_test_fixed_hex_128(const char *hex, const char *expected) {
   assert(hex_out);
   printf("Output: <0x%s>\n", hex_out);
   assert(strcasecmp(expected, hex_out) == 0);
+  _cleanup_scale_compact_int(&s_e);
 }
 
 
@@ -118,7 +115,8 @@ int run_compact_test() {
   run_test(4611686018427387903, 8, "0x13ffffffffffffff3f"); //uint64_t max 64 uint compact: 2^62 - 1
 
   printf("\tEncoding Hex to Compact Scale:\n");
-  run_compact_128("0x3fffffffffffffffffffffffffffffff", "33ffffffffffffffffffffffffffffff3f");
+  run_compact_128("0x3fffffffffffffffffffffffffffffff", "33ffffffffffffffffffffffffffffff3f"); //85070591730234615865843651857942052863
+  run_compact_128("0x0EFBBEEFBBEEFBBEEFBBEEFBBE003FDF", "33df3f00befbeebbefbefbeebbefbefb0e"); //19916331103999208699774735698886672351
 
   printf("\n\tEncoding Compact Scale Hex to Compact Scale:\n");
   run_test_fixed_hex("0xFD01", 127);

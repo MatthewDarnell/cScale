@@ -90,8 +90,10 @@ size_t hex_to_data(const char *hex, uint8_t **out) {
     }
 
 	size_t len = strlen(hex);
-	if (len % 2 != 0)
-		return 0;
+	if (len % 2 != 0) {
+    fprintf(stderr, "Malformed Hex String has an odd-numbered length.(%lu)\n", len);
+    return 0;
+  }
 	len /= 2;
 	*out = (uint8_t*)malloc(len);
 	for (size_t i = 0; i < len; i++) {

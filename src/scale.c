@@ -43,3 +43,7 @@
     }
     return true;
   }
+
+  void _cleanup_scale_compact_int(_scale_compact_int *compact) {
+    if(compact->data) free(compact->data);
+  }

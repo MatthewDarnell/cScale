@@ -45,7 +45,10 @@ int8_t serialize_compact_int(uint8_t *serialized, uint64_t *serialized_len, _sca
     *serialized_len = 4;
   } else {  //BIGNUM
     uint64_t num_bytes = mode_upper_bits + 4;
-    memcpy(&(serialized[1]), data, num_bytes);
+    size_t i;
+    for(i = 0; i < num_bytes; i++) {
+      serialized[i+1] = data[i];
+    }
     *serialized_len = num_bytes + 1;
   }
   return 0;
@@ -222,7 +225,6 @@ int8_t _encode_compact_128_from_hex(_scale_compact_int *compact_int_elem, char *
   }
 
   compact_int_elem->mode = BIGNUM;
-
   compact_int_elem->data = (uint8_t*)calloc(num_bytes, sizeof(uint8_t));
   if(!compact_int_elem->data) {
     fprintf(stderr, "Error Encoding Sixteen Byte Compact!\n");
@@ -233,7 +235,6 @@ int8_t _encode_compact_128_from_hex(_scale_compact_int *compact_int_elem, char *
   for(i=num_bytes-1; i >=0; i--) {
     compact_int_elem->data[offset++] = bytes[i];
   }
-
   compact_int_elem->mode_upper_bits = num_bytes - 4;
   free(bytes);
   return 0;
@@ -313,7 +314,6 @@ int8_t _encode_compact_hex_to_scale(_scale_compact_int *compact_int_elem, const 
       memset(stack_raw_hex, 0, byte_length + 1);
 
     for(i=byte_length; i>= 1; i--) {
-      //for(i=1; i<= byte_length; i++){
         char temp[4]  ={0};
         sprintf(temp, "%02X", data[i]);
         strcat(stack_raw_hex, temp);

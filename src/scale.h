@@ -77,6 +77,7 @@ typedef struct _scale_compact_int { // 00000000 00000000 ...    000000      00
   uint8_t *data;
 } _scale_compact_int;
 
+void _cleanup_scale_compact_int(_scale_compact_int *compact);
 
 //Output an encoded _scale_compact_int struct to a serialized SCALE array of bytes.
 //Byte length placed into serialized_len
