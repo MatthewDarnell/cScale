@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <assert.h>
 #include "../scale.h"
 
 
@@ -20,187 +21,91 @@
   (byte & 0x02 ? '1' : '0'), \
   (byte & 0x01 ? '1' : '0')
 
+extern void assert_hash_matches_bytes(uint8_t* bytes, size_t byte_len, const char *hex);
+
+static void run_test(uint64_t value, size_t width, uint8_t is_signed, const char *expected_hex_serialized) {
+  _scale_fixed_int s_e;
+  uint8_t serialized[64] = { 0 };
+  uint64_t serialized_len = 0;
+  char *hex = NULL;
+  printf("\t\tEncoding <%llu>: ", value);
+
+  switch (width) {
+    case 1: {
+      if(is_signed) _encode_fixed_int8_to_scale(&s_e, (int8_t)value);
+      else _encode_fixed_int8_to_scale(&s_e, (uint8_t)value);
+      break;
+    }
+    case 2: {
+      if(is_signed) _encode_fixed_int16_to_scale(&s_e, (int16_t)value);
+      else _encode_fixed_uint16_to_scale(&s_e, (uint16_t)value);
+      break;
+    }
+    case 4: {
+      if(is_signed) _encode_fixed_int32_to_scale(&s_e, (int32_t)value);
+      else _encode_fixed_uint32_to_scale(&s_e, (uint32_t)value);
+      break;
+    }
+    default: {
+      fprintf(stderr, "Invalid Byte Width for Fixed Int: %zu\n", width);
+      assert(1==0);
+    }
+  }
+  hex = decode_scale_fixed_to_hex(&s_e);
+  uint64_t output = 0;
+  decode_scale_fixed_int((void*)&output, &s_e);
+  assert(value == output);
+  free(hex);
+  memset(serialized, 0, 64 * sizeof(uint8_t));
+  serialized_len = 0;
+  serialize_fixed_int(serialized, &serialized_len, &s_e);
+  assert_hash_matches_bytes(serialized, serialized_len, expected_hex_serialized);
+  if(is_signed) printf(" -- Decoded: <%lld>\n", (int64_t)output);
+  else printf(" -- Decoded: <%llu>\n", output);
+
+}
+
+static void run_test_fixed_hex(const char *hex, uint8_t is_signed, uint64_t expected) {
+  _scale_fixed_int s_e;
+  printf("\t\tRe-Encoding: <%s> --- ", hex);
+  _encode_fixed_hex_to_scale(&s_e, is_signed, hex);
+  char *hex_out = decode_scale_fixed_to_hex(&s_e);
+  printf("Output: <%s> ", hex_out);
+  assert(hex_out);
+  assert(strcasecmp(hex, hex_out) == 0);
+  assert(strlen(hex) == strlen(hex_out));
+  if(is_signed) {
+    int64_t out = 0;
+    decode_scale_fixed_int((void*)&out, &s_e);
+    printf("Yields: %lld\n", out);
+    assert((int64_t)expected == out);
+  } else {
+    uint64_t out = 0;
+    decode_scale_fixed_int((void*)&out, &s_e);
+    printf("Yields: %llu\n", out);
+    assert(expected == out);
+  }
+}
 
 int run_fixed_int_test() {
 
-    _scale_fixed_int s_e;
-    uint8_t serialized[64] = { 0 };
-    uint64_t serialized_len = 0;
 
+    printf("\tEncoding Ints to Fixed Scale:\n");
+    run_test(69, 1, 1, "45"); //int8_t
+    run_test(1, 1, 0, "01"); //uint8_t
+    run_test(128, 2, 1, "8000");  //int16_t
+    run_test(42, 2, 0, "2A00"); //uint16_t
+    run_test(1030404040, 4, 1, "C8B76A3D"); //int32_t
+    run_test(4294967294, 4, 0, "FEFFFFFF");
+    run_test(16777215, 4, 0, "FFFFFF00"); //uint32_t
 
-    int8_t one = 69;
-    uint16_t two = 42; //00000001  00000001
-    uint32_t three = 16777215; //00000001  00000001  00000001  00000001
-
-    int i;
-
-    _encode_fixed_int8_to_scale(&s_e, one);
-    char *hex = get_encoded_hex_from_scale_fixed_int(&s_e);
-    int8_t output = 0;
-    if(decode_scale_fixed_int((void*)&output, &s_e) < 0) {
-      fprintf(stderr, "Failed to Decode 1\n");
-    }
-
-    fprintf(stderr, "int8 <69> -> "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" -> %s -> Decoded.(%d)\n",
-      BYTE_TO_BINARY(s_e.data[0]),
-      BYTE_TO_BINARY(s_e.data[1]),
-      BYTE_TO_BINARY(s_e.data[2]),
-      BYTE_TO_BINARY(s_e.data[3]),
-      hex,
-      output
-    );
-
-    free(hex);
-
-    memset(serialized, 0, 64 * sizeof(uint8_t));
-    serialized_len = 0;
-    serialize_fixed_int(serialized, &serialized_len, &s_e);
-    printf("Serialized.(%d). Length.(%llu). Value: 0x", one, serialized_len);
-    for(i = 0; i < serialized_len; i++) {
-      printf("%02X", serialized[i]);
-    }
-    printf("\n\n");
-
-
-
-    _encode_fixed_uint16_to_scale(&s_e, two);
-    hex = get_encoded_hex_from_scale_fixed_int(&s_e);
-    uint16_t output2 = 0;
-    if(decode_scale_fixed_int((void*)&output2, &s_e) < 0) {
-      fprintf(stderr, "Failed to Decode 2\n");
-    }
-
-    printf("uint16 <42> -> "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" -> %s -> Decoded.(%u)\n",
-      BYTE_TO_BINARY(s_e.data[0]),
-      BYTE_TO_BINARY(s_e.data[1]),
-      BYTE_TO_BINARY(s_e.data[2]),
-      BYTE_TO_BINARY(s_e.data[3]),
-      hex,
-      output2
-    );
-    free(hex);
-
-    memset(serialized, 0, 64 * sizeof(uint8_t));
-    serialized_len = 0;
-    serialize_fixed_int(serialized, &serialized_len, &s_e);
-    printf("Serialized.(%d). Length.(%llu). Value: 0x", two, serialized_len);
-    for(i = 0; i < serialized_len; i++) {
-      printf("%02X", serialized[i]);
-    }
-    printf("\n\n");
-
-
-
-
-
-    _encode_fixed_uint32_to_scale(&s_e, three);
-    hex = get_encoded_hex_from_scale_fixed_int(&s_e);
-    uint32_t output3 = 0;
-    if(decode_scale_fixed_int((void*)&output3, &s_e) < 0) {
-      fprintf(stderr, "Failed to Decode 3\n");
-    }
-    printf("uint32 <16777215> -> "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" -> %s -> Decoded.(%u)\n",
-      BYTE_TO_BINARY(s_e.data[0]),
-      BYTE_TO_BINARY(s_e.data[1]),
-      BYTE_TO_BINARY(s_e.data[2]),
-      BYTE_TO_BINARY(s_e.data[3]),
-      hex,
-      output3
-    );
-    free(hex);
-
-    memset(serialized, 0, 64 * sizeof(uint8_t));
-    serialized_len = 0;
-    serialize_fixed_int(serialized, &serialized_len, &s_e);
-    printf("Serialized.(%d). Length.(%llu). Value: 0x", three, serialized_len);
-    for(i = 0; i < serialized_len; i++) {
-      printf("%02X", serialized[i]);
-    }
-    printf("\n\n");
-
-
-
-     int16_t four = 128;
-    _encode_fixed_int16_to_scale(&s_e, four);
-    hex = get_encoded_hex_from_scale_fixed_int(&s_e);
-    int16_t output4 = 0;
-    if(decode_scale_fixed_int((void*)&output4, &s_e) < 0) {
-      fprintf(stderr, "Failed to Decode 4\n");
-    }
-
-    printf("int16 <128> -> "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" -> %s -> Decoded.(%d)\n",
-      BYTE_TO_BINARY(s_e.data[0]),
-      BYTE_TO_BINARY(s_e.data[1]),
-      BYTE_TO_BINARY(s_e.data[2]),
-      BYTE_TO_BINARY(s_e.data[3]),
-      hex,
-      output4
-    );
-    free(hex);
-
-    memset(serialized, 0, 64 * sizeof(uint8_t));
-    serialized_len = 0;
-    serialize_fixed_int(serialized, &serialized_len, &s_e);
-    printf("Serialized.(%d). Length.(%llu). Value: 0x", four, serialized_len);
-    for(i = 0; i < serialized_len; i++) {
-      printf("%02X", serialized[i]);
-    }
-    printf("\n\n");
-
-
-
-    char *hex_string = "0x45";
-    _encode_fixed_hex_to_scale(&s_e, true, hex_string);
-    hex = get_encoded_hex_from_scale_fixed_int(&s_e);
-    int8_t output6 = 0;
-    if(decode_scale_fixed_int((void*)&output6, &s_e) < 0) {
-      fprintf(stderr, "Failed to Decode 6\n");
-    }
-    printf("Decoding Hex String (0x45) -> "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" -> %s -> Decoded.(%u)\n",
-      BYTE_TO_BINARY(s_e.data[0]),
-      BYTE_TO_BINARY(s_e.data[1]),
-      BYTE_TO_BINARY(s_e.data[2]),
-      BYTE_TO_BINARY(s_e.data[3]),
-      hex,
-      output6
-    );
-    free(hex);
-
-
-
-    hex_string = "0x8000";  //uint32
-    _encode_fixed_hex_to_scale(&s_e, false, hex_string);
-    hex = get_encoded_hex_from_scale_fixed_int(&s_e);
-    int16_t output_sixteen = 0;
-    if(decode_scale_fixed_int((void*)&output_sixteen, &s_e) < 0) {
-      fprintf(stderr, "Failed to Decode 6\n");
-    }
-    printf("Decoding Hex String (0x8000) -> "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" -> %s -> Decoded.(%u)\n",
-      BYTE_TO_BINARY(s_e.data[0]),
-      BYTE_TO_BINARY(s_e.data[1]),
-      hex,
-      output_sixteen
-    );
-    free(hex);
-
-
-
-    hex_string = "0xFFFFFF00";  //uint32
-    _encode_fixed_hex_to_scale(&s_e, false, hex_string);
-    hex = get_encoded_hex_from_scale_fixed_int(&s_e);
-    uint32_t output5 = 0;
-    if(decode_scale_fixed_int((void*)&output5, &s_e) < 0) {
-      fprintf(stderr, "Failed to Decode 5\n");
-    }
-    printf("Decoding Hex String (0xFFFFFF00) -> "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" -> %s -> Decoded.(%u)\n",
-      BYTE_TO_BINARY(s_e.data[0]),
-      BYTE_TO_BINARY(s_e.data[1]),
-      BYTE_TO_BINARY(s_e.data[2]),
-      BYTE_TO_BINARY(s_e.data[3]),
-      hex,
-      output5
-    );
-    free(hex);
+    printf("\tEncoding Fixed Scale Hex to Fixed Scale:\n");
+    run_test_fixed_hex("0x45", 0, 69);
+    run_test_fixed_hex("0x8000", 0, 128);
+    run_test_fixed_hex("0x2A", 0, 42);
+    run_test_fixed_hex("0x2A00", 0, 42);
+    run_test_fixed_hex("0xC8B76A3D", 1, 1030404040);
+    run_test_fixed_hex("0xFFFFFF00", 0, 16777215);
 
 
   return 0;

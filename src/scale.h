@@ -52,7 +52,7 @@ int8_t _encode_fixed_hex_to_scale(_scale_fixed_int *fixed_int_elem, bool is_sign
 
 //get a malloc'd (remember to free) hex string of the encoded _scale_fixed_int value
 //  return NULL if invalid
-char *get_encoded_hex_from_scale_fixed_int(_scale_fixed_int *fixed_int_elem);
+char *decode_scale_fixed_to_hex(_scale_fixed_int *fixed_int_elem);
 
 //Decode a fixed int scale element into an integer. User is responsible for passing a valid int type.
 int8_t decode_scale_fixed_int(void *output, _scale_fixed_int *fixed_int_elem);
@@ -89,6 +89,7 @@ int8_t _encode_compact_32(_scale_compact_int *compact_int_elem, uint32_t data);
 int8_t _encode_compact_64(_scale_compact_int *compact_int_elem, uint64_t data);
 int8_t _encode_compact_128_from_hex(_scale_compact_int *compact_int_elem, char *hex);
 
+int8_t _encode_compact_hex_to_scale(_scale_compact_int *compact_int_elem, const char *hex);
 //outputs a hex value, remember to free
 char* _decode_compact_to_hex(_scale_compact_int *compact_int_elem);
 #endif

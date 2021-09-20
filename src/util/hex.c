@@ -8,7 +8,7 @@
 #include "hex.h"
 
 
-char* byte_array_to_hex(uint8_t* data, int8_t byte_width) {
+char* _fixed_byte_array_to_hex(uint8_t* data, int8_t byte_width) {
   char *encoded = (char*)calloc( 2 + byte_width + 1, sizeof(char));
   if(!encoded) {
     fprintf(stderr, "Failed to malloc hex string in get_encoded_hex_from_scale_fixed_int\n");
@@ -18,6 +18,23 @@ char* byte_array_to_hex(uint8_t* data, int8_t byte_width) {
   int i;
   for(i = (FIXED_INT_MAX_BYTES - byte_width); i < FIXED_INT_MAX_BYTES; i++) {
     char temp[4] = { 0 };
+    snprintf(temp, 4, "%02X", data[i]);
+    strcat(encoded, temp);
+  };
+  return encoded;
+}
+
+char* _byte_array_to_hex(uint8_t* data, size_t len) {
+  char *encoded = (char*)calloc( 2 + len + 1, sizeof(char));
+  if(!encoded) {
+    fprintf(stderr, "Failed to malloc hex string in get_encoded_hex_from_scale_fixed_int\n");
+    return NULL;
+  }
+  strncpy(encoded, "0x", 2);
+  size_t i;
+  char temp[4];
+  for(i = 0; i < len; i++) {
+    memset(temp, 0, 4 * sizeof(char));
     snprintf(temp, 4, "%02X", data[i]);
     strcat(encoded, temp);
   };

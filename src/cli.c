@@ -8,7 +8,12 @@
 #include <stdbool.h>
 #include "scale.h"
 
-#define help  "Usage: app [encode/decode] [fixed/compact] [signed (0/1)] [size (1/2/4/8/16)] [value]\n"
+#define help  "Usage:\n" \
+              "\tapp encode fixed [signed (0/1)] [size (1/2/4)] [value]\n" \
+              "\tapp decode fixed [signed (0/1)] [value (hex)]\n\n" \
+              "\tapp encode compact [size (1/2/4/8/16)] [value]\t(Note: 16 byte encoding requires hex value. Others are decimal)\n" \
+              "\tapp decode compact [value (hex)]\n" \
+
 
 
   void run_fixed(uint64_t value, int8_t is_signed, int8_t byte_length) {
@@ -63,20 +68,38 @@
     printf("%u\n", decoded);
   }
 
+  void decode_compact(const char *value) {
+    _scale_compact_int scale_compact;
+    printf("decoding %s\n", value);
+    if(_encode_compact_hex_to_scale(&scale_compact, value) < 0) {
+      fprintf(stderr, "Failed to Decode!\n Valid Hex?");
+      return;
+    }
+    char *decoded = _decode_compact_to_hex(&scale_compact);
+    if(!decoded) {
+      fprintf(stderr, "Failed to Decode Compact!\n");
+      return;
+    }
+    printf("decoded: %s\n", decoded);
+    free(decoded);
+
+
+  }
+
   void run_compact(char *hexValue, uint64_t value, int8_t byte_length) {
     _scale_compact_int scale_compact;
 
     if(byte_length == 1) {
-        _encode_compact_8(&scale_compact, (uint8_t)value);
+        if(_encode_compact_8(&scale_compact, (uint8_t)value) < 0) return;
     } else if(byte_length == 2) {
-      _encode_compact_16(&scale_compact, (uint16_t)value);
+      if(_encode_compact_16(&scale_compact, (uint16_t)value) < 0) return;
     } else if(byte_length == 4) {
-      _encode_compact_32(&scale_compact, (uint16_t)value);
+      if(_encode_compact_32(&scale_compact, (uint32_t)value) < 0) return;
     } else if(byte_length == 8) {
-      _encode_compact_64(&scale_compact, (uint16_t)value);
+      if(_encode_compact_64(&scale_compact, (uint64_t)value) < 0) return;
     } else if(byte_length == 16) {
       if(hexValue) {
-        _encode_compact_128_from_hex(&scale_compact, hexValue);
+        if(_encode_compact_128_from_hex(&scale_compact, hexValue) < 0) return;
       } else {
         printf("Unable to Encode to u128. Did you pass a valid hex string?\n");
         return;
@@ -96,27 +119,62 @@
   }
 
 int main(int argc, char **argv) {
-  if(argc != 6) {
+  if(argc < 4) {
     fprintf(stderr, help);
     return -1;
   }
   const char *command = argv[1];
   const char *type = argv[2];
-  int is_signed = atoi(argv[3]);
-  int size = atoi(argv[4]);
-  const char *value = argv[5];
-
 
   int dCommand = 0;
   if(strcasecmp(command, "decode") == 0) {
     dCommand = 1;
   }
-
   int dType = 0;
   if(strcasecmp(type, "compact") == 0) {
     dType = 1;
   }
-  if(dType == 0 && size > 4) {
+
+  uint8_t required_args = 0;
+  if(dCommand == 0 && dType == 0) required_args = 6;
+  else if(dCommand == 0 && dType == 1) required_args = 5;
+  else if(dCommand == 1 && dType == 0) required_args = 5;
+  else if(dCommand == 1 && dType == 1) required_args = 4;
+
+
+
+  if(argc < required_args) {
+    fprintf(stderr, help);
+    return -1;
+  }
+
+  int is_signed;
+  int size;
+  const char *value;
+
+
+  if(dCommand == 0 && dType == 0) { //encode fixed
+    is_signed = atoi(argv[3]);
+    size = atoi(argv[4]);
+    value = argv[5];
+  }
+  else if(dCommand == 0 && dType == 1) { //encode compact
+    size = atoi(argv[3]);
+    value = argv[4];
+  }
+  else if(dCommand == 1 && dType == 0) { //decode fixed
+    is_signed = atoi(argv[3]);
+    value = argv[4];
+  }
+  else if(dCommand == 1 && dType == 1) { //decode compact
+    value = argv[3];
+  }
+
+
+
+
+
+  if(dType == 0 && dCommand == 0 && size > 4) {
     fprintf(stderr, "Invalid Size. Fixed Size Ints Valid Sizes: 1/2/4 \n");
     return -1;
   }
@@ -144,7 +202,7 @@ int main(int argc, char **argv) {
       if(dType == 0) {  //fixed
         decode_fixed((char*)value, is_signed);
       } else if(dType == 1) {  //compact
-
+        decode_compact(value);
       }
   }
 

@@ -3,8 +3,10 @@
     Created by Matthew Darnell
 */
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <assert.h>
 #include "../scale.h"
 
 
@@ -20,171 +22,111 @@
   (byte & 0x01 ? '1' : '0')
 
 
-void run_compact_8(uint8_t value) {
+extern void assert_hash_matches_bytes(uint8_t* bytes, size_t byte_len, const char *hex);
+
+static void run_test(uint64_t value, size_t width, const char *expected_hex_serialized) {
+    _scale_compact_int s_e;
+
+    printf("\t\tEncoding <%llu>: ", value);
+
+    switch (width) {
+      case 1: {
+        _encode_compact_8(&s_e, (uint8_t)value);
+        break;
+      }
+      case 2: {
+        _encode_compact_16(&s_e, (uint16_t)value);
+        break;
+      }
+      case 4: {
+        _encode_compact_32(&s_e, (uint32_t)value);
+        break;
+      }
+      case 8: {
+        _encode_compact_64(&s_e, value);
+        break;
+      }
+      default: {
+        fprintf(stderr, "Invalid Byte Width for Compact Int: %zu\n", width);
+        assert(1==0);
+      }
+    }
+    uint64_t output = 0;
+
+    uint8_t serialized[64] = { 0 };
+    uint64_t serialized_len = 0;
+
+    assert(serialize_compact_int(serialized, &serialized_len, &s_e) == 0);
+    assert(serialized_len > 0);
+
+    char *hex = _byte_array_to_hex(serialized, serialized_len);
+    printf("Comparing: <%s> / <%s>\n", expected_hex_serialized, hex);
+    assert(strcasecmp(expected_hex_serialized, hex) == 0);
+    free(hex);
+  }
+
+void run_compact_128(const char *value, const char *expected_hex_serialized) {
   _scale_compact_int compact;
-  _encode_compact_8(&compact, value);
-  printf("(uint8 %u) Decoding Compact 1 Byte "BYTE_TO_BINARY_PATTERN" -> "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" \n",
-    value,
-    BYTE_TO_BINARY(value),
-    BYTE_TO_BINARY(compact.mode),
-    BYTE_TO_BINARY(compact.mode_upper_bits)
-  );
+  printf("\t\tEncoding <%s>: ", value);
 
-  char *hex_8_out = _decode_compact_to_hex(&compact);
-  printf("Hex Decoded 8: %s\n\n", hex_8_out);
-  free(hex_8_out);
+  assert(_encode_compact_128_from_hex(&compact, (char*)value) == 0);
 
-  uint8_t serialized[4] = { 0 };
-  uint64_t serialized_len = 0;
-  int i;
-  serialize_compact_int(serialized, &serialized_len, &compact);
-  printf("Output len: %llu\n\tBytes: ", serialized_len);
-  for(i = 0; i < serialized_len; i++) {
-    printf("%02X", serialized[i]);
-  }
-  printf("\n\n");
-}
+ char *hex_out = _decode_compact_to_hex(&compact);
+ assert(hex_out);
 
-void run_compact_16(uint16_t value) {
-  _scale_compact_int compact;
-  _encode_compact_16(&compact, value);
-  printf("(uint16 %u) Decoding Compact 2 Byte -> "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN"\n",
-    value,
-    BYTE_TO_BINARY(compact.mode),
-    BYTE_TO_BINARY(compact.mode_upper_bits),
-    BYTE_TO_BINARY(compact.data[0])
-  );
-  char *hex_16_out = _decode_compact_to_hex(&compact);
-  printf("Hex Decoded 16: %s\n\n", hex_16_out);
-  free(hex_16_out);
+ free(hex_out);
 
-  uint8_t serialized[4] = { 0 };
-  uint64_t serialized_len = 0;
-  int i;
-  serialize_compact_int(serialized, &serialized_len, &compact);
-  printf("Output len: %llu\n\tBytes: ", serialized_len);
-  for(i = 0; i < serialized_len; i++) {
-    printf("%02X", serialized[i]);
-  }
-  printf("\n\n");
-}
-
-void run_compact_32(uint32_t value) {
-   _scale_compact_int compact;
-   _encode_compact_32(&compact, value);
-   printf("(uint32 %u) Decoding Compact 4 Byte "BYTE_TO_BINARY_PATTERN" -> mode.("BYTE_TO_BINARY_PATTERN")  upper.("BYTE_TO_BINARY_PATTERN") bytes: ("BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN")\n",
-     value,
-     BYTE_TO_BINARY(value),
-     BYTE_TO_BINARY(compact.mode),
-     BYTE_TO_BINARY(compact.mode_upper_bits),
-     BYTE_TO_BINARY(compact.data[2]),
-     BYTE_TO_BINARY(compact.data[1]),
-     BYTE_TO_BINARY(compact.data[0])
-   );
-  char *hex_32_out = _decode_compact_to_hex(&compact);
-  printf("Hex Decoded 32: %s\n\n", hex_32_out);
-  free(hex_32_out);
-
-  uint8_t serialized[4] = { 0 };
-  uint64_t serialized_len = 0;
-  int i;
-  serialize_compact_int(serialized, &serialized_len, &compact);
-  printf("Output len: %llu\n\tBytes: ", serialized_len);
-  for(i = 0; i < serialized_len; i++) {
-    printf("%02X", serialized[i]);
-  }
-  printf("\n\n");
-}
-
-void run_compact_64(uint64_t value) {
-  _scale_compact_int compact;
-  _encode_compact_64(&compact, value);
-  printf("(uint64 %llu) Decoding Compact 8 Byte -> mode.("BYTE_TO_BINARY_PATTERN")  upper (num bytes - 4).("BYTE_TO_BINARY_PATTERN" : %u)\n\tbytes: ",
-    value,
-    BYTE_TO_BINARY(compact.mode),
-    BYTE_TO_BINARY(compact.mode_upper_bits),
-    compact.mode_upper_bits
-  );
-  int i;
-  for(i = compact.mode_upper_bits + 3; i >= 0; i--) {
-    printf(" "BYTE_TO_BINARY_PATTERN" ",
-      BYTE_TO_BINARY(compact.data[i])
-    );
-  }
-  printf("\n");
-  char *hex_64_out = _decode_compact_to_hex(&compact);
-  printf("Hex Decoded 64: %s\n\n", hex_64_out);
-  free(hex_64_out);
-
-  uint8_t serialized[4] = { 0 };
-  uint64_t serialized_len = 0;
-  serialize_compact_int(serialized, &serialized_len, &compact);
-  printf("Output len: %llu\n\tBytes: ", serialized_len);
-  for(i = 0; i < serialized_len; i++) {
-    printf("%02X", serialized[i]);
-  }
-  printf("\n\n");
-}
-
-void run_compact_128(char *value) {
-  _scale_compact_int compact;
-  _encode_compact_128_from_hex(&compact, value);
-
-  printf("(uint128 %s) Decoding Compact 128 Byte -> mode.("BYTE_TO_BINARY_PATTERN")  upper (num bytes - 4).("BYTE_TO_BINARY_PATTERN" : %u)\n",
-    value,
-    BYTE_TO_BINARY(compact.mode),
-    BYTE_TO_BINARY(compact.mode_upper_bits),
-    compact.mode_upper_bits
-  );
-  int i;
-  for(i = 15; i >= 0; i--) {
-    printf(
-      ""BYTE_TO_BINARY_PATTERN" ",
-        BYTE_TO_BINARY(compact.data[i] & 0xFF)
-    );
-  }
-  printf("\n\t");
-
-  for(i = 15; i >= 0; i--) {
-    printf(
-      ""BYTE_TO_BINARY_PATTERN"",
-        BYTE_TO_BINARY(compact.data[i] & 0xFF)
-    );
-  }
- printf("\n");
-
- char *hex_128_out = _decode_compact_to_hex(&compact);
- printf("\nHex Decoded 128: %s\n\n", hex_128_out);
- free(hex_128_out);
-
- uint8_t serialized[4] = { 0 };
+ uint8_t serialized[64] = { 0 };
  uint64_t serialized_len = 0;
  serialize_compact_int(serialized, &serialized_len, &compact);
- printf("Output len: %llu\n\tBytes: ", serialized_len);
- for(i = 0; i < serialized_len; i++) {
-   printf("%02X", serialized[i]);
- }
- printf("\n\n");
+ char *str_serialized = _byte_array_to_hex(serialized, serialized_len);
+ assert(str_serialized);
+ free(str_serialized);
+
+ assert_hash_matches_bytes(serialized, serialized_len, expected_hex_serialized);
+}
+
+static void run_test_fixed_hex(const char *hex, uint64_t expected) {
+  _scale_compact_int s_e;
+  printf("\t\tRe-Encoding: <%s> --- ", hex);
+  assert(_encode_compact_hex_to_scale(&s_e, hex) == 0);
+  char *hex_out = _decode_compact_to_hex(&s_e);
+  assert(hex_out);
+  uint64_t value = strtoul(hex_out, NULL, 16);
+  printf("Output: <0x%s> Yields: %llu\n", hex_out, value);
+  assert(expected == value);
+}
+
+static void run_test_fixed_hex_128(const char *hex, const char *expected) {
+  _scale_compact_int s_e;
+  printf("\t\tRe-Encoding (128 bit hex value): <%s> --- ", hex);
+  assert(_encode_compact_hex_to_scale(&s_e, hex) == 0);
+  char *hex_out = _decode_compact_to_hex(&s_e);
+  assert(hex_out);
+  printf("Output: <0x%s>\n", hex_out);
+  assert(strcasecmp(expected, hex_out) == 0);
 }
 
 
 int run_compact_test() {
 
-  run_compact_8(0);
-  run_compact_8(1);
-  run_compact_8(42);
+  printf("\tEncoding Ints to Compact Scale:\n");
+  run_test(127, 1, "0xfd01"); //uint8_t
+  run_test(60, 1, "0xf0"); //uint8_t
+  run_test(254, 2, "0xf903"); //uint16_t
+  run_test(16161616, 4, "0x426dda03"); //uint32_t max 32 uint compact: 2^30 - 1
+  run_test(4611686018427387903, 8, "0x13ffffffffffffff3f"); //uint64_t max 64 uint compact: 2^62 - 1
 
-//  run_compact_16(65);
-  run_compact_16(69);
+  printf("\tEncoding Hex to Compact Scale:\n");
+  run_compact_128("0x3fffffffffffffffffffffffffffffff", "33ffffffffffffffffffffffffffffff3f");
 
-  run_compact_32(20000000);
-  //run_compact_64(4888899999999999);
-  //run_compact_128("0x3fffffffffffffffffffffffffffffff");
-
-
-
-
-
+  printf("\n\tEncoding Compact Scale Hex to Compact Scale:\n");
+  run_test_fixed_hex("0xFD01", 127);
+  run_test_fixed_hex("0xf0", 60);
+  run_test_fixed_hex("0xf903", 254);
+  run_test_fixed_hex("0x426dda03", 16161616);
+  run_test_fixed_hex("0x13ffffffffffffff3f", 4611686018427387903);
+  run_test_fixed_hex_128("33ffffffffffffffffffffffffffffff3f", "3fffffffffffffffffffffffffffffff");
 
   return 0;
 }

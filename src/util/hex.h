@@ -11,7 +11,9 @@
 
 
 
-char* byte_array_to_hex(uint8_t* data, int8_t byte_width);
+char* _fixed_byte_array_to_hex(uint8_t* data, int8_t byte_width);
+char* _byte_array_to_hex(uint8_t* data, size_t len);
+
 bool hex_digit_to_bin(const char hex, char *out);
 bool is_valid_hex(const char *hex);
 
