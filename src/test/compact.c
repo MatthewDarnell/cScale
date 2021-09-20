@@ -51,7 +51,6 @@ static void run_test(uint64_t value, size_t width, const char *expected_hex_seri
         assert(1==0);
       }
     }
-    uint64_t output = 0;
 
     uint8_t serialized[64] = { 0 };
     uint64_t serialized_len = 0;
@@ -117,6 +116,8 @@ int run_compact_test() {
   printf("\tEncoding Hex to Compact Scale:\n");
   run_compact_128("0x3fffffffffffffffffffffffffffffff", "33ffffffffffffffffffffffffffffff3f"); //85070591730234615865843651857942052863
   run_compact_128("0x0EFBBEEFBBEEFBBEEFBBEEFBBE003FDF", "33df3f00befbeebbefbefbeebbefbefb0e"); //19916331103999208699774735698886672351
+  run_compact_128("0x1C8E02B7B2367C5E1C8A7787CB3816C5", "33c51638cb87778a1c5e7c36b2b7028e1c"); //37955745154616738430225574257755690693
+  run_compact_128("0x01", "04"); //1
 
   printf("\n\tEncoding Compact Scale Hex to Compact Scale:\n");
   run_test_fixed_hex("0xFD01", 127);
