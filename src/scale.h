@@ -105,13 +105,76 @@ typedef struct _scale_boolean {
   bool value;
 } _scale_boolean;
 //Output 0x01 or 0x00 SCALE value for this bool
-void seralize_boolean(uint8_t *seralized, _scale_boolean *boolean_elem);
+void serialize_boolean(uint8_t *seralized, _scale_boolean *boolean_elem);
 //Encode a bool value into a boolean element
 void _encode_boolean(_scale_boolean *boolean_elem, bool value);
 //Return a bool value contained in the boolean element
 bool _decode_boolean(_scale_boolean *boolean_elem);
 
+//Consume a scale-encoded hex string and populate a _scale_boolean struct
+int8_t _encode_boolean_from_hex(_scale_boolean *boolean_elem, char *boolean_hex_value);
 //outputs a hex scale string, remember to free
 char *_decode_boolean_to_hex(_scale_boolean *boolean_elem);
 
+
+/*
+  *
+  *   Options: https://substrate.dev/docs/en/knowledgebase/advanced/codec#options
+  *
+*/
+typedef enum _option_type { FIXED_INT, COMPACT_INT, BOOLEAN } _option_type;
+typedef struct _option_value {
+  enum _option_type type;
+  union {
+    _scale_fixed_int _fixed_int;
+    _scale_compact_int _compact_int;
+    _scale_boolean _boolean;
+  };
+} _option_value;
+typedef struct _scale_option {
+  _scale_boolean option;
+  _option_value value;
+} _scale_option;
+
+//Encodes a fixed_int scale struct into an option. Pass NULL as fixed int to make option None
+int8_t _encode_option_fixed_int(_scale_option *option, _scale_fixed_int *fixed_int);
+
+//Encodes a compact_int scale struct into an option. Pass NULL as fixed int to make option None
+//This operation moves compact_int->data array, so remember to release this option and no longer reference
+//the compact_int->data
+int8_t _encode_option_compact_int(_scale_option *option, _scale_compact_int *compact_int);
+//Encodes a boolean scale struct into an option. Pass NULL as fixed int to make option None
+int8_t _encode_option_boolean(_scale_option *option, _scale_boolean *boolean);
+
+//Get hex String of this option. Remember to free
+char *_decode_option_to_hex(_scale_option *option);
+
+//Get a scale serialized array of bytes with length serialized_len of the option
+int8_t serialize_option(uint8_t *serialized, size_t *serialized_len, _scale_option *option);
+
+
+/*
+  *
+  *   Enumerations: https://substrate.dev/docs/en/knowledgebase/advanced/codec#enumerations-tagged-unions
+  *
+*/
+typedef struct _scale_enum_type {
+  size_t num_elements;
+  char *keys[256];
+  char *values[256];
+} _scale_enum_type;
+int8_t _encode_scale_enum_type(_scale_enum_type *enum_type, size_t num_elements, char *keys[], char *values[]);
+void _print_scale_enum_type(_scale_enum_type *enum_type);
+void _cleanup_scale_enum_type(_scale_enum_type *enum_type);
+
+
+typedef struct _scale_enumeration {
+  _option_value value;
+  _scale_enum_type enum_types;
+  char *key;
+} _scale_enumeration;
+
+char* _serialize_enumeration_to_hex(_scale_enumeration *enumeration);
+int8_t _serialize_enumeration(uint8_t *serialized, size_t *serialized_len, _scale_enumeration *enumeration);
+int8_t _encode_enumeration(_scale_enumeration *enumeration, _scale_enum_type *enum_types, const char *key, void* data);
 #endif

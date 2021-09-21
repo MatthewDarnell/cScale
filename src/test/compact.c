@@ -107,11 +107,11 @@ static void run_test_fixed_hex_128(const char *hex, const char *expected) {
 int run_compact_test() {
 
   printf("\tEncoding Ints to Compact Scale:\n");
-  run_test(127, 1, "0xfd01"); //uint8_t
-  run_test(60, 1, "0xf0"); //uint8_t
-  run_test(254, 2, "0xf903"); //uint16_t
-  run_test(16161616, 4, "0x426dda03"); //uint32_t max 32 uint compact: 2^30 - 1
-  run_test(4611686018427387903, 8, "0x13ffffffffffffff3f"); //uint64_t max 64 uint compact: 2^62 - 1
+  run_test(127, 1, "fd01"); //uint8_t
+  run_test(60, 1, "f0"); //uint8_t
+  run_test(254, 2, "f903"); //uint16_t
+  run_test(16161616, 4, "426dda03"); //uint32_t max 32 uint compact: 2^30 - 1
+  run_test(4611686018427387903, 8, "13ffffffffffffff3f"); //uint64_t max 64 uint compact: 2^62 - 1
 
   printf("\tEncoding Hex to Compact Scale:");
   run_compact_128("0x3fffffffffffffffffffffffffffffff", "33ffffffffffffffffffffffffffffff3f"); //85070591730234615865843651857942052863

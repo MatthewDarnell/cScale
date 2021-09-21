@@ -137,12 +137,12 @@ int run_fixed_int_test() {
 
 
     printf("\tEncoding Fixed Scale Hex to Fixed Scale:\n");
-    run_test_fixed_hex("0x45", 0, 69);
-    run_test_fixed_hex("0x8000", 0, 128);
-    run_test_fixed_hex("0x2A", 0, 42);
-    run_test_fixed_hex("0x2A00", 0, 42);
-    run_test_fixed_hex("0xC8B76A3D", 1, 1030404040);
-    run_test_fixed_hex("0xFFFFFF00", 0, 16777215);
+    run_test_fixed_hex("45", 0, 69);
+    run_test_fixed_hex("8000", 0, 128);
+    run_test_fixed_hex("2A", 0, 42);
+    run_test_fixed_hex("2A00", 0, 42);
+    run_test_fixed_hex("C8B76A3D", 1, 1030404040);
+    run_test_fixed_hex("FFFFFF00", 0, 16777215);
 
 
   return 0;
