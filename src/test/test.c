@@ -11,6 +11,7 @@
 
 extern int run_compact_test();
 extern int run_fixed_int_test();
+extern int run_boolean_test();
 
 void assert_hash_matches_bytes(uint8_t* bytes, size_t byte_len, const char *hex) {
   size_t i, hex_offset = 0;
@@ -34,7 +35,8 @@ int main() {
   run_fixed_int_test();
   printf("\nRunning Compact Tests\n");
   run_compact_test();
-
+  printf("\nRunning Boolean Tests\n");
+  run_boolean_test();
   printf("\nDone\n");
   return 0;
 }

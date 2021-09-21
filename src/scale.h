@@ -94,4 +94,24 @@ int8_t _encode_compact_128_from_hex(_scale_compact_int *compact_int_elem, char *
 int8_t _encode_compact_hex_to_scale(_scale_compact_int *compact_int_elem, const char *hex);
 //outputs a hex value, remember to free
 char* _decode_compact_to_hex(_scale_compact_int *compact_int_elem);
+
+
+/*
+  *
+  *   Boolean: https://substrate.dev/docs/en/knowledgebase/advanced/codec#boolean
+  *
+*/
+typedef struct _scale_boolean {
+  bool value;
+} _scale_boolean;
+//Output 0x01 or 0x00 SCALE value for this bool
+void seralize_boolean(uint8_t *seralized, _scale_boolean *boolean_elem);
+//Encode a bool value into a boolean element
+void _encode_boolean(_scale_boolean *boolean_elem, bool value);
+//Return a bool value contained in the boolean element
+bool _decode_boolean(_scale_boolean *boolean_elem);
+
+//outputs a hex scale string, remember to free
+char *_decode_boolean_to_hex(_scale_boolean *boolean_elem);
+
 #endif

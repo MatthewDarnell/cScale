@@ -97,14 +97,44 @@ int run_fixed_int_test() {
 
 
     printf("\tEncoding Ints to Fixed Scale:\n");
-    run_test(69, 1, 1, "45"); //int8_t
-    run_test(1, 1, 0, "01"); //uint8_t
-    run_test(128, 2, 1, "8000");  //int16_t
-    run_test(42, 2, 0, "2A00"); //uint16_t
-    run_test(1030404040, 4, 1, "C8B76A3D"); //int32_t
+    //int 8
+    run_test(0, 1, 1, "00");
+    run_test(69, 1, 1, "45");
+
+    //uint 8
+    run_test(0, 1, 0, "00");
+    run_test(1, 1, 0, "01");
+
+
+    //int 16
+    run_test(0, 2, 1, "0000");
+    run_test(128, 2, 1, "8000");
+
+    //uint 16
+    run_test(0, 2, 0, "0000");
+    run_test(42, 2, 0, "2A00");
+
+
+    //int 32
+    run_test(0, 4, 1, "00000000");
+    run_test(1030404040, 4, 1, "C8B76A3D");
+
+    //uint 32
+    run_test(0, 4, 0, "00000000");
     run_test(4294967294, 4, 0, "FEFFFFFF");
-    run_test(16777215, 4, 0, "FFFFFF00"); //uint32_t
-    run_test(4294967296, 8, 0, "0000000001000000"); //uint64_t
+    run_test(16777215, 4, 0, "FFFFFF00");
+
+
+    //int 64
+    run_test(0, 8, 1, "0000000000000000");
+
+
+    //uint 64
+    run_test(0, 8, 0, "0000000000000000");
+
+    run_test(4294967296, 8, 1, "0000000001000000");
+    run_test(4294967296, 8, 0, "0000000001000000");
+
 
     printf("\tEncoding Fixed Scale Hex to Fixed Scale:\n");
     run_test_fixed_hex("0x45", 0, 69);
