@@ -122,13 +122,20 @@ char *_decode_boolean_to_hex(_scale_boolean *boolean_elem);
   *   Options: https://substrate.dev/docs/en/knowledgebase/advanced/codec#options
   *
 */
-typedef enum _option_type { FIXED_INT, COMPACT_INT, BOOLEAN } _option_type;
+typedef enum _option_type { FIXED_INT, COMPACT_INT, BOOLEAN, STRUCT_FIXED_INT } _option_type;
+
+typedef struct _scale_struct {
+  void *data;
+  size_t num_elements;
+} _scale_struct;
+
 typedef struct _option_value {
   enum _option_type type;
   union {
     _scale_fixed_int _fixed_int;
     _scale_compact_int _compact_int;
     _scale_boolean _boolean;
+    _scale_struct _struct;
   };
 } _option_value;
 typedef struct _scale_option {
@@ -166,6 +173,12 @@ typedef struct _scale_enum_type {
 int8_t _encode_scale_enum_type(_scale_enum_type *enum_type, size_t num_elements, char *keys[], char *values[]);
 void _print_scale_enum_type(_scale_enum_type *enum_type);
 void _cleanup_scale_enum_type(_scale_enum_type *enum_type);
+
+
+typedef struct _scale_encoded_struct {
+  void* data; //pointer to user-defined struct, compact function must cast
+  void (*fixed)(void *compact_int_elem, void *data);  //Function pointer that consumes a user defined struct, data, and outputs a custom fixed scale
+} _scale_encoded_struct;
 
 
 typedef struct _scale_enumeration {
