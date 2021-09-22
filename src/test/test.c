@@ -13,6 +13,7 @@ extern int run_compact_test();
 extern int run_fixed_int_test();
 extern int run_boolean_test();
 extern int run_option_test();
+extern int run_structure_test();
 extern int run_enumeration_test();
 
 void assert_hash_matches_bytes(uint8_t* bytes, size_t byte_len, const char *hex) {
@@ -41,8 +42,10 @@ int main() {
   run_boolean_test();
   printf("\nRunning Option Tests\n");
   run_option_test();
-  printf("\nRunning Enumeration Tests\n");
-  run_enumeration_test();
+  printf("\nRunning Structure Tests\n");
+  run_structure_test();
+  //printf("\nRunning Enumeration Tests\n");
+  //run_enumeration_test();
   printf("\nDone\n");
   return 0;
 }

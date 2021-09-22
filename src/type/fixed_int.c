@@ -274,6 +274,15 @@ int8_t _encode_fixed_hex_to_scale(_scale_fixed_int *fixed_int_elem, bool is_sign
 
 
 //Decode functions
+void deserialize_fixed_int(void *output, uint8_t *bytes, size_t len, bool is_signed) {
+  char *hex = _byte_array_to_hex(bytes, len);
+  char stack_hex[256] = { 0 };
+  strcpy(stack_hex, hex);
+  free(hex);
+  _scale_fixed_int fixed;
+  _encode_fixed_hex_to_scale(&fixed, is_signed, stack_hex);
+  decode_scale_fixed_int(output, &fixed);
+}
 
 //remember to free
 char *decode_scale_fixed_to_hex(_scale_fixed_int *fixed_int_elem) {

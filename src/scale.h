@@ -58,6 +58,7 @@ char *decode_scale_fixed_to_hex(_scale_fixed_int *fixed_int_elem);
 //Decode a fixed int scale element into an integer. User is responsible for passing a valid int type.
 int8_t decode_scale_fixed_int(void *output, _scale_fixed_int *fixed_int_elem);
 
+void deserialize_fixed_int(void *output, uint8_t *bytes, size_t len, bool is_signed);
 
 
 
@@ -106,11 +107,11 @@ typedef struct _scale_boolean {
 } _scale_boolean;
 //Output 0x01 or 0x00 SCALE value for this bool
 void serialize_boolean(uint8_t *seralized, _scale_boolean *boolean_elem);
+void deserialize_boolean(_scale_boolean *boolean_elem, uint8_t* serialized);
 //Encode a bool value into a boolean element
 void _encode_boolean(_scale_boolean *boolean_elem, bool value);
 //Return a bool value contained in the boolean element
 bool _decode_boolean(_scale_boolean *boolean_elem);
-
 //Consume a scale-encoded hex string and populate a _scale_boolean struct
 int8_t _encode_boolean_from_hex(_scale_boolean *boolean_elem, char *boolean_hex_value);
 //outputs a hex scale string, remember to free
@@ -124,18 +125,12 @@ char *_decode_boolean_to_hex(_scale_boolean *boolean_elem);
 */
 typedef enum _option_type { FIXED_INT, COMPACT_INT, BOOLEAN, STRUCT_FIXED_INT } _option_type;
 
-typedef struct _scale_struct {
-  void *data;
-  size_t num_elements;
-} _scale_struct;
-
 typedef struct _option_value {
   enum _option_type type;
   union {
     _scale_fixed_int _fixed_int;
     _scale_compact_int _compact_int;
     _scale_boolean _boolean;
-    _scale_struct _struct;
   };
 } _option_value;
 typedef struct _scale_option {
@@ -160,6 +155,20 @@ char *_decode_option_to_hex(_scale_option *option);
 int8_t serialize_option(uint8_t *serialized, size_t *serialized_len, _scale_option *option);
 
 
+
+/*
+  *
+  *   Data Structures: https://substrate.dev/docs/en/knowledgebase/advanced/codec#data-structures
+  *
+*/
+//typedef enum _struct_data_type { FIXED_INT, COMPACT_INT, BOOLEAN, STRUCT_FIXED_INT } _struct_data_type;
+
+typedef struct _scale_structure {
+  void (*serialize)(uint8_t* seralized, size_t *bytes, void *structure);  //Function pointer that consumes a user defined struct, data, and outputs a custom fixed scale
+  void (*deserialize)(void *structure_out, uint8_t *bytes, size_t len);  //Consumes scale-serialized bytes and outputs a struct
+} _scale_structure;
+
+
 /*
   *
   *   Enumerations: https://substrate.dev/docs/en/knowledgebase/advanced/codec#enumerations-tagged-unions
@@ -175,10 +184,7 @@ void _print_scale_enum_type(_scale_enum_type *enum_type);
 void _cleanup_scale_enum_type(_scale_enum_type *enum_type);
 
 
-typedef struct _scale_encoded_struct {
-  void* data; //pointer to user-defined struct, compact function must cast
-  void (*fixed)(void *compact_int_elem, void *data);  //Function pointer that consumes a user defined struct, data, and outputs a custom fixed scale
-} _scale_encoded_struct;
+
 
 
 typedef struct _scale_enumeration {

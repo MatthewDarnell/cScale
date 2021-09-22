@@ -11,10 +11,17 @@
 void serialize_boolean(uint8_t *serialized, _scale_boolean *boolean_elem) {
   *serialized = boolean_elem->value ? 0x01 : 0x00;
 }
+void deserialize_boolean(_scale_boolean *boolean_elem, uint8_t* serialized) {
+  _encode_boolean(boolean_elem, *serialized == 0x01 ? true : false);
+}
 //Encode a bool value into a boolean element
 void _encode_boolean(_scale_boolean *boolean_elem, bool value) {
   memset(boolean_elem, 0, sizeof(_scale_boolean));
   boolean_elem->value = value ? 0x01 : 0x00;;
+}
+
+bool _decode_boolean(_scale_boolean *boolean_elem) {
+  return boolean_elem->value ? 0x01 : 0x00;
 }
 
 int8_t _encode_boolean_from_hex(_scale_boolean *boolean_elem, char *boolean_hex_value) {
@@ -39,9 +46,6 @@ int8_t _encode_boolean_from_hex(_scale_boolean *boolean_elem, char *boolean_hex_
 }
 
 //Return a bool value contained in the boolean element
-bool _decode_boolean(_scale_boolean *boolean_elem) {
-  return boolean_elem->value;
-}
 
 char *_decode_boolean_to_hex(_scale_boolean *boolean_elem) {
   uint8_t serialized = 0;

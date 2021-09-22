@@ -79,6 +79,7 @@ int8_t _serialize_enumeration(uint8_t *serialized, size_t *serialized_len, _scal
       *serialized_len += element_serialized_len;
       break;
     }
+    /*
     case STRUCT_FIXED_INT: {
 
       _scale_struct p_scale_struct = enumeration->value._struct;
@@ -97,6 +98,7 @@ int8_t _serialize_enumeration(uint8_t *serialized, size_t *serialized_len, _scal
       break;
 
     }
+    */
     case BOOLEAN: { //bools in scale always 1 byte
       serialize_boolean(&serialized[1], &enumeration->value._boolean);
       *serialized_len = 2;
@@ -137,6 +139,7 @@ int8_t _encode_enumeration(_scale_enumeration *enumeration, _scale_enum_type *en
           _encode_boolean(&enumeration->value._boolean, *value);
         }
       }
+      /*
       else if(strcasecmp(key, "Struct") == 0) {
         //if(strcasecmp(temp_value, "fixed") == 0) {
           enumeration->value.type = STRUCT_FIXED_INT;
@@ -145,6 +148,7 @@ int8_t _encode_enumeration(_scale_enumeration *enumeration, _scale_enum_type *en
         //}
           ((_scale_encoded_struct*)data)->fixed(&enumeration->value._struct, ((_scale_encoded_struct*)data)->data);
       }
+      */
       else if(strcasecmp(key, "Int") == 0) {
         if(strcasecmp(temp_value, "int8_t") == 0) {  //just have to list supported types. How can I improve this?
           int8_t *value = (int8_t*)data;
