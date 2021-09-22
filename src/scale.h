@@ -161,8 +161,6 @@ int8_t serialize_option(uint8_t *serialized, size_t *serialized_len, _scale_opti
   *   Data Structures: https://substrate.dev/docs/en/knowledgebase/advanced/codec#data-structures
   *
 */
-//typedef enum _struct_data_type { FIXED_INT, COMPACT_INT, BOOLEAN, STRUCT_FIXED_INT } _struct_data_type;
-
 typedef struct _scale_structure {
   void (*serialize)(uint8_t* seralized, size_t *bytes, void *structure);  //Function pointer that consumes a user defined struct, data, and outputs a custom fixed scale
   void (*deserialize)(void *structure_out, uint8_t *bytes, size_t len);  //Consumes scale-serialized bytes and outputs a struct
@@ -195,5 +193,7 @@ typedef struct _scale_enumeration {
 
 char* _serialize_enumeration_to_hex(_scale_enumeration *enumeration);
 int8_t _serialize_enumeration(uint8_t *serialized, size_t *serialized_len, _scale_enumeration *enumeration);
-int8_t _encode_enumeration(_scale_enumeration *enumeration, _scale_enum_type *enum_types, const char *key, void* data);
+
+void _encode_enumeration(uint8_t *bytes, _scale_enum_type *enum_types, const char *key, uint8_t *serialized, size_t *serialized_len);
+//int8_t _encode_enumeration(_scale_enumeration *enumeration, _scale_enum_type *enum_types, const char *key, void* data);
 #endif

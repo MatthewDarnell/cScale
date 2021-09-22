@@ -44,8 +44,8 @@ int main() {
   run_option_test();
   printf("\nRunning Structure Tests\n");
   run_structure_test();
-  //printf("\nRunning Enumeration Tests\n");
-  //run_enumeration_test();
+  printf("\nRunning Enumeration Tests\n");
+  run_enumeration_test();
   printf("\nDone\n");
   return 0;
 }
