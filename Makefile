@@ -15,9 +15,12 @@ test: $(OBJ)
 cli: $(OBJ)
 	$(CC) -o $@ $^ src/cli.c $(CFLAGS)
 
-all: cli test
+libcScale.a: $(OBJ)
+	ar rcs $@ $^
+
+all: cli test libcScale.a
 
 .PHONY: clean
 
 clean:
-	rm -f test cli src/*.o src/test/*.o src/type/*.o src/util/*.o *~
+	rm -f test cli src/*.o src/test/*.o src/type/*.o src/util/*.o *~ *.a
