@@ -51,7 +51,7 @@ char* _serialize_enumeration_to_hex(_scale_enumeration *enumeration) {
 
 int8_t _serialize_enumeration(uint8_t *serialized, size_t *serialized_len, _scale_enumeration *enumeration) {
   char *key = enumeration->key;
-  enum _option_type type = enumeration->value.type;
+  enum _scale_type type = enumeration->value.type;
   uint8_t enum_offset_prefix = 0x00;
   size_t i;
   bool found = false;

@@ -22,13 +22,14 @@ int32_t swap_int32( int32_t val );
 
 
 
+typedef enum _scale_type { FIXED_INT, COMPACT_INT, BOOLEAN, OPTION, ENUM, VECTOR, STRING, STRUCT  } _scale_type;
+
 /*
   *
   *   Fixed Width Int: https://substrate.dev/docs/en/knowledgebase/advanced/codec#fixed-width-integers
   *
 */
 
-//uint16 00000001  00000001
 typedef struct _scale_fixed_int {
    bool is_signed;
    int8_t byte_width;
@@ -147,10 +148,9 @@ char *_decode_boolean_to_hex(_scale_boolean *boolean_elem);
   *   Options: https://substrate.dev/docs/en/knowledgebase/advanced/codec#options
   *
 */
-typedef enum _option_type { FIXED_INT, COMPACT_INT, BOOLEAN, STRUCT_FIXED_INT } _option_type;
 
 typedef struct _option_value {
-  enum _option_type type;
+  enum _scale_type type;
   union {
     _scale_fixed_int _fixed_int;
     _scale_compact_int _compact_int;
@@ -174,9 +174,6 @@ int8_t _encode_option_boolean(_scale_option *option, _scale_boolean *boolean);
 
 //Get hex String of this option. Remember to free
 char *_decode_option_to_hex(_scale_option *option);
-
-//Get a scale serialized array of bytes with length serialized_len of the option
-int8_t serialize_option(uint8_t *serialized, size_t *serialized_len, _scale_option *option);
 
 
 
@@ -241,10 +238,6 @@ int8_t _encode_scale_enum_type(_scale_enum_type *enum_type, size_t num_elements,
 void _print_scale_enum_type(_scale_enum_type *enum_type);
 void _cleanup_scale_enum_type(_scale_enum_type *enum_type);
 
-
-
-
-
 typedef struct _scale_enumeration {
   _option_value value;
   _scale_enum_type enum_types;
@@ -256,4 +249,16 @@ int8_t _serialize_enumeration(uint8_t *serialized, size_t *serialized_len, _scal
 
 void _decode_enumeration(uint8_t *bytes, uint16_t *enum_type_index, _scale_enum_type *enum_types, uint8_t *serialized, size_t *serialized_len);
 void _encode_enumeration(uint8_t *bytes, _scale_enum_type *enum_types, const char *key, uint8_t *serialized, size_t *serialized_len);
+
+
+
+
+
+/*
+  *
+  *   Tuples: https://substrate.dev/docs/en/knowledgebase/advanced/codec#tuples
+  *
+*/
+int8_t _serialize_as_tuple(uint8_t *bytes, size_t *len, _scale_type a, void *data_a, _scale_type b, void *data_b);
+//to deserialize, simply check values of a and b and call appropriate deserialization function
 #endif

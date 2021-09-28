@@ -17,6 +17,7 @@ extern int run_structure_test();
 extern int run_enumeration_test();
 extern int run_vector_test();
 extern int run_string_test();
+extern int run_tuple_test();
 
 void assert_hash_matches_bytes(uint8_t* bytes, size_t byte_len, const char *hex) {
   size_t i, hex_offset = 0;
@@ -52,6 +53,8 @@ int main() {
   run_vector_test();
   printf("\nRunning String Tests\n");
   run_string_test();
+  printf("\nRunning Tuple Tests\n");
+  run_tuple_test();
   printf("\nDone\n");
   return 0;
 }
