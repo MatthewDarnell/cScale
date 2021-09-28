@@ -42,9 +42,6 @@ int run_enumeration_test() {
 
   printf("\tEncoding Boolean to Scale:\n");
 
-  _scale_enumeration enumeration;
-
-
   uint8_t enum_bytes[32] = { 0 };
 
   uint8_t bytes[32] = { 0 };
@@ -53,7 +50,7 @@ int run_enumeration_test() {
   char *type = "Int";
   uint8_t value = 42;
   _scale_fixed_int v;
-  _encode_fixed_uint8_to_scale(&v, value);
+  _encode_fixed_int_to_scale(&v, value);
   serialize_fixed_int(bytes, &len, &v);
 
   _encode_enumeration(enum_bytes, &CustomEnum, type, bytes, (size_t*)&len);
@@ -107,5 +104,24 @@ int run_enumeration_test() {
   assert(strcasecmp(hex, "0201000000020000000000000000012A") == 0);
   free(hex);
 
+  memset(bytes, 0, 32);
+  uint16_t offset = 0;
+  _decode_enumeration(bytes, &offset, &CustomEnum, enum_bytes, (size_t*)&len);
+  hex = _byte_array_to_hex(bytes, len);
+  printf("\t\tStruct Enum Deserialzied: %s --- <0x%s>\n", type, hex);
+  assert(strcasecmp(hex, "01000000020000000000000000012A") == 0);
+  free(hex);
+
+  struct MyStruct t2 = { 0 };
+  t2.scale_encoder.serialize = &struct_MyStruct_serialize;
+  t2.scale_encoder.deserialize = &struct_MyStruct_deserialize;
+  t2.c.scale_encoder.serialize = &struct_BoolTest_serialize;
+  t2.c.scale_encoder.deserialize = &struct_BoolTest_deserialize;
+
+
+  t2.scale_encoder.deserialize(&t2, bytes, len);
+
+  printf("\t\tDeserialized Struct From Enum {\n\t\t\ta: <u32> = %u\n\t\t\tb: <u64> = %llu\n\t\t\tc: { \n\t\t\t\ta: <bool> = %d\n\t\t\t\tb: <bool> = %d\n\t\t\t\tc: <int8_t> = %d\n\t\t\t} \n    \t\t\t}\n",
+  t2.a, t2.b, t2.c.a, t2.c.b, t2.c.c);
   return 0;
 }

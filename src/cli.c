@@ -25,28 +25,28 @@
 
     if(byte_length == 1) {
       if (is_signed) {
-        _encode_fixed_int8_to_scale(&scale_fixed, (int8_t)value);
+        _encode_fixed_int_to_scale(&scale_fixed, (int8_t)value);
       } else {
-        _encode_fixed_uint8_to_scale(&scale_fixed, (uint8_t)value);
+        _encode_fixed_int_to_scale(&scale_fixed, (uint8_t)value);
       }
     } else if(byte_length == 2) {
       if (is_signed) {
-        _encode_fixed_int16_to_scale(&scale_fixed, (int16_t)value);
+        _encode_fixed_int_to_scale(&scale_fixed, (int16_t)value);
 
       } else {
-        _encode_fixed_uint16_to_scale(&scale_fixed, (uint16_t)value);
+        _encode_fixed_int_to_scale(&scale_fixed, (uint16_t)value);
       }
     } else if(byte_length == 4) {
       if (is_signed) {
-        _encode_fixed_int32_to_scale(&scale_fixed, (int32_t)value);
+        _encode_fixed_int_to_scale(&scale_fixed, (int32_t)value);
       } else {
-        _encode_fixed_uint32_to_scale(&scale_fixed, (uint32_t)value);
+        _encode_fixed_int_to_scale(&scale_fixed, (uint32_t)value);
       }
     } else {
       if (is_signed) {
-        _encode_fixed_int64_to_scale(&scale_fixed, (int64_t)value);
+        _encode_fixed_int_to_scale(&scale_fixed, (int64_t)value);
       } else {
-        _encode_fixed_uint64_to_scale(&scale_fixed, (uint64_t)value);
+        _encode_fixed_int_to_scale(&scale_fixed, (uint64_t)value);
       }
     }
 

@@ -114,15 +114,22 @@ int8_t _serialize_enumeration(uint8_t *serialized, size_t *serialized_len, _scal
 }
 
 
+void _decode_enumeration(uint8_t *bytes, uint16_t *enum_type_index, _scale_enum_type *enum_types, uint8_t *serialized, size_t *serialized_len) {
+  uint8_t enum_type = serialized[0];
+  char **keys = enum_types->keys;
+  char *temp_key = keys[enum_type];
+  *enum_type_index = enum_type;
+  printf("%s matchesat index %u\n", temp_key, enum_type);
+  memcpy(bytes, &serialized[1], *serialized_len);
+}
+
 //Supported keys: [Int, Compact, Bool, Struct]
 void _encode_enumeration(uint8_t *bytes, _scale_enum_type *enum_types, const char *key, uint8_t *serialized, size_t *serialized_len) {
   size_t num_elements = enum_types->num_elements;
   char **keys = enum_types->keys;
-  char **values = enum_types->values;
   size_t i;
   for(i = 0; i < num_elements; i++) {
     char *temp_key = keys[i];
-    char *temp_value = values[i];
     if(strcasecmp(temp_key, key) == 0) {
       bytes[0] = i;
       printf("%s matches %s at index %lu\n", temp_key, key, i);

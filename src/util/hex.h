@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
-#define FIXED_INT_MAX_BYTES 8
+#define FIXED_INT_MAX_BYTES 16
 
 
 

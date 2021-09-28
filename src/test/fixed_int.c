@@ -32,23 +32,23 @@ static void run_test(uint64_t value, size_t width, uint8_t is_signed, const char
 
   switch (width) {
     case 1: {
-      if(is_signed) _encode_fixed_int8_to_scale(&s_e, (int8_t)value);
-      else _encode_fixed_int8_to_scale(&s_e, (uint8_t)value);
+      if(is_signed) _encode_fixed_int_to_scale(&s_e, (int8_t)value);
+      else _encode_fixed_int_to_scale(&s_e, (uint8_t)value);
       break;
     }
     case 2: {
-      if(is_signed) _encode_fixed_int16_to_scale(&s_e, (int16_t)value);
-      else _encode_fixed_uint16_to_scale(&s_e, (uint16_t)value);
+      if(is_signed) _encode_fixed_int_to_scale(&s_e, (int16_t)value);
+      else _encode_fixed_int_to_scale(&s_e, (uint16_t)value);
       break;
     }
     case 4: {
-      if(is_signed) _encode_fixed_int32_to_scale(&s_e, (int32_t)value);
-      else _encode_fixed_uint32_to_scale(&s_e, (uint32_t)value);
+      if(is_signed) _encode_fixed_int_to_scale(&s_e, (int32_t)value);
+      else _encode_fixed_int_to_scale(&s_e, (uint32_t)value);
       break;
     }
     case 8: {
-      if(is_signed) _encode_fixed_int64_to_scale(&s_e, (int64_t)value);
-      else _encode_fixed_uint64_to_scale(&s_e, (uint64_t)value);
+      if(is_signed) _encode_fixed_int_to_scale(&s_e, (int64_t)value);
+      else _encode_fixed_int_to_scale(&s_e, (uint64_t)value);
       break;
     }
     default: {
@@ -69,6 +69,33 @@ static void run_test(uint64_t value, size_t width, uint8_t is_signed, const char
   if(is_signed) printf(" -- Decoded: <%lld>\n", (int64_t)output);
   else printf(" -- Decoded: <%llu>\n", output);
 
+}
+
+static void run_test_128(char *value, uint8_t is_signed, const char *expected_hex_serialized) {
+  _scale_fixed_int s_e;
+  uint8_t serialized[64] = { 0 };
+  uint64_t serialized_len = 0;
+  char *hex = NULL;
+  printf("\t\tEncoding 128 bit <%s>: ", value);
+
+  _encode_fixed_u128_to_scale(&s_e, value);
+
+  hex = decode_scale_fixed_to_hex(&s_e);
+
+  free(hex);
+  memset(serialized, 0, 64 * sizeof(uint8_t));
+  serialized_len = 0;
+  serialize_fixed_int(serialized, &serialized_len, &s_e);
+  uint64_t one = 0;
+  uint64_t two = 0;
+  hex = _byte_array_to_hex(serialized, 8);
+  one = strtoull(hex, NULL, 16);
+  free(hex);
+  hex = _byte_array_to_hex(&serialized[7], 8);
+  two = strtoull(hex, NULL, 16);
+  printf("\nGot Number Value: <%llu%llu>\t", one, two);
+  free(hex);
+  assert_hash_matches_bytes(serialized, 16, expected_hex_serialized);
 }
 
 static void run_test_fixed_hex(const char *hex, uint8_t is_signed, uint64_t expected) {
@@ -135,6 +162,8 @@ int run_fixed_int_test() {
     run_test(4294967296, 8, 1, "0000000001000000");
     run_test(4294967296, 8, 0, "0000000001000000");
 
+
+    run_test_128("0x99abf82fa0fcd8f7", 0, "99abf82fa0fcd8f70000000000000000");
 
     printf("\tEncoding Fixed Scale Hex to Fixed Scale:\n");
     run_test_fixed_hex("45", 0, 69);

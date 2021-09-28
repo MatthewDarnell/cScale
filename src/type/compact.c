@@ -67,6 +67,7 @@ int8_t _encode_compact_8(_scale_compact_int *compact_int_elem, uint8_t data) {
   compact_int_elem->mode_upper_bits = upper;
   return 0;
 }
+
 int8_t _encode_compact_16(_scale_compact_int *compact_int_elem, uint16_t data) {
   if(data < 63) {
     return _encode_compact_8(compact_int_elem, (uint8_t)data);

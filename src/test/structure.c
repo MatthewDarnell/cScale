@@ -44,7 +44,7 @@ void struct_BoolTest_serialize(uint8_t* serialized, size_t *bytes, void *structu
   serialize_boolean(serialized, &bool_a);
   serialize_boolean(&serialized[1], &bool_b);
   *bytes = 2;
-  _encode_fixed_int8_to_scale(&int8_c, value->c);
+  _encode_fixed_int_to_scale(&int8_c, value->c);
   uint64_t len = 0;
   serialize_fixed_int(&serialized[2], &len, &int8_c);
   *bytes += len;
@@ -63,8 +63,8 @@ void struct_MyStruct_serialize(uint8_t* serialized, size_t *bytes, void *structu
   _scale_fixed_int a, b;
   struct BoolTest *c = (struct BoolTest*)&value->c;
 
-  _encode_fixed_uint32_to_scale(&a, value->a);
-  _encode_fixed_uint64_to_scale(&b, value->b);
+  _encode_fixed_int_to_scale(&a, value->a);
+  _encode_fixed_int_to_scale(&b, value->b);
   uint64_t len = 0;
   serialize_fixed_int(serialized, &len, &a);
   *bytes = len;
