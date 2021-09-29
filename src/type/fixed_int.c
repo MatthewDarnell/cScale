@@ -7,6 +7,42 @@
 #include "../util/hex.h"
 #include "../scale.h"
 
+//Example: cef512a72670a59a0000000000000000 to f7d8fca02ff8ab99
+int8_t swap_u128_le_to_be(char *be_out, char *le) {
+  char *pLe = le;
+  if(pLe[0] == '0' && (
+      pLe[1] == 'X' || pLe[1] == 'x'
+    )) {
+    pLe += 2;
+  }
+  size_t i = strlen(pLe) - 1;
+  memset(be_out, 0, strlen(pLe));
+  while(pLe[i] == '0' && pLe[i-1] == '0') {
+    i -= 2;
+  }
+  if(i<0) {
+    return -1;
+  }
+  if((i+1) % 2 != 0) {
+    fprintf(stderr, "Odd number U128: %s\n", le);
+    return -1;
+  }
+  size_t offset = 0;
+
+  char temp[4] = { 0 };
+
+  for(offset = i; offset > 1; offset-=2) {
+    memset(temp, 0, 4);
+    snprintf(temp, 4, "%c%c", pLe[offset-1], pLe[offset]);
+    strcat(be_out, temp);
+  }
+  snprintf(temp, 4, "%c%c", pLe[0], pLe[1]);
+  strcat(be_out, temp);
+
+  return 0;
+}
+
+
 //Encode functions
 
 int8_t serialize_fixed_int(uint8_t *serialized, uint64_t *serialized_len, scale_fixed_int *fixed_int_elem) {
@@ -135,7 +171,8 @@ int8_t encode_fixed_u128_to_scale(scale_fixed_int *fixed_int_elem, char *hex) {
   fixed_int_elem->byte_width = 16;
   fixed_int_elem->is_signed  = false;
   int i;
-  for(i=0; i < 16; i++) {
+
+  for(i=15; i >= 0; i--) {
     if(i < length) {
       fixed_int_elem->data[i] = (data[i] & 0xFF);
     } else {

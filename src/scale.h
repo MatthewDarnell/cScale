@@ -63,6 +63,11 @@ int8_t encode_fixed_u128_to_scale(scale_fixed_int *fixed_int_elem, char *hex);
     int64_t:  encode_fixed_int64_to_scale, \
     uint64_t:  encode_fixed_uint64_to_scale \
   ) (elem, value)
+
+//Swaps Little Endian -encoded U128 hex into Big endian, pass this to encode_fixed_u128_to_scale
+//Returns 0 if ok, -1 if got 00000 le string
+int8_t swap_u128_le_to_be(char *be_out, char *le);
+
 //Tries to convert a hex string "0xFFFFFF00" to a scale_fixed_int
 //Returns 0 if successful, -1 otherwise
 int8_t encode_fixed_hex_to_scale(scale_fixed_int *fixed_int_elem, bool is_signed, const char *hex);
