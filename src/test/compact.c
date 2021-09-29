@@ -10,19 +10,6 @@
 #include "../scale.h"
 #include "../util/hex.h"
 
-
-#define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
-#define BYTE_TO_BINARY(byte)  \
-  (byte & 0x80 ? '1' : '0'), \
-  (byte & 0x40 ? '1' : '0'), \
-  (byte & 0x20 ? '1' : '0'), \
-  (byte & 0x10 ? '1' : '0'), \
-  (byte & 0x08 ? '1' : '0'), \
-  (byte & 0x04 ? '1' : '0'), \
-  (byte & 0x02 ? '1' : '0'), \
-  (byte & 0x01 ? '1' : '0')
-
-
 extern void assert_hash_matches_bytes(uint8_t* bytes, size_t byte_len, const char *hex);
 
 static void run_test(uint64_t value, size_t width, const char *expected_hex_serialized) {
@@ -32,19 +19,19 @@ static void run_test(uint64_t value, size_t width, const char *expected_hex_seri
 
     switch (width) {
       case 1: {
-        encode_compact_8(&s_e, (uint8_t)value);
+        encode_uint8_to_compact_int_scale(&s_e, (uint8_t)value);
         break;
       }
       case 2: {
-        encode_compact_16(&s_e, (uint16_t)value);
+        encode_uint16_to_compact_int_scale(&s_e, (uint16_t)value);
         break;
       }
       case 4: {
-        encode_compact_32(&s_e, (uint32_t)value);
+        encode_uint32_to_compact_int_scale(&s_e, (uint32_t)value);
         break;
       }
       case 8: {
-        encode_compact_64(&s_e, value);
+        encode_uint64_to_compact_int_scale(&s_e, value);
         break;
       }
       default: {
@@ -69,16 +56,16 @@ static void run_test(uint64_t value, size_t width, const char *expected_hex_seri
 void run_compact_128(const char *value, const char *expected_hex_serialized) {
   scale_compact_int compact;
   printf("\n\t\tEncoding <%s>: ", value);
-  assert(encode_compact_128_from_hex(&compact, (char*)value) == 0);
- uint8_t serialized[64] = { 0 };
- uint64_t serialized_len = 0;
- serialize_compact_int(serialized, &serialized_len, &compact);
- char *str_serialized = _byte_array_to_hex(serialized, serialized_len);
- assert(str_serialized);
- free(str_serialized);
+  assert(encode_u128_string_to_compact_int_scale(&compact, (char*)value) == 0);
+  uint8_t serialized[64] = { 0 };
+  uint64_t serialized_len = 0;
+  serialize_compact_int(serialized, &serialized_len, &compact);
+  char *str_serialized = _byte_array_to_hex(serialized, serialized_len);
+  assert(str_serialized);
+  free(str_serialized);
 
- assert_hash_matches_bytes(serialized, serialized_len, expected_hex_serialized);
- cleanup_scale_compact_int(&compact);
+  assert_hash_matches_bytes(serialized, serialized_len, expected_hex_serialized);
+  cleanup_scale_compact_int(&compact);
 }
 
 static void run_test_fixed_hex(const char *hex, uint64_t expected) {

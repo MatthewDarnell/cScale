@@ -36,7 +36,7 @@ int run_enumeration_test() {
 
   const char *strCustomEnum[][4] = {
     {"Int", "Bool", "Struct", "Compact32"},
-    {"uint8_t", "bool", "fixed", "compact32_t"}
+    {"uint8_t", "bool", "", ""}
   };
 
   encode_scale_enum_type(&CustomEnum, 4, (char**)strCustomEnum[0], (char**)strCustomEnum[1]);
@@ -51,7 +51,7 @@ int run_enumeration_test() {
   char *type = "Int";
   uint8_t value = 42;
   scale_fixed_int v;
-  encode_fixed_int_to_scale(&v, value);
+  encode_int_to_fixed_int_scale(&v, value);
   serialize_fixed_int(bytes, &len, &v);
 
   encode_enumeration(enum_bytes, &CustomEnum, type, bytes, (size_t*)&len);

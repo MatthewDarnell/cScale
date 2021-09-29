@@ -30,7 +30,7 @@ int run_tuple_test() {
 
   len = 0;
   scale_fixed_int fixed = { 0 };
-  encode_fixed_int_to_scale(&fixed, (uint32_t)645);
+  encode_int_to_fixed_int_scale(&fixed, (uint32_t)645);
 
   scale_vector vec = { 0 };
   create_string(&vec, (unsigned char*)"Hello, World!", strlen("Hello, World!"));

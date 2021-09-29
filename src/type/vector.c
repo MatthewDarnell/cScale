@@ -82,19 +82,19 @@ void cleanup_vector(scale_vector *vec) {
   }
   memset(vec, 0, sizeof(scale_vector));
 }
-void push_vector(scale_vector *vec, uint8_t *bytes, size_t len) {
+int8_t push_vector(scale_vector *vec, uint8_t *bytes, size_t len) {
   scale_compact_int *prefix_num_elements = &vec->prefix_num_elements;
   char *hex_num_elements = decode_compact_to_hex(prefix_num_elements);
   uint64_t num_elements = strtoull(hex_num_elements, NULL, 16);
   if(num_elements > 4611686018427387903) {
     fprintf(stderr, "Error appending vector! Too many elements!\n");
-    return;
+    return -1;
   }
   if(!vec->data) {
     vec->data = calloc(len, sizeof(uint8_t));
     if(!vec->data) {
       fprintf(stderr, "Error appending vector! Memory failed to initialize!\n");
-      return;
+      return -1;
     }
   } else {
     uint8_t *elements = realloc(vec->data, (vec->data_len + len) * sizeof(uint8_t));
@@ -102,13 +102,14 @@ void push_vector(scale_vector *vec, uint8_t *bytes, size_t len) {
       vec->data = elements;
     } else {
       fprintf(stderr, "Error appending vector! Memory failed to re-initialize!\n");
-      return;
+      return -1;
     }
   }
   memcpy(vec->data + vec->data_len, bytes, len);
   vec->data_len += len;
   num_elements++;
   encode_compact(prefix_num_elements, num_elements);
+  return 0;
 }
 
 

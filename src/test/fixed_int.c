@@ -33,23 +33,23 @@ static void run_test(uint64_t value, size_t width, uint8_t is_signed, const char
 
   switch (width) {
     case 1: {
-      if(is_signed) encode_fixed_int_to_scale(&s_e, (int8_t)value);
-      else encode_fixed_int_to_scale(&s_e, (uint8_t)value);
+      if(is_signed) encode_int_to_fixed_int_scale(&s_e, (int8_t)value);
+      else encode_int_to_fixed_int_scale(&s_e, (uint8_t)value);
       break;
     }
     case 2: {
-      if(is_signed) encode_fixed_int_to_scale(&s_e, (int16_t)value);
-      else encode_fixed_int_to_scale(&s_e, (uint16_t)value);
+      if(is_signed) encode_int_to_fixed_int_scale(&s_e, (int16_t)value);
+      else encode_int_to_fixed_int_scale(&s_e, (uint16_t)value);
       break;
     }
     case 4: {
-      if(is_signed) encode_fixed_int_to_scale(&s_e, (int32_t)value);
-      else encode_fixed_int_to_scale(&s_e, (uint32_t)value);
+      if(is_signed) encode_int_to_fixed_int_scale(&s_e, (int32_t)value);
+      else encode_int_to_fixed_int_scale(&s_e, (uint32_t)value);
       break;
     }
     case 8: {
-      if(is_signed) encode_fixed_int_to_scale(&s_e, (int64_t)value);
-      else encode_fixed_int_to_scale(&s_e, (uint64_t)value);
+      if(is_signed) encode_int_to_fixed_int_scale(&s_e, (int64_t)value);
+      else encode_int_to_fixed_int_scale(&s_e, (uint64_t)value);
       break;
     }
     default: {
@@ -82,7 +82,7 @@ static void run_test_128(char *value, uint8_t is_signed, const char *expected_he
   char big_endian[64] = { 0 };
   swap_u128_le_to_be(big_endian, value);
 
-  encode_fixed_u128_to_scale(&s_e, big_endian);
+  encode_u128_string_to_fixed_int_scale(&s_e, big_endian);
 
   hex = decode_scale_fixed_to_hex(&s_e);
 

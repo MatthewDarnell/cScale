@@ -11,7 +11,7 @@
 void serialize_boolean(uint8_t *serialized, scale_boolean *boolean_elem) {
   *serialized = boolean_elem->value ? 0x01 : 0x00;
 }
-void deserialize_boolean(scale_boolean *boolean_elem, uint8_t* serialized) {
+void deserialize_boolean(scale_boolean *boolean_elem, const uint8_t* serialized) {
   encode_boolean(boolean_elem, *serialized == 0x01 ? true : false);
 }
 //Encode a bool value into a boolean element

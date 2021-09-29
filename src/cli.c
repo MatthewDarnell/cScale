@@ -25,28 +25,28 @@
 
     if(byte_length == 1) {
       if (is_signed) {
-        encode_fixed_int_to_scale(&scale_fixed, (int8_t)value);
+        encode_int_to_fixed_int_scale(&scale_fixed, (int8_t)value);
       } else {
-        encode_fixed_int_to_scale(&scale_fixed, (uint8_t)value);
+        encode_int_to_fixed_int_scale(&scale_fixed, (uint8_t)value);
       }
     } else if(byte_length == 2) {
       if (is_signed) {
-        encode_fixed_int_to_scale(&scale_fixed, (int16_t)value);
+        encode_int_to_fixed_int_scale(&scale_fixed, (int16_t)value);
 
       } else {
-        encode_fixed_int_to_scale(&scale_fixed, (uint16_t)value);
+        encode_int_to_fixed_int_scale(&scale_fixed, (uint16_t)value);
       }
     } else if(byte_length == 4) {
       if (is_signed) {
-        encode_fixed_int_to_scale(&scale_fixed, (int32_t)value);
+        encode_int_to_fixed_int_scale(&scale_fixed, (int32_t)value);
       } else {
-        encode_fixed_int_to_scale(&scale_fixed, (uint32_t)value);
+        encode_int_to_fixed_int_scale(&scale_fixed, (uint32_t)value);
       }
     } else {
       if (is_signed) {
-        encode_fixed_int_to_scale(&scale_fixed, (int64_t)value);
+        encode_int_to_fixed_int_scale(&scale_fixed, (int64_t)value);
       } else {
-        encode_fixed_int_to_scale(&scale_fixed, (uint64_t)value);
+        encode_int_to_fixed_int_scale(&scale_fixed, (uint64_t)value);
       }
     }
 
@@ -96,16 +96,16 @@
     scale_compact_int scale_compact;
 
     if(byte_length == 1) {
-        if(encode_compact_8(&scale_compact, (uint8_t)value) < 0) return;
+        if(encode_compact(&scale_compact, (uint8_t)value) < 0) return;
     } else if(byte_length == 2) {
-      if(encode_compact_16(&scale_compact, (uint16_t)value) < 0) return;
+      if(encode_compact(&scale_compact, (uint16_t)value) < 0) return;
     } else if(byte_length == 4) {
-      if(encode_compact_32(&scale_compact, (uint32_t)value) < 0) return;
+      if(encode_compact(&scale_compact, (uint32_t)value) < 0) return;
     } else if(byte_length == 8) {
-      if(encode_compact_64(&scale_compact, (uint64_t)value) < 0) return;
+      if(encode_compact(&scale_compact, (uint64_t)value) < 0) return;
     } else if(byte_length == 16) {
       if(hexValue) {
-        if(encode_compact_128_from_hex(&scale_compact, hexValue) < 0) return;
+        if(encode_u128_string_to_compact_int_scale(&scale_compact, hexValue) < 0) return;
       } else {
         printf("Unable to Encode to u128. Did you pass a valid hex string?\n");
         return;

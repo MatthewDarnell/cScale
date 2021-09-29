@@ -18,7 +18,7 @@ int run_vector_test() {
   printf("\tPushing to Vector: [ ");
   for(i = 0; i < 6; i++) {
     scale_fixed_int fixed = { 0 };
-    encode_fixed_int_to_scale(&fixed, values[i]);
+    encode_int_to_fixed_int_scale(&fixed, values[i]);
     memset(serialized, 0, 64);
     serialized_len = 0;
     serialize_fixed_int(serialized, &serialized_len, &fixed);

@@ -13,7 +13,7 @@ int run_option_test() {
   scale_option option;
 
   scale_compact_int s_c;
-  encode_compact_64(&s_c, (uint64_t)4611686018427387903);
+  encode_uint64_to_compact_int_scale(&s_c, (uint64_t)4611686018427387903);
   char *compact = decode_compact_to_hex(&s_c);
   free(compact);
   assert(encode_option_compact_int(&option, &s_c) == 0);
@@ -28,7 +28,7 @@ int run_option_test() {
 
 
   scale_fixed_int fixed;
-  encode_fixed_int_to_scale(&fixed, (uint32_t)4294967294);
+  encode_int_to_fixed_int_scale(&fixed, (uint32_t)4294967294);
   encode_option_fixed_int(&option, &fixed);
   char *fixed_hex = decode_scale_fixed_to_hex(&option.value._fixed_int);
   assert(strcasecmp(fixed_hex, "FEFFFFFF") == 0);

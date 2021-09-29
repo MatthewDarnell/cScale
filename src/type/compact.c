@@ -55,9 +55,9 @@ int8_t serialize_compact_int(uint8_t *serialized, uint64_t *serialized_len, scal
 }
 
 //These functions encode decimal values into a scale_compact_int struct
-int8_t encode_compact_8(scale_compact_int *compact_int_elem, uint8_t data) {
+int8_t encode_uint8_to_compact_int_scale(scale_compact_int *compact_int_elem, uint8_t data) {
   if(data > 63) {  //Max 2^6 - 1 or 00111111
-    return encode_compact_16(compact_int_elem, (uint16_t)data);
+    return encode_uint16_to_compact_int_scale(compact_int_elem, (uint16_t)data);
     //fprintf(stderr, "Error Encoding Single Byte Compact. Data Too Large.(%u)\n", data);
     //return -1;
   }
@@ -68,12 +68,12 @@ int8_t encode_compact_8(scale_compact_int *compact_int_elem, uint8_t data) {
   return 0;
 }
 
-int8_t encode_compact_16(scale_compact_int *compact_int_elem, uint16_t data) {
+int8_t encode_uint16_to_compact_int_scale(scale_compact_int *compact_int_elem, uint16_t data) {
   if(data < 63) {
-    return encode_compact_8(compact_int_elem, (uint8_t)data);
+    return encode_uint8_to_compact_int_scale(compact_int_elem, (uint8_t)data);
   }
   if(data > 16383) {  //Max 2^14 - 1 or 00111111 11111111
-    return encode_compact_32(compact_int_elem, (uint32_t)data);
+    return encode_uint32_to_compact_int_scale(compact_int_elem, (uint32_t)data);
     //fprintf(stderr, "Error Encoding Two Byte Compact. Data Too Large.(%u)\n", data);
     //return -1;
   }
@@ -90,14 +90,14 @@ int8_t encode_compact_16(scale_compact_int *compact_int_elem, uint16_t data) {
   compact_int_elem->data[0] = (data >> 6) & 0xFF; //Get next byte
   return 0;
 }
-int8_t encode_compact_32(scale_compact_int *compact_int_elem, uint32_t data) {
+int8_t encode_uint32_to_compact_int_scale(scale_compact_int *compact_int_elem, uint32_t data) {
   if(data < 63) {
-    return encode_compact_8(compact_int_elem, (uint8_t)data);
+    return encode_compact(compact_int_elem, (uint8_t)data);
   } else if (data < 16383) {
-    return encode_compact_16(compact_int_elem, (uint16_t)data);
+    return encode_compact(compact_int_elem, (uint16_t)data);
   }
   if(data > 1073741823) {  //Max 2^30 - 1 or 00111111 11111111 11111111 11111111
-    return encode_compact_64(compact_int_elem, (uint64_t)data);
+    return encode_compact(compact_int_elem, (uint64_t)data);
     //fprintf(stderr, "Error Encoding Four Byte Compact. Data Too Large.(%u)\n", data);
     //return -1;
   }
@@ -119,13 +119,13 @@ int8_t encode_compact_32(scale_compact_int *compact_int_elem, uint32_t data) {
 
   return 0;
 }
-int8_t encode_compact_64(scale_compact_int *compact_int_elem, uint64_t data) {
+int8_t encode_uint64_to_compact_int_scale(scale_compact_int *compact_int_elem, uint64_t data) {
   if(data < 63) {
-    return encode_compact_8(compact_int_elem, (uint8_t)data);
+    return encode_compact(compact_int_elem, (uint8_t)data);
   } else if (data < 16383) {
-    return encode_compact_16(compact_int_elem, (uint16_t)data);
+    return encode_compact(compact_int_elem, (uint16_t)data);
   } else if(data < 1073741823) {
-    return encode_compact_32(compact_int_elem, (uint32_t)data);
+    return encode_compact(compact_int_elem, (uint32_t)data);
   }
   if(data > 4611686018427387903) {  //Max: 2^62 -1 or 00111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111
     fprintf(stderr, "Error Encoding Eight Byte Compact. Data Too Large.(%llu)\n", data);
@@ -166,7 +166,7 @@ int8_t encode_compact_64(scale_compact_int *compact_int_elem, uint64_t data) {
   return 0;
 }
 
-int8_t encode_compact_128_from_hex(scale_compact_int *compact_int_elem, char *hex) {
+int8_t encode_u128_string_to_compact_int_scale(scale_compact_int *compact_int_elem, char *hex) {
   memset(compact_int_elem, 0, sizeof(scale_compact_int));
 
   char *pHex = hex;
@@ -221,7 +221,7 @@ int8_t encode_compact_128_from_hex(scale_compact_int *compact_int_elem, char *he
 
     if(value <= 4611686018427387903) {
       free(bytes);
-      return encode_compact_64(compact_int_elem, value);
+      return encode_uint64_to_compact_int_scale(compact_int_elem, value);
     }
   }
 
@@ -263,7 +263,7 @@ int8_t encode_compact_hex_to_scale(scale_compact_int *compact_int_elem, const ch
     case SINGLE_BYTE: {
       uint8_t value = upper_bits >> 2;
       free(data);
-      return encode_compact_8(compact_int_elem, value);
+      return encode_uint8_to_compact_int_scale(compact_int_elem, value);
       break;
     }
     case TWO_BYTE: {
@@ -272,7 +272,7 @@ int8_t encode_compact_hex_to_scale(scale_compact_int *compact_int_elem, const ch
       value |= upper_bits & 0xFF;
       value >>=2;
       free(data);
-      return encode_compact_16(compact_int_elem, value);
+      return encode_uint16_to_compact_int_scale(compact_int_elem, value);
       break;
     }
     case FOUR_BYTE: {
@@ -285,7 +285,7 @@ int8_t encode_compact_hex_to_scale(scale_compact_int *compact_int_elem, const ch
       value |= upper_bits & 0xFF;
       value >>= 2;
       free(data);
-      return encode_compact_32(compact_int_elem, value);
+      return encode_uint32_to_compact_int_scale(compact_int_elem, value);
       break;
     }
     case BIGNUM: {
@@ -301,7 +301,7 @@ int8_t encode_compact_hex_to_scale(scale_compact_int *compact_int_elem, const ch
         value |= data[1] & 0xFF;
         if(value <= 4611686018427387903) {  //2^62 - 1 is MAX compact 8 byte scale value
           free(data);
-          return encode_compact_64(compact_int_elem, value);
+          return encode_uint64_to_compact_int_scale(compact_int_elem, value);
         }
       }
 
@@ -321,7 +321,7 @@ int8_t encode_compact_hex_to_scale(scale_compact_int *compact_int_elem, const ch
         bytes[offset++] = data[i];
       }
       free(data);
-      return encode_compact_128_from_hex(compact_int_elem, stack_raw_hex);
+      return encode_u128_string_to_compact_int_scale(compact_int_elem, stack_raw_hex);
 
       break;
     }
