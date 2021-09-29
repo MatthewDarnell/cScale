@@ -56,7 +56,7 @@ int run_enumeration_test() {
 
   encode_enumeration(enum_bytes, &CustomEnum, type, bytes, (size_t*)&len);
 
-  char *hex = _byte_array_to_hex(enum_bytes, len+1);
+  char *hex = cscale_byte_array_to_hex(enum_bytes, len + 1);
   printf("\t\tFixed Int Serialized: %s(%u) --- <0x%s>\n", type, value, hex);
   assert(strcasecmp(hex, "002a") == 0);
   free(hex);
@@ -71,7 +71,7 @@ int run_enumeration_test() {
   encode_boolean(&b, b_value);
   serialize_boolean(bytes, &b);
   encode_enumeration(enum_bytes, &CustomEnum, type, bytes, (size_t*)&len);
-  hex = _byte_array_to_hex(enum_bytes, len+1);
+  hex = cscale_byte_array_to_hex(enum_bytes, len + 1);
   printf("\t\tBool Serialized: %s(%u) --- <0x%s>\n", type, b_value, hex);
   assert(strcasecmp(hex, "0101") == 0);
   free(hex);
@@ -100,7 +100,7 @@ int run_enumeration_test() {
 
   t.scaleencoder.serialize(bytes, (size_t*)&len, &t);
   encode_enumeration(enum_bytes, &CustomEnum, type, bytes, (size_t*)&len);
-  hex = _byte_array_to_hex(enum_bytes, len+1);
+  hex = cscale_byte_array_to_hex(enum_bytes, len + 1);
   printf("\t\tStruct Enum Serialized: %s --- <0x%s>\n", type, hex);
   assert(strcasecmp(hex, "0201000000020000000000000000012A") == 0);
   free(hex);
@@ -108,7 +108,7 @@ int run_enumeration_test() {
   memset(bytes, 0, 32);
   uint16_t offset = 0;
   decode_enumeration(bytes, &offset, &CustomEnum, enum_bytes, (size_t*)&len);
-  hex = _byte_array_to_hex(bytes, len);
+  hex = cscale_byte_array_to_hex(bytes, len);
   printf("\t\tStruct Enum Deserialzied: %s --- <0x%s>\n", type, hex);
   assert(strcasecmp(hex, "01000000020000000000000000012A") == 0);
   free(hex);

@@ -191,7 +191,7 @@ int main(int argc, char **argv) {
       if(dType == 0) {  //fixed
           run_fixed(dValue, is_signed, size);
       } else if (dType == 1) {  //compact
-          if(is_valid_hex(value) && size == 16) { //u128 must be hex string
+          if(cscale_is_valid_hex(value) && size == 16) { //u128 must be hex string
             run_compact((char*)value, 0, size);
           } else {
             run_compact(NULL, dValue, size);

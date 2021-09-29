@@ -161,7 +161,7 @@ int8_t encode_u128_string_to_fixed_int_scale(scale_fixed_int *fixed_int_elem, ch
     pHex += 2;
   }
   uint8_t *data;
-  size_t length = hex_to_data((const char*)pHex, &data);
+  size_t length = cscale_hex_to_data((const char *) pHex, &data);
   if(length < 1) {
     fprintf(stderr, "Error Encoding u128. Failed to Read Hex\n");
     return -1;
@@ -190,7 +190,7 @@ int8_t encode_fixed_hex_to_scale(scale_fixed_int *fixed_int_elem, bool is_signed
   if(hex[0] == '0' && (hex[1] == 'x' || hex[1] == 'X')) {
     pHex += 2;
   }
-  if((byte_width = hex_to_data((const char*)pHex, &data)) < 1) {
+  if((byte_width = cscale_hex_to_data((const char *) pHex, &data)) < 1) {
     fprintf(stderr, "Invalid Hex String\n");
     if(data) {
       free(data);
@@ -318,7 +318,7 @@ int8_t encode_fixed_hex_to_scale(scale_fixed_int *fixed_int_elem, bool is_signed
 
 //Decode functions
 int8_t deserialize_fixed_int(void *output, uint8_t *bytes, size_t len, bool is_signed) {
-  char *hex = _byte_array_to_hex(bytes, len);
+  char *hex = cscale_byte_array_to_hex(bytes, len);
   char stack_hex[256] = { 0 };
   strcpy(stack_hex, hex);
   free(hex);
@@ -332,7 +332,7 @@ char *decode_scale_fixed_to_hex(scale_fixed_int *fixed_int_elem) {
   if(fixed_int_elem->byte_width < 1 || fixed_int_elem->byte_width > FIXED_INT_MAX_BYTES) {  //currently 1 byte - 4 byte max
     return NULL;
   }
-  return _fixed_byte_array_to_hex(fixed_int_elem->data, fixed_int_elem->byte_width);
+  return cscale_fixed_byte_array_to_hex(fixed_int_elem->data, fixed_int_elem->byte_width);
 }
 
 //decode fixed int scale elem and place the output in void*out, user can cast due to known output type

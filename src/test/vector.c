@@ -30,7 +30,7 @@ int run_vector_test() {
   size_t data_len = 0;
   serialize_vector(bytes, &data_len, &vector);
   printf("\n\tSerialized Vector: <");
-  print_hash(bytes, data_len);
+  cscale_print_hash(bytes, data_len);
   printf(">\n");
   cleanup_vector(&vector);
 

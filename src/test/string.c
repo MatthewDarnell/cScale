@@ -36,7 +36,7 @@ int run_string_test() {
     free(string);
     serialize_string(serialized, &len, &scale_string);
     printf("\tSerializing: %s: <", (char*)strings[i]);
-    print_hash(serialized, len);
+    cscale_print_hash(serialized, len);
     push_vector(&VecOfStrings, serialized, len);
     deserialize_string(&scale_string_deserialized, serialized, &len);
     cleanup_string(&scale_string);

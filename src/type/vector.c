@@ -45,7 +45,7 @@ void deserialize_vector(scale_vector *vec, uint8_t *serialized, size_t *serializ
     }
   }
 
-  char *hex = _byte_array_to_hex(serialized, compact_num_bytes);
+  char *hex = cscale_byte_array_to_hex(serialized, compact_num_bytes);
   if(!hex) {
     fprintf(stderr, "Error deserializing vector! Memory failed to initialize\n");
     return;

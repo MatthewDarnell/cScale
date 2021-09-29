@@ -46,7 +46,7 @@ static void run_test(uint64_t value, size_t width, const char *expected_hex_seri
     assert(serialize_compact_int(serialized, &serialized_len, &s_e) == 0);
     assert(serialized_len > 0);
 
-    char *hex = _byte_array_to_hex(serialized, serialized_len);
+    char *hex = cscale_byte_array_to_hex(serialized, serialized_len);
     printf("Comparing: <%s> / <%s>\n", expected_hex_serialized, hex);
     assert(strcasecmp(expected_hex_serialized, hex) == 0);
     free(hex);
@@ -60,7 +60,7 @@ void run_compact_128(const char *value, const char *expected_hex_serialized) {
   uint8_t serialized[64] = { 0 };
   uint64_t serialized_len = 0;
   serialize_compact_int(serialized, &serialized_len, &compact);
-  char *str_serialized = _byte_array_to_hex(serialized, serialized_len);
+  char *str_serialized = cscale_byte_array_to_hex(serialized, serialized_len);
   assert(str_serialized);
   free(str_serialized);
 

@@ -92,10 +92,10 @@ static void run_test_128(char *value, uint8_t is_signed, const char *expected_he
   serialize_fixed_int(serialized, &serialized_len, &s_e);
   uint64_t one = 0;
   uint64_t two = 0;
-  hex = _byte_array_to_hex(serialized, 8);
+  hex = cscale_byte_array_to_hex(serialized, 8);
   one = strtoull(hex, NULL, 16);
   free(hex);
-  hex = _byte_array_to_hex(&serialized[7], 8);
+  hex = cscale_byte_array_to_hex(&serialized[7], 8);
   two = strtoull(hex, NULL, 16);
   printf("Got Number Value: <%llu%llu>\t", one, two);
   free(hex);

@@ -9,7 +9,7 @@
 #include "hex.h"
 
 
-char* _fixed_byte_array_to_hex(uint8_t* data, int8_t byte_width) {
+char* cscale_fixed_byte_array_to_hex(uint8_t* data, int8_t byte_width) {
   char *encoded = (char*)calloc( 2 + byte_width + 1, sizeof(char));
   if(!encoded) {
     fprintf(stderr, "Failed to malloc hex string in getencoded_hex_fromscale_fixed_int\n");
@@ -25,7 +25,7 @@ char* _fixed_byte_array_to_hex(uint8_t* data, int8_t byte_width) {
   return encoded;
 }
 
-char* _byte_array_to_hex(uint8_t* data, size_t len) {
+char* cscale_byte_array_to_hex(uint8_t* data, size_t len) {
   char *encoded = (char*)calloc( 2 + len + 1, sizeof(char));
   if(!encoded) {
     fprintf(stderr, "Failed to malloc hex string in getencoded_hex_fromscale_fixed_int\n");
@@ -41,7 +41,7 @@ char* _byte_array_to_hex(uint8_t* data, size_t len) {
   return encoded;
 }
 
-bool is_valid_hex(const char *hex) {
+bool cscale_is_valid_hex(const char *hex) {
   size_t len = strlen(hex);
   int i;
   for(i = 0; i < len; i++) {
@@ -56,7 +56,7 @@ bool is_valid_hex(const char *hex) {
 }
 
 
-bool hex_digit_to_bin(const char hex, char *out) {
+bool cscale_hex_digit_to_bin(const char hex, char *out) {
 	if (out == NULL)
 		return false;
 
@@ -73,14 +73,14 @@ bool hex_digit_to_bin(const char hex, char *out) {
 	return true;
 }
 
-void print_hash(uint8_t *s, size_t len) {
+void cscale_print_hash(uint8_t *s, size_t len) {
     for(int i = 0; i < len; i++) {
         printf("%02x", s[i]);
     }
 }
 
 //bc-bip39/test/test-utils.c
-size_t hex_to_data(const char *hex, uint8_t **out) {
+size_t cscale_hex_to_data(const char *hex, uint8_t **out) {
 	if (hex == NULL || *hex == '\0') {
         *out = NULL;
 		return 0;
@@ -101,7 +101,7 @@ size_t hex_to_data(const char *hex, uint8_t **out) {
 	for (size_t i = 0; i < len; i++) {
   	char b1;
   	char b2;
-		if (!hex_digit_to_bin(hex[i * 2], &b1) || !hex_digit_to_bin(hex[i * 2 + 1], &b2)) {
+		if (!cscale_hex_digit_to_bin(hex[i * 2], &b1) || !cscale_hex_digit_to_bin(hex[i * 2 + 1], &b2)) {
 			return 0;
 		}
 		(*out)[i] = (b1 << 4) | b2;

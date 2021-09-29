@@ -9,13 +9,13 @@
 #include <stdbool.h>
 
 
-char* _fixed_byte_array_to_hex(uint8_t* data, int8_t byte_width);
-char* _byte_array_to_hex(uint8_t* data, size_t len);
+char* cscale_fixed_byte_array_to_hex(uint8_t* data, int8_t byte_width);
+char* cscale_byte_array_to_hex(uint8_t* data, size_t len);
 
-bool hex_digit_to_bin(const char hex, char *out);
-bool is_valid_hex(const char *hex);
+bool cscale_hex_digit_to_bin(const char hex, char *out);
+bool cscale_is_valid_hex(const char *hex);
 
-size_t hex_to_data(const char *hex, uint8_t **out);
-void print_hash(uint8_t *s, size_t len);
+size_t cscale_hex_to_data(const char *hex, uint8_t **out);
+void cscale_print_hash(uint8_t *s, size_t len);
 
 #endif

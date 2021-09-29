@@ -174,13 +174,13 @@ int8_t encode_u128_string_to_compact_int_scale(scale_compact_int *compact_int_el
     pHex +=2;
   }
 
-  if(!is_valid_hex(pHex)) {
+  if(!cscale_is_valid_hex(pHex)) {
     fprintf(stderr, "Error Encoding Sixteen Byte Compact. Invalid Hex String.(%s)\n", hex);
     return -1;
   }
 
   uint8_t *bytes;
-  size_t num_bytes = hex_to_data((const char*)pHex, &bytes);
+  size_t num_bytes = cscale_hex_to_data((const char *) pHex, &bytes);
   if(num_bytes < 1) {
     free(bytes);
     fprintf(stderr, "Error getting Byte Array, len.(%lu)\n", num_bytes);
@@ -247,7 +247,7 @@ int8_t encode_compact_hex_to_scale(scale_compact_int *compact_int_elem, const ch
   if(hex[0] == '0' && (hex[1] == 'x' || hex[1] == 'X')) {
     pHex += 2;
   }
-  if(hex_to_data((const char*)pHex, &data) < 1) {
+  if(cscale_hex_to_data((const char *) pHex, &data) < 1) {
     fprintf(stderr, "Invalid Hex String\n");
     if(data) {
       free(data);

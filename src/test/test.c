@@ -22,7 +22,7 @@ extern int run_tuple_test();
 void assert_hash_matches_bytes(uint8_t* bytes, size_t byte_len, const char *hex) {
   size_t i, hex_offset = 0;
   printf("Comparing: <%s> / <", hex);
-  print_hash(bytes, byte_len);
+  cscale_print_hash(bytes, byte_len);
   printf("> ");
   assert(strlen(hex) == byte_len * 2);  //otherwise 2A could match with 2A00 for fixed length int
   for(i = 0; i < byte_len; i++) {

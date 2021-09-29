@@ -109,7 +109,7 @@ char *decode_option_to_hex(scale_option *option) {
     uint8_t serialized[64] = { 0 };
     uint64_t serialized_len = 0;
     serialize_compact_int(serialized, &serialized_len, &option->value._compact_int);
-    char *hex = _byte_array_to_hex(serialized, serialized_len);
+    char *hex = cscale_byte_array_to_hex(serialized, serialized_len);
     if(!hex) {
       fprintf(stderr, "Error Initializing Memory For Option Hex\n");
       return NULL;
