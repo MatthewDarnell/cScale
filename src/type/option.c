@@ -9,69 +9,69 @@
 
 /*
 typedef enum _option_type { FIXED_INT, COMPACT_INT, BOOLEAN };
-typedef struct _option_value {
+typedef struct option_value {
   enum _option_type type;
   union value {
-    _scale_fixed_int _fixed_int;
-    _scale_compact_int _compact_int;
-    _scale_boolean _boolean;
+    scale_fixed_int _fixed_int;
+    scale_compact_int _compact_int;
+    scale_boolean _boolean;
   };
-} _option_value;
-typedef struct _scale_option {
-  _scale_boolean option;
-  _option_value value;
-} _scale_option;
+} option_value;
+typedef struct scale_option {
+  scale_boolean option;
+  option_value value;
+} scale_option;
 
 */
-int8_t _encode_option_fixed_int(_scale_option *option, _scale_fixed_int *fixed_int) {
-  memset(option, 0, sizeof(_scale_option));
+int8_t encode_option_fixed_int(scale_option *option, scale_fixed_int *fixed_int) {
+  memset(option, 0, sizeof(scale_option));
   if(fixed_int) {
-    _encode_boolean(&option->option, true);
+    encode_boolean(&option->option, true);
   }
   else {
-    _encode_boolean(&option->option, false);
+    encode_boolean(&option->option, false);
     return 0;
   }
-  memset(&option->value, 0, sizeof(_option_value));
+  memset(&option->value, 0, sizeof(option_value));
   option->value.type = FIXED_INT;
-  memmove(&option->value._fixed_int, fixed_int, sizeof(_scale_fixed_int));
+  memmove(&option->value._fixed_int, fixed_int, sizeof(scale_fixed_int));
   return 0;
 }
 
-int8_t _encode_option_boolean(_scale_option *option, _scale_boolean *boolean) {
-  memset(option, 0, sizeof(_scale_option));
+int8_t encode_option_boolean(scale_option *option, scale_boolean *boolean) {
+  memset(option, 0, sizeof(scale_option));
   if(boolean) {
-    _encode_boolean(&option->option, true);
+    encode_boolean(&option->option, true);
   }
   else {
-    _encode_boolean(&option->option, false);
+    encode_boolean(&option->option, false);
     return 0;
   }
-  memset(&option->value, 0, sizeof(_option_value));
+  memset(&option->value, 0, sizeof(option_value));
   option->value.type = BOOLEAN;
-  memmove(&option->value._boolean, boolean, sizeof(_scale_boolean));
+  memmove(&option->value._boolean, boolean, sizeof(scale_boolean));
   return 0;
 }
 
-int8_t _encode_option_compact_int(_scale_option *option, _scale_compact_int *compact_int) {
-  memset(option, 0, sizeof(_scale_option));
+int8_t encode_option_compact_int(scale_option *option, scale_compact_int *compact_int) {
+  memset(option, 0, sizeof(scale_option));
   if(compact_int) {
-    _encode_boolean(&option->option, true);
+    encode_boolean(&option->option, true);
   }
   else {
-    _encode_boolean(&option->option, false);
+    encode_boolean(&option->option, false);
     return 0;
   }
-  memset(&option->value, 0, sizeof(_option_value));
+  memset(&option->value, 0, sizeof(option_value));
   option->value.type = COMPACT_INT;
-  memmove(&option->value._compact_int, compact_int, sizeof(_scale_compact_int));
+  memmove(&option->value._compact_int, compact_int, sizeof(scale_compact_int));
 
   option->value._compact_int.data = compact_int->data;
   compact_int->data = NULL;
   return 0;
 }
 
-char *_decode_option_to_hex(_scale_option *option) {
+char *decode_option_to_hex(scale_option *option) {
   if(!option) {
     fprintf(stderr, "Error Decoding Option\n");
     return NULL;
@@ -79,7 +79,7 @@ char *_decode_option_to_hex(_scale_option *option) {
 
   char *out = NULL;
 
-  if(_decode_boolean(&option->option) == 0x00) {
+  if(decode_boolean(&option->option) == 0x00) {
     out = calloc(4, sizeof(char));
     if(!out) {
       fprintf(stderr, "Error Initializing Memory For Option Hex\n");
@@ -123,7 +123,7 @@ char *_decode_option_to_hex(_scale_option *option) {
 
   } else if(option->value.type == BOOLEAN) {
     char *out = calloc(3, sizeof(char));
-    if(_decode_boolean(&option->value._boolean) == 0x01) {
+    if(decode_boolean(&option->value._boolean) == 0x01) {
       strcpy(out, "0x01");
     } else {
       strcpy(out, "0x02");

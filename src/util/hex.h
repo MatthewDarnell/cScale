@@ -7,8 +7,6 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
-#define FIXED_INT_MAX_BYTES 16
-
 
 
 char* _fixed_byte_array_to_hex(uint8_t* data, int8_t byte_width);

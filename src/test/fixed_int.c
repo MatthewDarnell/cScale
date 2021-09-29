@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <assert.h>
+#include "../util/hex.h"
 #include "../scale.h"
 
 
@@ -24,7 +25,7 @@
 extern void assert_hash_matches_bytes(uint8_t* bytes, size_t byte_len, const char *hex);
 
 static void run_test(uint64_t value, size_t width, uint8_t is_signed, const char *expected_hex_serialized) {
-  _scale_fixed_int s_e;
+  scale_fixed_int s_e;
   uint8_t serialized[64] = { 0 };
   uint64_t serialized_len = 0;
   char *hex = NULL;
@@ -32,23 +33,23 @@ static void run_test(uint64_t value, size_t width, uint8_t is_signed, const char
 
   switch (width) {
     case 1: {
-      if(is_signed) _encode_fixed_int_to_scale(&s_e, (int8_t)value);
-      else _encode_fixed_int_to_scale(&s_e, (uint8_t)value);
+      if(is_signed) encode_fixed_int_to_scale(&s_e, (int8_t)value);
+      else encode_fixed_int_to_scale(&s_e, (uint8_t)value);
       break;
     }
     case 2: {
-      if(is_signed) _encode_fixed_int_to_scale(&s_e, (int16_t)value);
-      else _encode_fixed_int_to_scale(&s_e, (uint16_t)value);
+      if(is_signed) encode_fixed_int_to_scale(&s_e, (int16_t)value);
+      else encode_fixed_int_to_scale(&s_e, (uint16_t)value);
       break;
     }
     case 4: {
-      if(is_signed) _encode_fixed_int_to_scale(&s_e, (int32_t)value);
-      else _encode_fixed_int_to_scale(&s_e, (uint32_t)value);
+      if(is_signed) encode_fixed_int_to_scale(&s_e, (int32_t)value);
+      else encode_fixed_int_to_scale(&s_e, (uint32_t)value);
       break;
     }
     case 8: {
-      if(is_signed) _encode_fixed_int_to_scale(&s_e, (int64_t)value);
-      else _encode_fixed_int_to_scale(&s_e, (uint64_t)value);
+      if(is_signed) encode_fixed_int_to_scale(&s_e, (int64_t)value);
+      else encode_fixed_int_to_scale(&s_e, (uint64_t)value);
       break;
     }
     default: {
@@ -72,13 +73,13 @@ static void run_test(uint64_t value, size_t width, uint8_t is_signed, const char
 }
 
 static void run_test_128(char *value, uint8_t is_signed, const char *expected_hex_serialized) {
-  _scale_fixed_int s_e;
+  scale_fixed_int s_e;
   uint8_t serialized[64] = { 0 };
   uint64_t serialized_len = 0;
   char *hex = NULL;
   printf("\t\tEncoding 128 bit <%s>: ", value);
 
-  _encode_fixed_u128_to_scale(&s_e, value);
+  encode_fixed_u128_to_scale(&s_e, value);
 
   hex = decode_scale_fixed_to_hex(&s_e);
 
@@ -99,9 +100,9 @@ static void run_test_128(char *value, uint8_t is_signed, const char *expected_he
 }
 
 static void run_test_fixed_hex(const char *hex, uint8_t is_signed, uint64_t expected) {
-  _scale_fixed_int s_e;
+  scale_fixed_int s_e;
   printf("\t\tRe-Encoding: <%s> --- ", hex);
-  _encode_fixed_hex_to_scale(&s_e, is_signed, hex);
+  encode_fixed_hex_to_scale(&s_e, is_signed, hex);
   char *hex_out = decode_scale_fixed_to_hex(&s_e);
   printf("Output: <%s> ", hex_out);
   assert(hex_out);

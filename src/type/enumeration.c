@@ -8,7 +8,7 @@
 #include "../scale.h"
 
 #define t fprintf(stderr, "%s %d\n", __func__, __LINE__);
-int8_t _encode_scale_enum_type(_scale_enum_type *enum_type, size_t num_elements, char *keys[], char *values[]) {
+int8_t encode_scale_enum_type(scale_enum_type *enum_type, size_t num_elements, char *keys[], char *values[]) {
   if(num_elements < 1) {
     fprintf(stderr, "Error Encoding Scale Enum Type. Invalid Number of Elements.(%lu)\n", num_elements);
     return -1;
@@ -23,35 +23,35 @@ int8_t _encode_scale_enum_type(_scale_enum_type *enum_type, size_t num_elements,
 
   return 0;
 }
-void _print_scale_enum_type(_scale_enum_type *enum_type) {
+void print_scale_enum_type(scale_enum_type *enum_type) {
   size_t i;
   for(i = 0; i < enum_type->num_elements; i++) {
     fprintf(stderr, "%lu: %s(%s)\n", i, enum_type->keys[i], enum_type->values[i]);
   }
 }
 
-void _cleanup_scale_enum_type(_scale_enum_type *enum_type) {
+void cleanup_scale_enum_type(scale_enum_type *enum_type) {
   size_t i;
   for(i =0; i < enum_type->num_elements; i++) {
     free(enum_type->keys[i]);
     free(enum_type->values[i]);
   }
-  memset(enum_type, 0, sizeof(_scale_enum_type));
+  memset(enum_type, 0, sizeof(scale_enum_type));
 }
 
-char* _serialize_enumeration_to_hex(_scale_enumeration *enumeration) {
+char* serialize_enumeration_to_hex(scale_enumeration *enumeration) {
   uint8_t serialized[64] = { 0 };
   size_t serialized_len = 0;
-  if( _serialize_enumeration(serialized, &serialized_len, enumeration) < 0) {
+  if( serialize_enumeration(serialized, &serialized_len, enumeration) < 0) {
     fprintf(stderr, "Error Serializing Enumeration to Hex\n");
     return NULL;
   }
   return _byte_array_to_hex(serialized, serialized_len);
 }
 
-int8_t _serialize_enumeration(uint8_t *serialized, size_t *serialized_len, _scale_enumeration *enumeration) {
+int8_t serialize_enumeration(uint8_t *serialized, size_t *serialized_len, scale_enumeration *enumeration) {
   char *key = enumeration->key;
-  enum _scale_type type = enumeration->value.type;
+  enum scale_type type = enumeration->value.type;
   uint8_t enum_offset_prefix = 0x00;
   size_t i;
   bool found = false;
@@ -84,7 +84,7 @@ int8_t _serialize_enumeration(uint8_t *serialized, size_t *serialized_len, _scal
 
       _scale_struct p_scale_struct = enumeration->value._struct;
       size_t num_elements = p_scale_struct.num_elements;
-      _scale_fixed_int *elements = (_scale_fixed_int*)p_scale_struct.data;
+      scale_fixed_int *elements = (scale_fixed_int*)p_scale_struct.data;
 
       size_t i;
       for(i = 0; i < num_elements; i++) {
@@ -114,7 +114,7 @@ int8_t _serialize_enumeration(uint8_t *serialized, size_t *serialized_len, _scal
 }
 
 
-void _decode_enumeration(uint8_t *bytes, uint16_t *enum_type_index, _scale_enum_type *enum_types, uint8_t *serialized, size_t *serialized_len) {
+void decode_enumeration(uint8_t *bytes, uint16_t *enum_type_index, scale_enum_type *enum_types, uint8_t *serialized, size_t *serialized_len) {
   uint8_t enum_type = serialized[0];
   char **keys = enum_types->keys;
   char *temp_key = keys[enum_type];
@@ -124,7 +124,7 @@ void _decode_enumeration(uint8_t *bytes, uint16_t *enum_type_index, _scale_enum_
 }
 
 //Supported keys: [Int, Compact, Bool, Struct]
-void _encode_enumeration(uint8_t *bytes, _scale_enum_type *enum_types, const char *key, uint8_t *serialized, size_t *serialized_len) {
+void encode_enumeration(uint8_t *bytes, scale_enum_type *enum_types, const char *key, uint8_t *serialized, size_t *serialized_len) {
   size_t num_elements = enum_types->num_elements;
   char **keys = enum_types->keys;
   size_t i;

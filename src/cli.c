@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
+#include "util/hex.h"
 #include "scale.h"
 
 #define help  "Usage:\n" \
@@ -17,7 +17,7 @@
 
 
   void run_fixed(uint64_t value, int8_t is_signed, int8_t byte_length) {
-    _scale_fixed_int scale_fixed;
+    scale_fixed_int scale_fixed;
     uint8_t serialized[64] = { 0 };
     uint64_t serialized_len = 0;
 
@@ -25,28 +25,28 @@
 
     if(byte_length == 1) {
       if (is_signed) {
-        _encode_fixed_int_to_scale(&scale_fixed, (int8_t)value);
+        encode_fixed_int_to_scale(&scale_fixed, (int8_t)value);
       } else {
-        _encode_fixed_int_to_scale(&scale_fixed, (uint8_t)value);
+        encode_fixed_int_to_scale(&scale_fixed, (uint8_t)value);
       }
     } else if(byte_length == 2) {
       if (is_signed) {
-        _encode_fixed_int_to_scale(&scale_fixed, (int16_t)value);
+        encode_fixed_int_to_scale(&scale_fixed, (int16_t)value);
 
       } else {
-        _encode_fixed_int_to_scale(&scale_fixed, (uint16_t)value);
+        encode_fixed_int_to_scale(&scale_fixed, (uint16_t)value);
       }
     } else if(byte_length == 4) {
       if (is_signed) {
-        _encode_fixed_int_to_scale(&scale_fixed, (int32_t)value);
+        encode_fixed_int_to_scale(&scale_fixed, (int32_t)value);
       } else {
-        _encode_fixed_int_to_scale(&scale_fixed, (uint32_t)value);
+        encode_fixed_int_to_scale(&scale_fixed, (uint32_t)value);
       }
     } else {
       if (is_signed) {
-        _encode_fixed_int_to_scale(&scale_fixed, (int64_t)value);
+        encode_fixed_int_to_scale(&scale_fixed, (int64_t)value);
       } else {
-        _encode_fixed_int_to_scale(&scale_fixed, (uint64_t)value);
+        encode_fixed_int_to_scale(&scale_fixed, (uint64_t)value);
       }
     }
 
@@ -61,8 +61,8 @@
   }
 
   void decode_fixed(char *value, int8_t is_signed) {
-    _scale_fixed_int scale_fixed;
-    if(_encode_fixed_hex_to_scale(&scale_fixed, is_signed, value) < 0) {
+    scale_fixed_int scale_fixed;
+    if(encode_fixed_hex_to_scale(&scale_fixed, is_signed, value) < 0) {
       fprintf(stderr, "Error Decoding <%s>\n", value);
       return;
     }
@@ -75,13 +75,13 @@
   }
 
   void decode_compact(const char *value) {
-    _scale_compact_int scale_compact;
+    scale_compact_int scale_compact;
     printf("decoding %s\n", value);
-    if(_encode_compact_hex_to_scale(&scale_compact, value) < 0) {
+    if(encode_compact_hex_to_scale(&scale_compact, value) < 0) {
       fprintf(stderr, "Failed to Decode!\n Valid Hex?");
       return;
     }
-    char *decoded = _decode_compact_to_hex(&scale_compact);
+    char *decoded = decode_compact_to_hex(&scale_compact);
     if(!decoded) {
       fprintf(stderr, "Failed to Decode Compact!\n");
       return;
@@ -93,19 +93,19 @@
   }
 
   void run_compact(char *hexValue, uint64_t value, int8_t byte_length) {
-    _scale_compact_int scale_compact;
+    scale_compact_int scale_compact;
 
     if(byte_length == 1) {
-        if(_encode_compact_8(&scale_compact, (uint8_t)value) < 0) return;
+        if(encode_compact_8(&scale_compact, (uint8_t)value) < 0) return;
     } else if(byte_length == 2) {
-      if(_encode_compact_16(&scale_compact, (uint16_t)value) < 0) return;
+      if(encode_compact_16(&scale_compact, (uint16_t)value) < 0) return;
     } else if(byte_length == 4) {
-      if(_encode_compact_32(&scale_compact, (uint32_t)value) < 0) return;
+      if(encode_compact_32(&scale_compact, (uint32_t)value) < 0) return;
     } else if(byte_length == 8) {
-      if(_encode_compact_64(&scale_compact, (uint64_t)value) < 0) return;
+      if(encode_compact_64(&scale_compact, (uint64_t)value) < 0) return;
     } else if(byte_length == 16) {
       if(hexValue) {
-        if(_encode_compact_128_from_hex(&scale_compact, hexValue) < 0) return;
+        if(encode_compact_128_from_hex(&scale_compact, hexValue) < 0) return;
       } else {
         printf("Unable to Encode to u128. Did you pass a valid hex string?\n");
         return;

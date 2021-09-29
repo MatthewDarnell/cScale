@@ -1,5 +1,5 @@
 CC=clang
-CFLAGS=-Wall -g
+CFLAGS=-Wall
 
 ODIR=.
 _OBJ =  src/type/boolean.o src/type/compact.o src/type/enumeration.o src/type/fixed_int.o src/type/option.o src/type/tuple.o src/type/vector.o src/util/hex.o src/scale.o

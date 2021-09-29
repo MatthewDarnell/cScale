@@ -5,13 +5,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../scale.h"
 #include "hex.h"
 
 
 char* _fixed_byte_array_to_hex(uint8_t* data, int8_t byte_width) {
   char *encoded = (char*)calloc( 2 + byte_width + 1, sizeof(char));
   if(!encoded) {
-    fprintf(stderr, "Failed to malloc hex string in get_encoded_hex_from_scale_fixed_int\n");
+    fprintf(stderr, "Failed to malloc hex string in getencoded_hex_fromscale_fixed_int\n");
     return NULL;
   }
   //strncpy(encoded, "0x", 2);
@@ -27,7 +28,7 @@ char* _fixed_byte_array_to_hex(uint8_t* data, int8_t byte_width) {
 char* _byte_array_to_hex(uint8_t* data, size_t len) {
   char *encoded = (char*)calloc( 2 + len + 1, sizeof(char));
   if(!encoded) {
-    fprintf(stderr, "Failed to malloc hex string in get_encoded_hex_from_scale_fixed_int\n");
+    fprintf(stderr, "Failed to malloc hex string in getencoded_hex_fromscale_fixed_int\n");
     return NULL;
   }
   size_t i;

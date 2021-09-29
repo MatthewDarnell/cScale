@@ -11,20 +11,20 @@
 
 
 /*
-typedef struct _scale_vector {
+typedef struct scale_vector {
   uint8_t *data;
-  _scale_compact_int prefix_num_elements;
-} _scale_vector;
+  scale_compact_int prefix_num_elements;
+} scale_vector;
 
-void serialize_vector(uint8_t *serialized, size_t *serialized_len, _scale_vector *vec);
-void deserialize_vector(_scale_vector *vec, uint8_t *serialized, size_t *serialized_len);
-void cleanup_vector(_scale_vector *vec);
+void serialize_vector(uint8_t *serialized, size_t *serialized_len, scale_vector *vec);
+void deserialize_vector(scale_vector *vec, uint8_t *serialized, size_t *serialized_len);
+void cleanup_vector(scale_vector *vec);
 
 */
-void deserialize_vector(_scale_vector *vec, uint8_t *serialized, size_t *serialized_len) {
+void deserialize_vector(scale_vector *vec, uint8_t *serialized, size_t *serialized_len) {
   cleanup_vector(vec);
   uint8_t lsb = serialized[0];
-  enum _scale_compact_int_mode mode = lsb & 0x03;
+  enum scale_compact_int_mode mode = lsb & 0x03;
   uint64_t compact_num_bytes = 0;
   switch(mode) {
     case SINGLE_BYTE: {
@@ -50,7 +50,7 @@ void deserialize_vector(_scale_vector *vec, uint8_t *serialized, size_t *seriali
     fprintf(stderr, "Error deserializing vector! Memory failed to initialize\n");
     return;
   }
-  _encode_compact_hex_to_scale(&vec->prefix_num_elements, hex);
+  encode_compact_hex_to_scale(&vec->prefix_num_elements, hex);
   free(hex);
 
   vec->data_len = *serialized_len;
@@ -69,22 +69,22 @@ void deserialize_vector(_scale_vector *vec, uint8_t *serialized, size_t *seriali
   }
 }
 
-void serialize_vector(uint8_t *serialized, size_t *serialized_len, _scale_vector *vec) {
+void serialize_vector(uint8_t *serialized, size_t *serialized_len, scale_vector *vec) {
 
   serialize_compact_int(serialized, (uint64_t*)serialized_len, &(vec->prefix_num_elements));
   memcpy(&serialized[*serialized_len], vec->data, vec->data_len);
   *serialized_len += vec->data_len;
 }
 
-void cleanup_vector(_scale_vector *vec) {
+void cleanup_vector(scale_vector *vec) {
   if(vec->data) {
     free(vec->data);
   }
-  memset(vec, 0, sizeof(_scale_vector));
+  memset(vec, 0, sizeof(scale_vector));
 }
-void push_vector(_scale_vector *vec, uint8_t *bytes, size_t len) {
-  _scale_compact_int *prefix_num_elements = &vec->prefix_num_elements;
-  char *hex_num_elements = _decode_compact_to_hex(prefix_num_elements);
+void push_vector(scale_vector *vec, uint8_t *bytes, size_t len) {
+  scale_compact_int *prefix_num_elements = &vec->prefix_num_elements;
+  char *hex_num_elements = decode_compact_to_hex(prefix_num_elements);
   uint64_t num_elements = strtoull(hex_num_elements, NULL, 16);
   if(num_elements > 4611686018427387903) {
     fprintf(stderr, "Error appending vector! Too many elements!\n");
@@ -108,12 +108,12 @@ void push_vector(_scale_vector *vec, uint8_t *bytes, size_t len) {
   memcpy(vec->data + vec->data_len, bytes, len);
   vec->data_len += len;
   num_elements++;
-  _encode_compact(prefix_num_elements, num_elements);
+  encode_compact(prefix_num_elements, num_elements);
 }
 
 
 
-extern void create_string(_scale_vector *vec, unsigned char *string, size_t len);
-extern void serialize_string(uint8_t *serialized, size_t *serialized_len, _scale_vector *vec);
-extern void deserialize_string(_scale_vector *vec, uint8_t *serialized, size_t *serialized_len);;
-extern void cleanup_string(_scale_vector *vec);
+extern void create_string(scale_vector *vec, unsigned char *string, size_t len);
+extern void serialize_string(uint8_t *serialized, size_t *serialized_len, scale_vector *vec);
+extern void deserialize_string(scale_vector *vec, uint8_t *serialized, size_t *serialized_len);;
+extern void cleanup_string(scale_vector *vec);

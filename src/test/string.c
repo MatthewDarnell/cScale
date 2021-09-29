@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <locale.h>
 #include "../util/utf8.h"
+#include "../util/hex.h"
 #include "../scale.h"
 
 extern void assert_hash_matches_bytes(uint8_t* bytes, size_t byte_len, const char *hex);
@@ -23,14 +24,14 @@ int run_string_test() {
   };
 
   int8_t i;
-  _scale_vector VecOfStrings = { 0 };
+  scale_vector VecOfStrings = { 0 };
 
   for(i=0; i < 4; i++) {
     unsigned char serialized[64] = { 0 };
     size_t len = 0;
     void *string = utf8dup((char*)strings[i]);
     size_t utf_len = utf8size_lazy(string);
-    _scale_vector scale_string = { 0 }, scale_string_deserialized = { 0 };
+    scale_vector scale_string = { 0 }, scale_string_deserialized = { 0 };
     create_string(&scale_string, (unsigned char*)string, utf_len);
     free(string);
     serialize_string(serialized, &len, &scale_string);

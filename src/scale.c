@@ -2,7 +2,6 @@
     2021 cScale - A SCALE Library written in C
     Created by Matthew Darnell
 */
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "util/hex.h"
@@ -36,7 +35,7 @@
   }
 
   //https://www.geeksforgeeks.org/little-and-big-endian-mystery/
-  bool _is_big_endian(void *value) {
+  bool is_big_endian(void *value) {
     char *c = (char*)&value;
     if (*c) {
       return false;
@@ -44,6 +43,6 @@
     return true;
   }
 
-  void _cleanup_scale_compact_int(_scale_compact_int *compact) {
+  void cleanup_scale_compact_int(scale_compact_int *compact) {
     if(compact->data) free(compact->data);
   }

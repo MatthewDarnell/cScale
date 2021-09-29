@@ -9,7 +9,7 @@
 
 //Encode functions
 
-int8_t serialize_fixed_int(uint8_t *serialized, uint64_t *serialized_len, _scale_fixed_int *fixed_int_elem) {
+int8_t serialize_fixed_int(uint8_t *serialized, uint64_t *serialized_len, scale_fixed_int *fixed_int_elem) {
   *serialized_len = 0;
 
   uint8_t byte_width = fixed_int_elem->byte_width;
@@ -37,38 +37,38 @@ int8_t serialize_fixed_int(uint8_t *serialized, uint64_t *serialized_len, _scale
   return 0;
 }
 
-//These functions encode decimal values into a _scale_fixed_int struct
-void _encode_fixed_int8_to_scale(_scale_fixed_int *fixed_int_elem, int8_t data) {
-  memset(fixed_int_elem, 0, sizeof(_scale_fixed_int));
+//These functions encode decimal values into a scale_fixed_int struct
+void encode_fixed_int8_to_scale(scale_fixed_int *fixed_int_elem, int8_t data) {
+  memset(fixed_int_elem, 0, sizeof(scale_fixed_int));
   fixed_int_elem->byte_width = 1;
   fixed_int_elem->is_signed = true;
   fixed_int_elem->data[FIXED_INT_MAX_BYTES-1] = data;
 }
-void _encode_fixed_uint8_to_scale(_scale_fixed_int *fixed_int_elem, uint8_t data) {
-  memset(fixed_int_elem, 0, sizeof(_scale_fixed_int));
+void encode_fixed_uint8_to_scale(scale_fixed_int *fixed_int_elem, uint8_t data) {
+  memset(fixed_int_elem, 0, sizeof(scale_fixed_int));
   fixed_int_elem->byte_width = 1;
   fixed_int_elem->is_signed  = false;
   fixed_int_elem->data[FIXED_INT_MAX_BYTES-1] = data;
 }
 
-void _encode_fixed_int16_to_scale(_scale_fixed_int *fixed_int_elem, int16_t data) {
-  memset(fixed_int_elem, 0, sizeof(_scale_fixed_int));
+void encode_fixed_int16_to_scale(scale_fixed_int *fixed_int_elem, int16_t data) {
+  memset(fixed_int_elem, 0, sizeof(scale_fixed_int));
   fixed_int_elem->byte_width = 2;
   fixed_int_elem->is_signed  = true;
   fixed_int_elem->data[FIXED_INT_MAX_BYTES-2] = data & 0xFF;
   data >>= 8;
   fixed_int_elem->data[FIXED_INT_MAX_BYTES-1] = data & 0xFF;
 }
-void _encode_fixed_uint16_to_scale(_scale_fixed_int *fixed_int_elem, uint16_t data) {
-  memset(fixed_int_elem, 0, sizeof(_scale_fixed_int));
+void encode_fixed_uint16_to_scale(scale_fixed_int *fixed_int_elem, uint16_t data) {
+  memset(fixed_int_elem, 0, sizeof(scale_fixed_int));
   fixed_int_elem->byte_width = 2;
   fixed_int_elem->is_signed  = false;
   fixed_int_elem->data[FIXED_INT_MAX_BYTES-2] = (data & 0xFF);
   fixed_int_elem->data[FIXED_INT_MAX_BYTES-1] = ((data >> 8) & 0xFF);
 }
 
-void _encode_fixed_int32_to_scale(_scale_fixed_int *fixed_int_elem, int32_t data) {
-  memset(fixed_int_elem, 0, sizeof(_scale_fixed_int));
+void encode_fixed_int32_to_scale(scale_fixed_int *fixed_int_elem, int32_t data) {
+  memset(fixed_int_elem, 0, sizeof(scale_fixed_int));
   fixed_int_elem->byte_width = 4;
   fixed_int_elem->is_signed  = true;
   fixed_int_elem->data[FIXED_INT_MAX_BYTES-4] = (data & 0xFF);
@@ -76,8 +76,8 @@ void _encode_fixed_int32_to_scale(_scale_fixed_int *fixed_int_elem, int32_t data
   fixed_int_elem->data[FIXED_INT_MAX_BYTES-2] = ((data >> 16) & 0xFF);
   fixed_int_elem->data[FIXED_INT_MAX_BYTES-1] = ((data >> 24) & 0xFF);
 }
-void _encode_fixed_uint32_to_scale(_scale_fixed_int *fixed_int_elem, uint32_t data) {
-  memset(fixed_int_elem, 0, sizeof(_scale_fixed_int));
+void encode_fixed_uint32_to_scale(scale_fixed_int *fixed_int_elem, uint32_t data) {
+  memset(fixed_int_elem, 0, sizeof(scale_fixed_int));
   fixed_int_elem->byte_width = 4;
   fixed_int_elem->is_signed  = false;
   fixed_int_elem->data[FIXED_INT_MAX_BYTES-4] = (data & 0xFF);
@@ -86,8 +86,8 @@ void _encode_fixed_uint32_to_scale(_scale_fixed_int *fixed_int_elem, uint32_t da
   fixed_int_elem->data[FIXED_INT_MAX_BYTES-1] = ((data >> 24) & 0xFF);
 }
 
-void _encode_fixed_int64_to_scale(_scale_fixed_int *fixed_int_elem, int64_t data) {
-  memset(fixed_int_elem, 0, sizeof(_scale_fixed_int));
+void encode_fixed_int64_to_scale(scale_fixed_int *fixed_int_elem, int64_t data) {
+  memset(fixed_int_elem, 0, sizeof(scale_fixed_int));
   fixed_int_elem->byte_width = 8;
   fixed_int_elem->is_signed  = true;
   fixed_int_elem->data[FIXED_INT_MAX_BYTES-8] = (data & 0xFF);
@@ -100,8 +100,8 @@ void _encode_fixed_int64_to_scale(_scale_fixed_int *fixed_int_elem, int64_t data
   fixed_int_elem->data[FIXED_INT_MAX_BYTES-1] = ((data >> 56) & 0xFF);
 }
 
-void _encode_fixed_uint64_to_scale(_scale_fixed_int *fixed_int_elem, uint64_t data) {
-  memset(fixed_int_elem, 0, sizeof(_scale_fixed_int));
+void encode_fixed_uint64_to_scale(scale_fixed_int *fixed_int_elem, uint64_t data) {
+  memset(fixed_int_elem, 0, sizeof(scale_fixed_int));
   fixed_int_elem->byte_width = 8;
   fixed_int_elem->is_signed  = false;
   fixed_int_elem->data[FIXED_INT_MAX_BYTES-8] = (data & 0xFF);
@@ -114,7 +114,7 @@ void _encode_fixed_uint64_to_scale(_scale_fixed_int *fixed_int_elem, uint64_t da
   fixed_int_elem->data[FIXED_INT_MAX_BYTES-1] = ((data >> 56) & 0xFF);
 }
 
-int8_t _encode_fixed_u128_to_scale(_scale_fixed_int *fixed_int_elem, char *hex) {
+int8_t encode_fixed_u128_to_scale(scale_fixed_int *fixed_int_elem, char *hex) {
   char *pHex = hex;
   if(strlen(pHex) < 2) {
     return -1;
@@ -131,7 +131,7 @@ int8_t _encode_fixed_u128_to_scale(_scale_fixed_int *fixed_int_elem, char *hex) 
     return -1;
   }
 
-  memset(fixed_int_elem, 0, sizeof(_scale_fixed_int));
+  memset(fixed_int_elem, 0, sizeof(scale_fixed_int));
   fixed_int_elem->byte_width = 16;
   fixed_int_elem->is_signed  = false;
   int i;
@@ -146,7 +146,7 @@ int8_t _encode_fixed_u128_to_scale(_scale_fixed_int *fixed_int_elem, char *hex) 
   return 0;
 }
 
-int8_t _encode_fixed_hex_to_scale(_scale_fixed_int *fixed_int_elem, bool is_signed, const char *hex) {
+int8_t encode_fixed_hex_to_scale(scale_fixed_int *fixed_int_elem, bool is_signed, const char *hex) {
   uint8_t *data;
   int32_t byte_width = 0;
   char *pHex = (char*)hex;
@@ -173,19 +173,19 @@ int8_t _encode_fixed_hex_to_scale(_scale_fixed_int *fixed_int_elem, bool is_sign
     return -1;
   }
 
-  memset(fixed_int_elem, 0, sizeof(_scale_fixed_int));
+  memset(fixed_int_elem, 0, sizeof(scale_fixed_int));
   if(is_signed) {
     switch (byte_width) {
       case 1: {
         int8_t value = (int8_t)data[byte_width-1];
-        _encode_fixed_int8_to_scale(fixed_int_elem, value);
+        encode_fixed_int8_to_scale(fixed_int_elem, value);
         break;
       }
       case 2: {
         int16_t value = data[byte_width-1];
         value <<= 8;
         value |= data[byte_width-2] & 0xFF;
-        _encode_fixed_int16_to_scale(fixed_int_elem, value);
+        encode_fixed_int16_to_scale(fixed_int_elem, value);
         break;
       }
       case 4: {
@@ -196,7 +196,7 @@ int8_t _encode_fixed_hex_to_scale(_scale_fixed_int *fixed_int_elem, bool is_sign
         value |= data[byte_width-3] & 0xFF;
         value <<= 8;
         value |= data[byte_width-4] & 0xFF;
-        _encode_fixed_int32_to_scale(fixed_int_elem, value);
+        encode_fixed_int32_to_scale(fixed_int_elem, value);
         break;
       }
       case 8: {
@@ -215,7 +215,7 @@ int8_t _encode_fixed_hex_to_scale(_scale_fixed_int *fixed_int_elem, bool is_sign
         value |= data[1] & 0xFF;
         value <<= 8;
         value |= data[0] & 0xFF;
-        _encode_fixed_int64_to_scale(fixed_int_elem, value);
+        encode_fixed_int64_to_scale(fixed_int_elem, value);
         break;
       }
       default: {
@@ -228,14 +228,14 @@ int8_t _encode_fixed_hex_to_scale(_scale_fixed_int *fixed_int_elem, bool is_sign
     switch (byte_width) {
       case 1: {
         uint8_t value = data[byte_width-1];
-        _encode_fixed_uint8_to_scale(fixed_int_elem, value);
+        encode_fixed_uint8_to_scale(fixed_int_elem, value);
         break;
       }
       case 2: {
         uint16_t value = data[byte_width-1];
         value <<= 8;
         value |= data[byte_width-2] & 0xFF;
-        _encode_fixed_uint16_to_scale(fixed_int_elem, value);
+        encode_fixed_uint16_to_scale(fixed_int_elem, value);
         break;
       }
       case 4: {
@@ -246,7 +246,7 @@ int8_t _encode_fixed_hex_to_scale(_scale_fixed_int *fixed_int_elem, bool is_sign
         value |= data[byte_width-3] & 0xFF;
         value <<= 8;
         value |= data[byte_width-4] & 0xFF;
-        _encode_fixed_uint32_to_scale(fixed_int_elem, value);
+        encode_fixed_uint32_to_scale(fixed_int_elem, value);
         break;
       }
       case 8: {
@@ -265,7 +265,7 @@ int8_t _encode_fixed_hex_to_scale(_scale_fixed_int *fixed_int_elem, bool is_sign
         value |= data[1] & 0xFF;
         value <<= 8;
         value |= data[0] & 0xFF;
-        _encode_fixed_uint64_to_scale(fixed_int_elem, value);
+        encode_fixed_uint64_to_scale(fixed_int_elem, value);
         break;
       }
       default: {
@@ -285,13 +285,13 @@ void deserialize_fixed_int(void *output, uint8_t *bytes, size_t len, bool is_sig
   char stack_hex[256] = { 0 };
   strcpy(stack_hex, hex);
   free(hex);
-  _scale_fixed_int fixed;
-  _encode_fixed_hex_to_scale(&fixed, is_signed, stack_hex);
+  scale_fixed_int fixed;
+  encode_fixed_hex_to_scale(&fixed, is_signed, stack_hex);
   decode_scale_fixed_int(output, &fixed);
 }
 
 //remember to free
-char *decode_scale_fixed_to_hex(_scale_fixed_int *fixed_int_elem) {
+char *decode_scale_fixed_to_hex(scale_fixed_int *fixed_int_elem) {
   if(fixed_int_elem->byte_width < 1 || fixed_int_elem->byte_width > FIXED_INT_MAX_BYTES) {  //currently 1 byte - 4 byte max
     return NULL;
   }
@@ -299,7 +299,7 @@ char *decode_scale_fixed_to_hex(_scale_fixed_int *fixed_int_elem) {
 }
 
 //decode fixed int scale elem and place the output in void*out, user can cast due to known output type
-int8_t decode_scale_fixed_int(void *output, _scale_fixed_int *fixed_int_elem) {
+int8_t decode_scale_fixed_int(void *output, scale_fixed_int *fixed_int_elem) {
   if (
     fixed_int_elem->byte_width < 1 ||
     fixed_int_elem->byte_width > FIXED_INT_MAX_BYTES ||
