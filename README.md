@@ -71,7 +71,7 @@ printf(" --- %u\n", output);
 ```
 
 ---
-####Serializing and Deserializing a Compact Integer:
+#### Serializing and Deserializing a Compact Integer:
 
 ```c
   scale_compact_int compact = { 0 };
@@ -95,11 +95,11 @@ SCALE=<1501> --- Hex=<45> --- Decoded=<69>
 For more information, you can have a look over the test files in `src/test/` to see examples of each kind. 
 
 
-##Current Status/Limitations
+## Current Status/Limitations
 
 This is a working build that has not been subject to any extensive audits. 
 
-####Current Limitations:
+#### Current Limitations:
 |Type | Reason
 :---: | :---:
 |u128 | C does not support native uint128_t. GCC extension exists but literal u128 values too long. Hex Strings currently used.|
