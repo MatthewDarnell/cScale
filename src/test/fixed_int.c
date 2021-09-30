@@ -102,6 +102,34 @@ static void run_test_128(char *value, uint8_t is_signed, const char *expected_he
   assert_hash_matches_bytes(serialized, 16, expected_hex_serialized);
 }
 
+static void run_test_128_no_swap(char *value, uint8_t is_signed, const char *expected_hex_serialized) {
+  scale_fixed_int s_e;
+  uint8_t serialized[64] = { 0 };
+  uint64_t serialized_len = 0;
+  char *hex = NULL;
+  printf("\n\t\tEncoding 128 bit Big Endian <%s>: ", value);
+
+  encode_u128_string_to_fixed_int_scale(&s_e, value);
+
+  hex = decode_scale_fixed_to_hex(&s_e);
+
+  free(hex);
+  memset(serialized, 0, 64 * sizeof(uint8_t));
+  serialized_len = 0;
+  serialize_fixed_int(serialized, &serialized_len, &s_e);
+  uint64_t one = 0;
+  uint64_t two = 0;
+  hex = cscale_byte_array_to_hex(serialized, 8);
+  one = strtoull(hex, NULL, 16);
+  free(hex);
+  hex = cscale_byte_array_to_hex(&serialized[7], 8);
+  two = strtoull(hex, NULL, 16);
+  printf("Got Number Value: <%llu%llu>\t", one, two);
+  free(hex);
+  assert_hash_matches_bytes(serialized, 16, expected_hex_serialized);
+}
+
+
 static void run_test_fixed_hex(const char *hex, uint8_t is_signed, uint64_t expected) {
   scale_fixed_int s_e;
   printf("\t\tRe-Encoding: <%s> --- ", hex);
@@ -168,8 +196,10 @@ int run_fixed_int_test() {
 
     run_test_128("0xf7d8fca02ff8ab990000000000000000", 0, "99abf82fa0fcd8f70000000000000000");
     run_test_128("cef512a72670a59a0000000000000000", 0, "9aa57026a712f5ce0000000000000000");
+    run_test_128_no_swap("9aa57026a712f5ce0000000000000000", 0, "9aa57026a712f5ce0000000000000000");
+    run_test_128_no_swap("9aa57026a712f5ce", 0, "9aa57026a712f5ce0000000000000000");
 
-    printf("\tEncoding Fixed Scale Hex to Fixed Scale:\n");
+    printf("\n\n\tEncoding Fixed Scale Hex to Fixed Scale:\n");
     run_test_fixed_hex("45", 0, 69);
     run_test_fixed_hex("8000", 0, 128);
     run_test_fixed_hex("2A", 0, 42);
