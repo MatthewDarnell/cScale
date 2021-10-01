@@ -21,6 +21,7 @@ int8_t swap_u128_le_to_be(char *be_out, char *le) {
     i -= 2;
   }
   if(i<0) {
+    strcpy(be_out, pLe); //this value is just 0
     return -1;
   }
   if((i+1) % 2 != 0) {
