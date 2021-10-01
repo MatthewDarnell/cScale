@@ -19,11 +19,12 @@ int8_t swap_u128_le_to_be(char *be_out, char *le) {
   memset(be_out, 0, strlen(pLe));
   while(pLe[i] == '0' && pLe[i-1] == '0') {
     i -= 2;
+    if(i < 2) { //just 0 value
+      strcpy(be_out, pLe);
+      return -1;
+    }
   }
-  if(i<0) {
-    strcpy(be_out, pLe); //this value is just 0
-    return -1;
-  }
+
   if((i+1) % 2 != 0) {
     fprintf(stderr, "Odd number U128: %s\n", le);
     return -1;
