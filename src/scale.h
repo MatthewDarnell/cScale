@@ -93,7 +93,7 @@ int8_t deserialize_fixed_int(void *output, uint8_t *bytes, size_t len, bool is_s
 
 //Enum Containing A Compact/General Integer Mode
 enum scale_compact_int_mode {
-  SINGLE_BYTE = 0, TWO_BYTE = 1, FOUR_BYTE = 2, BIGNUM = 3
+  SCALE_COMPACT_SINGLE_BYTE = 0, SCALE_COMPACT_TWO_BYTE = 1, SCALE_COMPACT_FOUR_BYTE = 2, SCALE_COMPACT_BIGNUM = 3
 };
 
 

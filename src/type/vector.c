@@ -27,19 +27,19 @@ void deserialize_vector(scale_vector *vec, uint8_t *serialized, size_t *serializ
   enum scale_compact_int_mode mode = lsb & 0x03;
   uint64_t compact_num_bytes = 0;
   switch(mode) {
-    case SINGLE_BYTE: {
+    case SCALE_COMPACT_SINGLE_BYTE: {
       compact_num_bytes = 1;
       break;
     }
-    case TWO_BYTE: {
+    case SCALE_COMPACT_TWO_BYTE: {
       compact_num_bytes = 2;
       break;
     }
-    case FOUR_BYTE: {
+    case SCALE_COMPACT_FOUR_BYTE: {
       compact_num_bytes = 4;
       break;
     }
-    case BIGNUM: {
+    case SCALE_COMPACT_BIGNUM: {
       compact_num_bytes = lsb >> 2;
       break;
     }
@@ -61,7 +61,7 @@ void deserialize_vector(scale_vector *vec, uint8_t *serialized, size_t *serializ
   }
   *serialized_len -= 1;
 
-  if(mode == BIGNUM) {
+  if(mode == SCALE_COMPACT_BIGNUM) {
     memcpy(vec->data, &serialized[1], compact_num_bytes);
   } else {
 
