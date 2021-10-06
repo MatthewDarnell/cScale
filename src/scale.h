@@ -147,6 +147,8 @@ char* decode_compact_to_hex(scale_compact_int *compact_int_elem);
 //Returns 0 if it fails
 uint64_t decode_compact_to_u64(scale_compact_int *compact_int_elem);
 
+//Get the length, in bytes, of the serialized compact_int_elem
+size_t compact_int_get_byte_length(scale_compact_int *compact_int_elem);
 
 /*
   *

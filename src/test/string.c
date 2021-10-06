@@ -86,7 +86,7 @@ int run_string_test() {
   memset(data, 0, 64);
   num_bytes = create_utf8_string(&utfvec, data_str+1, vecs_len);
   serialize_string(data, &vecs_len, &utfvec);
-  fprintf(stderr, "vecs len %lu\n", vecs_len);
+
   assert(vecs_len-1 == 6);  //vecs_len now contains str length + compact byte length for prefix num elements
   printf("\n\tVerifying Utf8 String of Vectors can Retrieve First String: <%s>, Serialized: ", data_str);
   free(data_str);

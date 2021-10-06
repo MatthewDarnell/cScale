@@ -40,18 +40,22 @@ static void run_test(uint64_t value, size_t width, const char *expected_hex_seri
       }
     }
 
-    uint8_t serialized[64] = { 0 };
-    uint64_t serialized_len = 0;
+  printf("Verifying ByteWidth=(%lu)\t", width);
+  size_t num_bytes = compact_int_get_byte_length(&s_e);
+  assert(num_bytes == width);
 
-    assert(serialize_compact_int(serialized, &serialized_len, &s_e) == 0);
-    assert(serialized_len > 0);
+  uint8_t serialized[64] = { 0 };
+  uint64_t serialized_len = 0;
 
-    char *hex = cscale_byte_array_to_hex(serialized, serialized_len);
-    printf("Comparing: <%s> / <%s>\n", expected_hex_serialized, hex);
-    assert(strcasecmp(expected_hex_serialized, hex) == 0);
-    free(hex);
-    cleanup_scale_compact_int(&s_e);
-  }
+  assert(serialize_compact_int(serialized, &serialized_len, &s_e) == 0);
+  assert(serialized_len > 0);
+
+  char *hex = cscale_byte_array_to_hex(serialized, serialized_len);
+  printf("Comparing: <%s> / <%s>\n", expected_hex_serialized, hex);
+  assert(strcasecmp(expected_hex_serialized, hex) == 0);
+  free(hex);
+  cleanup_scale_compact_int(&s_e);
+}
 
 void run_compact_128(const char *value, const char *expected_hex_serialized) {
   scale_compact_int compact;
@@ -95,7 +99,7 @@ static void run_test_fixed_hex_128(const char *hex, const char *expected) {
 int run_compact_test() {
 
   printf("\tEncoding Ints to Compact Scale:\n");
-  run_test(127, 1, "fd01"); //uint8_t
+  run_test(127, 2, "fd01"); //uint16_t
   run_test(60, 1, "f0"); //uint8_t
   run_test(254, 2, "f903"); //uint16_t
   run_test(16161616, 4, "426dda03"); //uint32_t max 32 uint compact: 2^30 - 1

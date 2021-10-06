@@ -54,6 +54,22 @@ int8_t serialize_compact_int(uint8_t *serialized, uint64_t *serialized_len, scal
   return 0;
 }
 
+//Get the length, in bytes, of the serialized compact_int_elem
+size_t compact_int_get_byte_length(scale_compact_int *compact_int_elem) {
+  enum scale_compact_int_mode mode = compact_int_elem->mode;
+  if (mode == SCALE_COMPACT_SINGLE_BYTE) {
+    return 1;
+  } else if (mode == SCALE_COMPACT_TWO_BYTE) {
+    return 2;
+  } else if (mode == SCALE_COMPACT_FOUR_BYTE) {
+    return 4;
+  } else {  //SCALE_COMPACT_BIGNUM
+    uint8_t mode_upper_bits = compact_int_elem->mode_upper_bits;
+    uint8_t num_bytes = mode_upper_bits + 4;
+    return num_bytes;
+  }
+}
+
 //These functions encode decimal values into a scale_compact_int struct
 int8_t encode_uint8_to_compact_int_scale(scale_compact_int *compact_int_elem, uint8_t data) {
   if(data > 63) {  //Max 2^6 - 1 or 00111111
