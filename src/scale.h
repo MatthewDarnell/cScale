@@ -138,10 +138,14 @@ void cleanup_scale_compact_int(scale_compact_int *compact);
 //Byte length placed into serialized_len
 int8_t serialize_compact_int(uint8_t *serialized, uint64_t *serialized_len, scale_compact_int *compact_int_elem);
 
-//Returns a malloc'd hex value (remember to free) of the integer representation of this compact_int_elem Structure
+//Returns a malloc'd hex value (remember to free) of the integer representation of this scale_compact_int Structure
 //Returns NULL if unsuccessful
 //You can read this value into an integer using strtoull
 char* decode_compact_to_hex(scale_compact_int *compact_int_elem);
+
+//Attempt to decode and read a scale_compact_int elem structure into a u64
+//Returns 0 if it fails
+uint64_t decode_compact_to_u64(scale_compact_int *compact_int_elem);
 
 
 /*
@@ -240,7 +244,20 @@ int8_t push_vector(scale_vector *vec, uint8_t *bytes, size_t len);
 void serialize_vector(uint8_t *serialized, size_t *serialized_len, scale_vector *vec);
 
 //Deserialize a SCALE_encoded Array of Bytes of Length serialized_len into a scale_vector Structure
-void deserialize_vector(scale_vector *vec, uint8_t *serialized, size_t *serialized_len);
+void deserialize_vector(scale_vector *vec, uint8_t *serialized, size_t serialized_len);
+
+//Points elem to the index'th element of the scale_vector vec.
+//elem_width is byte width of each element in the vector. (won't work for variable length types)
+//Returns true if successful, false if out of bounds
+bool get_vector_index_element(uint8_t **elem, uint64_t index, uint8_t elem_width, scale_vector *vec);
+
+#define scale_vector_foreach(elem, width, vec) \
+          for( \
+          uint64_t i=1;         \
+          get_vector_index_element(elem, i-1, width, vec) == true; \
+          i++ \
+          )
+
 
 //Frees malloc'd scale_vector Data
 void cleanup_vector(scale_vector *vec);
@@ -265,7 +282,7 @@ void inline serialize_string(uint8_t *serialized, size_t *serialized_len, scale_
 }
 
 //Helper Function To Deserialize a String Vector Structure
-void inline deserialize_string(scale_vector *vec, uint8_t *serialized, size_t *serialized_len) {
+void inline deserialize_string(scale_vector *vec, uint8_t *serialized, size_t serialized_len) {
   deserialize_vector(vec, serialized, serialized_len);
 }
 

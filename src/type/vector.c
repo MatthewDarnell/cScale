@@ -21,7 +21,7 @@ void deserialize_vector(scale_vector *vec, uint8_t *serialized, size_t *serializ
 void cleanup_vector(scale_vector *vec);
 
 */
-void deserialize_vector(scale_vector *vec, uint8_t *serialized, size_t *serialized_len) {
+void deserialize_vector(scale_vector *vec, uint8_t *serialized, size_t serialized_len) {
   cleanup_vector(vec);
   uint8_t lsb = serialized[0];
   enum scale_compact_int_mode mode = lsb & 0x03;
@@ -39,6 +39,7 @@ void deserialize_vector(scale_vector *vec, uint8_t *serialized, size_t *serializ
       compact_num_bytes = 4;
       break;
     }
+    default:
     case SCALE_COMPACT_BIGNUM: {
       compact_num_bytes = lsb >> 2;
       break;
@@ -53,19 +54,24 @@ void deserialize_vector(scale_vector *vec, uint8_t *serialized, size_t *serializ
   encode_compact_hex_to_scale(&vec->prefix_num_elements, hex);
   free(hex);
 
-  vec->data_len = *serialized_len;
-  vec->data = calloc(*serialized_len, sizeof(uint8_t));
+ // hex = decode_compact_to_hex(&vec->prefix_num_elements);
+ // uint64_t num_elements = strtoull(hex, NULL, 16);
+ // printf("Number of Elements: %llu\n", num_elements);
+//  *serialized_len = (size_t)num_elements;
+  //free(hex);
+
+  vec->data_len = serialized_len * sizeof(uint8_t);
+  vec->data = calloc(serialized_len, sizeof(uint8_t));
   if(!vec->data) {
     fprintf(stderr, "Error deserializing vector! Vector Memory failed to initialize\n");
     return;
   }
-  *serialized_len -= 1;
+  serialized_len -= 1;
 
   if(mode == SCALE_COMPACT_BIGNUM) {
     memcpy(vec->data, &serialized[1], compact_num_bytes);
   } else {
-
-    memcpy(vec->data, &serialized[1], *serialized_len);
+    memcpy(vec->data, &serialized[1], serialized_len);
   }
 }
 
@@ -112,9 +118,19 @@ int8_t push_vector(scale_vector *vec, uint8_t *bytes, size_t len) {
   return 0;
 }
 
-
+//Points elem to the index'th element of the scale_vector vec.
+//elem_width is byte width of each element in the vector. (won't work for variable length types)
+//Returns true if successful, false if out of bounds
+bool get_vector_index_element(uint8_t **elem, uint64_t index, uint8_t elem_width, scale_vector *vec) {
+  uint64_t vec_num_elems = decode_compact_to_u64(&vec->prefix_num_elements);
+  if(index >= vec_num_elems || vec->data_len < (vec_num_elems * elem_width)) {
+    return false;
+  }
+  *elem = &(vec->data[index*elem_width]);
+  return true;
+}
 
 extern void create_string(scale_vector *vec, unsigned char *string, size_t len);
 extern void serialize_string(uint8_t *serialized, size_t *serialized_len, scale_vector *vec);
-extern void deserialize_string(scale_vector *vec, uint8_t *serialized, size_t *serialized_len);;
+extern void deserialize_string(scale_vector *vec, uint8_t *serialized, size_t serialized_len);;
 extern void cleanup_string(scale_vector *vec);

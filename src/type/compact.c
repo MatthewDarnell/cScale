@@ -402,3 +402,14 @@ char* decode_compact_to_hex(scale_compact_int *compact_int_elem) {
   }
   return NULL;
 }
+
+
+uint64_t decode_compact_to_u64(scale_compact_int *compact_int_elem) {
+  char *hex = decode_compact_to_hex(compact_int_elem);
+  if(!hex) {
+    return 0;
+  }
+  uint64_t ret_val = strtoull(hex, NULL, 16);
+  free(hex);
+  return ret_val;
+}

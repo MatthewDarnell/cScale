@@ -38,9 +38,9 @@ int run_string_test() {
     printf("\tSerializing: %s: <", (char*)strings[i]);
     cscale_print_hash(serialized, len);
     push_vector(&VecOfStrings, serialized, len);
-    deserialize_string(&scale_string_deserialized, serialized, &len);
+    deserialize_string(&scale_string_deserialized, serialized, len);
     cleanup_string(&scale_string);
-    printf(">\tDeserialized: <%s>\n", (char*)scale_string_deserialized.data);
+    printf(">\tDeserialized: <%s>\tLength.(%lu)\n", (char*)scale_string_deserialized.data, utf8len((void*)scale_string_deserialized.data));
   }
   printf("\tChecking Vec<String>: ");
   uint8_t bytes[128] = { 0 };

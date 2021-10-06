@@ -4,6 +4,7 @@
 */
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <assert.h>
 #include "../util/hex.h"
@@ -15,7 +16,7 @@ int run_vector_test() {
   int i;
   uint8_t serialized[64] = { 0 };
   uint64_t serialized_len = 0;
-  printf("\tPushing to Vector: [ ");
+  printf("\tPushing to Vector<u16>: [ ");
   for(i = 0; i < 6; i++) {
     scale_fixed_int fixed = { 0 };
     encode_int_to_fixed_int_scale(&fixed, values[i]);
@@ -29,23 +30,30 @@ int run_vector_test() {
   uint8_t bytes[128] = { 0 };
   size_t data_len = 0;
   serialize_vector(bytes, &data_len, &vector);
-  printf("\n\tSerialized Vector: <");
+  printf("\tSerialized Vector<u16>: <");
   cscale_print_hash(bytes, data_len);
   printf(">\n");
   cleanup_vector(&vector);
 
   scale_vector decoded = { 0 };
-  deserialize_vector(&decoded, bytes, &data_len);
+  deserialize_vector(&decoded, bytes, data_len);
+
+
+  uint64_t num_elems = decode_compact_to_u64(&decoded.prefix_num_elements);
+  assert(num_elems == 6);
 
   uint16_t output = 0;
   printf("\n\tDeserialized Vector: [ ");
   uint16_t offset = 0;
-  for(i = 0; i < data_len; i+=2) {
+
+  uint8_t *b;
+  scale_vector_foreach(&b, sizeof(uint16_t), &decoded) {
     output = 0;
-    deserialize_fixed_int((void*)&output, &decoded.data[i], 2, false);
+    deserialize_fixed_int((void*)&output, b, 2, false);
     assert(output == values[offset++]);
     printf("%u ", output);
   }
+
   printf("]\n");
 
   return 0;
