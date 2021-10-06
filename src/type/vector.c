@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../util/hex.h"
+#include "../util/utf8.h"
 #include "../scale.h"
 
 
@@ -54,12 +55,6 @@ void deserialize_vector(scale_vector *vec, uint8_t *serialized, size_t serialize
   encode_compact_hex_to_scale(&vec->prefix_num_elements, hex);
   free(hex);
 
- // hex = decode_compact_to_hex(&vec->prefix_num_elements);
- // uint64_t num_elements = strtoull(hex, NULL, 16);
- // printf("Number of Elements: %llu\n", num_elements);
-//  *serialized_len = (size_t)num_elements;
-  //free(hex);
-
   vec->data_len = serialized_len * sizeof(uint8_t);
   vec->data = calloc(serialized_len, sizeof(uint8_t));
   if(!vec->data) {
@@ -76,7 +71,6 @@ void deserialize_vector(scale_vector *vec, uint8_t *serialized, size_t serialize
 }
 
 void serialize_vector(uint8_t *serialized, size_t *serialized_len, scale_vector *vec) {
-
   serialize_compact_int(serialized, (uint64_t*)serialized_len, &(vec->prefix_num_elements));
   memcpy(&serialized[*serialized_len], vec->data, vec->data_len);
   *serialized_len += vec->data_len;
@@ -130,6 +124,26 @@ bool get_vector_index_element(uint8_t **elem, uint64_t index, uint8_t elem_width
   return true;
 }
 
+size_t create_utf8_string(scale_vector *vec, uint8_t *string, size_t string_length) {
+  utf8_int32_t codepoint = 0;
+  uint8_t out_str[string_length*4];  //max utf8 codepoint is 4 bytes
+  memset(out_str, 0, string_length*4);
+  char *next_codepoint = utf8codepoint(string, &codepoint);
+  size_t codepoint_size = utf8codepointsize(codepoint);
+  size_t i;
+  size_t total_size = codepoint_size;
+  for(i=0; i < string_length; i++) {
+    memset(out_str, 0, string_length*4);
+    utf8catcodepoint(out_str, codepoint, (string_length*4) - total_size);
+
+    push_vector(vec, out_str, codepoint_size);
+
+    next_codepoint = utf8codepoint(next_codepoint, &codepoint);
+    codepoint_size = utf8codepointsize(codepoint);
+    total_size += codepoint_size;
+  }
+  return total_size;
+}
 extern void create_string(scale_vector *vec, unsigned char *string, size_t len);
 extern void serialize_string(uint8_t *serialized, size_t *serialized_len, scale_vector *vec);
 extern void deserialize_string(scale_vector *vec, uint8_t *serialized, size_t serialized_len);;

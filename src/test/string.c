@@ -58,5 +58,42 @@ int run_string_test() {
                                                    "88d98ed984d98ed98ad9"
                                                    "92d984d98ed8a9e2808e");
   printf("\n");
+
+
+  //Utf8 string
+  uint8_t *data_str = utf8dup("📚Hamlet");
+  size_t vecs_len = utf8len(data_str);
+  scale_vector utfvec = { 0 };
+  size_t num_bytes = create_utf8_string(&utfvec, data_str, vecs_len);
+  uint8_t data[64] = { 0 };
+  serialize_string(data, &vecs_len, &utfvec);
+  assert(vecs_len-1 == 10);  //vecs_len now contains str length + compact byte length for prefix num elements
+  printf("\tVerifying Utf8 String <%s>, Serialized: ", data_str);
+  free(data_str);
+  assert_hash_matches_bytes(data, vecs_len, "1cf09f939a48616d6c6574");
+  printf("\n");
+  assert(num_bytes == 11);
+  cleanup_vector(&utfvec);
+
+
+
+  //try to read first N chars of a utf8 String of Vectors
+  const char *str_of_vecs = "1848616d6c6574"  //Hamlet
+                            "50d092d0bed0b9d0bdd0b020d0b820d0bcd0b8d180";  //Война и мир
+  cscale_hex_to_data(str_of_vecs, &data_str);
+  vecs_len = strlen("Hamlet");
+  memset(&utfvec, 0, sizeof(scale_vector));
+  memset(data, 0, 64);
+  num_bytes = create_utf8_string(&utfvec, data_str+1, vecs_len);
+  serialize_string(data, &vecs_len, &utfvec);
+  fprintf(stderr, "vecs len %lu\n", vecs_len);
+  assert(vecs_len-1 == 6);  //vecs_len now contains str length + compact byte length for prefix num elements
+  printf("\n\tVerifying Utf8 String of Vectors can Retrieve First String: <%s>, Serialized: ", data_str);
+  free(data_str);
+  assert_hash_matches_bytes(data, vecs_len, "1848616d6c6574");
+  printf("\n");
+  assert(num_bytes == 7);
+
+
   return 0;
 }
