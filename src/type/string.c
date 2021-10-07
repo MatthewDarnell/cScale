@@ -49,29 +49,27 @@ size_t deserialize_string(scale_vector *vec, uint8_t *serialized) {
   size_t string_length = decode_compact_to_u64(&compact);
 
   size_t compact_int_length = compact_int_get_byte_length(&compact);
-  return create_utf8_string(vec, &serialized[compact_int_length], string_length);
+  return compact_int_length + create_utf8_string(vec, &serialized[compact_int_length], string_length);
 }
 
 size_t create_utf8_string(scale_vector *vec, uint8_t *string, size_t string_length) {
   utf8_int32_t codepoint = 0;
-  uint8_t out_str[string_length*4];  //max utf8 codepoint is 4 bytes
-  memset(out_str, 0, string_length*4);
-  char *next_codepoint = utf8codepoint(string, &codepoint);
-  size_t codepoint_size = utf8codepointsize(codepoint);
+  uint8_t out_str[16];  //max utf8 codepoint is 4 bytes
+  memset(out_str, 0, 16);
   size_t i;
-  size_t total_size = codepoint_size;
+  size_t total_size = 0;
+  char *next_codepoint = utf8codepoint(string, &codepoint);
   for(i=0; i < string_length; i++) {
-    memset(out_str, 0, string_length*4);
-    utf8catcodepoint(out_str, codepoint, (string_length*4) - total_size);
-
-    push_vector(vec, out_str, codepoint_size);
-
-    next_codepoint = utf8codepoint(next_codepoint, &codepoint);
-    codepoint_size = utf8codepointsize(codepoint);
+    memset(out_str, 0, 16);
+    size_t codepoint_size = utf8codepointsize(codepoint);
     total_size += codepoint_size;
+    utf8catcodepoint(out_str, codepoint, 15);
+    push_vector(vec, out_str, codepoint_size);
+    next_codepoint = utf8codepoint(next_codepoint, &codepoint);
   }
   return total_size;
 }
+
 extern void create_string(scale_vector *vec, unsigned char *string, size_t len);
 extern void serialize_string(uint8_t *serialized, size_t *serialized_len, scale_vector *vec);
 extern void cleanup_string(scale_vector *vec);

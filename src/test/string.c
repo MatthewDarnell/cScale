@@ -61,18 +61,18 @@ int run_string_test() {
 
 
   //Utf8 string
-  uint8_t *data_str = utf8dup("📚Hamlet");
+  uint8_t *data_str = utf8dup("📚Hamlet"); //4 byte utf8 + six single byte ascii chars = 10 bytes
   size_t vecs_len = utf8len(data_str);
   scale_vector utfvec = { 0 };
   size_t num_bytes = create_utf8_string(&utfvec, data_str, vecs_len);
   uint8_t data[64] = { 0 };
   serialize_string(data, &vecs_len, &utfvec);
-  assert(vecs_len-1 == 10);  //vecs_len now contains str length + compact byte length for prefix num elements
+  assert(vecs_len == 11);  //vecs_len now contains str length + compact byte length for prefix num elements
   printf("\tVerifying Utf8 String <%s>, Serialized: ", data_str);
   free(data_str);
   assert_hash_matches_bytes(data, vecs_len, "1cf09f939a48616d6c6574");
   printf("\n");
-  assert(num_bytes == 11);
+  assert(num_bytes == 10);  //raw utf8 string byte length
   cleanup_vector(&utfvec);
 
 
@@ -87,12 +87,12 @@ int run_string_test() {
   num_bytes = create_utf8_string(&utfvec, data_str+1, vecs_len);
   serialize_string(data, &vecs_len, &utfvec);
 
-  assert(vecs_len-1 == 6);  //vecs_len now contains str length + compact byte length for prefix num elements
+  assert(vecs_len == 7);  //vecs_len now contains str length + compact byte length for prefix num elements
   printf("\n\tVerifying Utf8 String of Vectors can Retrieve First String: <%s>, Serialized: ", data_str);
   free(data_str);
   assert_hash_matches_bytes(data, vecs_len, "1848616d6c6574");
   printf("\n");
-  assert(num_bytes == 7);
+  assert(num_bytes == 6); //raw ascii length of "Hamlet"
 
 
   //Testing read already serialized utf8 strings
@@ -103,13 +103,20 @@ int run_string_test() {
   cscale_hex_to_data(contains_encoded_vec, &data_str);
   size_t utf8_str_len = deserialize_string(&encoded_vec, &data_str[offset]);
   printf("\tVerifying Reading Utf8 String returns Correct Byte Length, (%s) - (%lu)\n", encoded_vec.data, strlen((char*)encoded_vec.data));
-  assert(utf8_str_len == 8);
+  assert(utf8_str_len == 8);  //utf8_str_len contains raw utf8 len + compact prefix byte length from vector
   assert(memcmp(encoded_vec.data, &account[1], 7) == 0);
   free(data_str);
   cleanup_vector(&encoded_vec);
 
 
-
+  const char *second_encoded_vec = "30543a3a4163636f756e74496494";
+  scale_vector encoded_vec_2 = { 0 };
+  cscale_hex_to_data(second_encoded_vec, &data_str);
+  size_t utf8_str_len_2 = deserialize_string(&encoded_vec_2, data_str);
+  printf("\tVerifying Reading Utf8 String returns Correct Byte Length, (%s) - (%lu)\n", encoded_vec_2.data, strlen((char*)encoded_vec_2.data));
+  assert(utf8_str_len_2 == 13);
+  free(data_str);
+  cleanup_vector(&encoded_vec_2);
 
   return 0;
 }
