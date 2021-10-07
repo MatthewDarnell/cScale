@@ -42,7 +42,7 @@ int run_string_test() {
     cleanup_string(&scale_string);
     printf(">\tDeserialized: <%s>\tLength.(%lu)\n", (char*)scale_string_deserialized.data, utf8len((void*)scale_string_deserialized.data));
   }
-  printf("\tChecking Vec<String>: ");
+  printf("\tSerializing Vec<String>: ");
   uint8_t bytes[128] = { 0 };
   size_t bytes_len = 0;
   serialize_vector(bytes, &bytes_len, &VecOfStrings);
@@ -59,20 +59,42 @@ int run_string_test() {
                                                    "92d984d98ed8a9e2808e");
   printf("\n");
 
+  //Test reading Vec<String>
+  printf("\tDeserializing Vec<String>: ");
+  memset(&VecOfStrings, 0, sizeof(scale_vector));
+  size_t num_strings = 0;
+  size_t bytes_read = deserialize_vector_of_strings(&VecOfStrings, &num_strings, bytes);
+  assert(num_strings == 4);
+  assert(bytes_read == 90);
+  uint8_t bytes_read_back[128] = { 0 };
+  bytes_len = 0;
+  serialize_vector(bytes_read_back, &bytes_len, &VecOfStrings);
+  assert_hash_matches_bytes(bytes_read_back, bytes_len,  "101848616d6c657450d0"
+                                                              "92d0bed0b9d0bdd0b020"
+                                                              "d0b820d0bcd0b8d18030"
+                                                              "e4b889e59bbde6bc94e4"
+                                                              "b989bcd8a3d98ed984d9"
+                                                              "92d98120d984d98ed98a"
+                                                              "d992d984d98ed8a920d9"
+                                                              "88d98ed984d98ed98ad9"
+                                                              "92d984d98ed8a9e2808e");
+
+  cleanup_vector(&VecOfStrings);
+  printf("\n");
+
 
   //Utf8 string
   uint8_t *data_str = utf8dup("📚Hamlet"); //4 byte utf8 + six single byte ascii chars = 10 bytes
-  size_t vecs_len = utf8len(data_str);
+  size_t vecs_len = strlen((char*)data_str);
   scale_vector utfvec = { 0 };
-  size_t num_bytes = create_utf8_string(&utfvec, data_str, vecs_len);
+  create_string(&utfvec, data_str, vecs_len);
   uint8_t data[64] = { 0 };
   serialize_string(data, &vecs_len, &utfvec);
   assert(vecs_len == 11);  //vecs_len now contains str length + compact byte length for prefix num elements
   printf("\tVerifying Utf8 String <%s>, Serialized: ", data_str);
   free(data_str);
-  assert_hash_matches_bytes(data, vecs_len, "1cf09f939a48616d6c6574");
+  assert_hash_matches_bytes(data, vecs_len, "28f09f939a48616d6c6574");
   printf("\n");
-  assert(num_bytes == 10);  //raw utf8 string byte length
   cleanup_vector(&utfvec);
 
 
@@ -84,7 +106,7 @@ int run_string_test() {
   vecs_len = strlen("Hamlet");
   memset(&utfvec, 0, sizeof(scale_vector));
   memset(data, 0, 64);
-  num_bytes = create_utf8_string(&utfvec, data_str+1, vecs_len);
+  create_string(&utfvec, data_str+1, vecs_len);
   serialize_string(data, &vecs_len, &utfvec);
 
   assert(vecs_len == 7);  //vecs_len now contains str length + compact byte length for prefix num elements
@@ -92,7 +114,6 @@ int run_string_test() {
   free(data_str);
   assert_hash_matches_bytes(data, vecs_len, "1848616d6c6574");
   printf("\n");
-  assert(num_bytes == 6); //raw ascii length of "Hamlet"
 
 
   //Testing read already serialized utf8 strings

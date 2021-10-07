@@ -65,7 +65,7 @@ void serialize_vector(uint8_t *serialized, size_t *serialized_len, scale_vector 
 }
 
 void cleanup_vector(scale_vector *vec) {
-  cleanup_scale_compact_int(&vec->prefix_num_elements);
+  //cleanup_scale_compact_int(&vec->prefix_num_elements);
   if(vec->data) {
     free(vec->data);
   }
