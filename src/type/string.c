@@ -48,7 +48,8 @@ size_t deserialize_string(scale_vector *vec, uint8_t *serialized) {
   free(hex);
   size_t string_length = decode_compact_to_u64(&compact);
 
-  return create_utf8_string(vec, &serialized[1], string_length);
+  size_t compact_int_length = compact_int_get_byte_length(&compact);
+  return create_utf8_string(vec, &serialized[compact_int_length], string_length);
 }
 
 size_t create_utf8_string(scale_vector *vec, uint8_t *string, size_t string_length) {
