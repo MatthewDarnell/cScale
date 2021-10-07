@@ -10,18 +10,6 @@
 #include "../util/utf8.h"
 #include "../scale.h"
 
-
-/*
-typedef struct scale_vector {
-  uint8_t *data;
-  scale_compact_int prefix_num_elements;
-} scale_vector;
-
-void serialize_vector(uint8_t *serialized, size_t *serialized_len, scale_vector *vec);
-void deserialize_vector(scale_vector *vec, uint8_t *serialized, size_t *serialized_len);
-void cleanup_vector(scale_vector *vec);
-
-*/
 void deserialize_vector(scale_vector *vec, uint8_t *serialized, size_t serialized_len) {
   cleanup_vector(vec);
   uint8_t lsb = serialized[0];
@@ -77,15 +65,14 @@ void serialize_vector(uint8_t *serialized, size_t *serialized_len, scale_vector 
 }
 
 void cleanup_vector(scale_vector *vec) {
+  cleanup_scale_compact_int(&vec->prefix_num_elements);
   if(vec->data) {
     free(vec->data);
   }
   memset(vec, 0, sizeof(scale_vector));
 }
 int8_t push_vector(scale_vector *vec, uint8_t *bytes, size_t len) {
-  scale_compact_int *prefix_num_elements = &vec->prefix_num_elements;
-  char *hex_num_elements = decode_compact_to_hex(prefix_num_elements);
-  uint64_t num_elements = strtoull(hex_num_elements, NULL, 16);
+  uint64_t num_elements = decode_compact_to_u64(&vec->prefix_num_elements);
   if(num_elements > 4611686018427387903) {
     fprintf(stderr, "Error appending vector! Too many elements!\n");
     return -1;
@@ -108,7 +95,7 @@ int8_t push_vector(scale_vector *vec, uint8_t *bytes, size_t len) {
   memcpy(vec->data + vec->data_len, bytes, len);
   vec->data_len += len;
   num_elements++;
-  encode_compact(prefix_num_elements, num_elements);
+  encode_compact(&vec->prefix_num_elements, num_elements);
   return 0;
 }
 
@@ -123,28 +110,3 @@ bool get_vector_index_element(uint8_t **elem, uint64_t index, uint8_t elem_width
   *elem = &(vec->data[index*elem_width]);
   return true;
 }
-
-size_t create_utf8_string(scale_vector *vec, uint8_t *string, size_t string_length) {
-  utf8_int32_t codepoint = 0;
-  uint8_t out_str[string_length*4];  //max utf8 codepoint is 4 bytes
-  memset(out_str, 0, string_length*4);
-  char *next_codepoint = utf8codepoint(string, &codepoint);
-  size_t codepoint_size = utf8codepointsize(codepoint);
-  size_t i;
-  size_t total_size = codepoint_size;
-  for(i=0; i < string_length; i++) {
-    memset(out_str, 0, string_length*4);
-    utf8catcodepoint(out_str, codepoint, (string_length*4) - total_size);
-
-    push_vector(vec, out_str, codepoint_size);
-
-    next_codepoint = utf8codepoint(next_codepoint, &codepoint);
-    codepoint_size = utf8codepointsize(codepoint);
-    total_size += codepoint_size;
-  }
-  return total_size;
-}
-extern void create_string(scale_vector *vec, unsigned char *string, size_t len);
-extern void serialize_string(uint8_t *serialized, size_t *serialized_len, scale_vector *vec);
-extern void deserialize_string(scale_vector *vec, uint8_t *serialized, size_t serialized_len);;
-extern void cleanup_string(scale_vector *vec);

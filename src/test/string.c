@@ -38,7 +38,7 @@ int run_string_test() {
     printf("\tSerializing: %s: <", (char*)strings[i]);
     cscale_print_hash(serialized, len);
     push_vector(&VecOfStrings, serialized, len);
-    deserialize_string(&scale_string_deserialized, serialized, len);
+    deserialize_string(&scale_string_deserialized, serialized);
     cleanup_string(&scale_string);
     printf(">\tDeserialized: <%s>\tLength.(%lu)\n", (char*)scale_string_deserialized.data, utf8len((void*)scale_string_deserialized.data));
   }
@@ -93,6 +93,22 @@ int run_string_test() {
   assert_hash_matches_bytes(data, vecs_len, "1848616d6c6574");
   printf("\n");
   assert(num_bytes == 7);
+
+
+  //Testing read already serialized utf8 strings
+  const char *contains_encoded_vec = "011c4163636f756e740101";  //1c 41 63 63 6f 75 6e 74
+  uint8_t account[] = { 0x1c, 0x41, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74 };
+  scale_vector encoded_vec = { 0 };
+  size_t offset = 1;
+  cscale_hex_to_data(contains_encoded_vec, &data_str);
+  size_t utf8_str_len = deserialize_string(&encoded_vec, &data_str[offset]);
+  printf("\tVerifying Reading Utf8 String returns Correct Byte Length, (%s) - (%lu)\n", encoded_vec.data, strlen((char*)encoded_vec.data));
+  assert(utf8_str_len == 8);
+  assert(memcmp(encoded_vec.data, &account[1], 7) == 0);
+  free(data_str);
+  cleanup_vector(&encoded_vec);
+
+
 
 
   return 0;

@@ -2,7 +2,7 @@ CC=clang
 CFLAGS=-Wall -g
 
 ODIR=.
-_OBJ =  src/type/boolean.o src/type/compact.o src/type/enumeration.o src/type/fixed_int.o src/type/option.o src/type/tuple.o src/type/vector.o src/util/hex.o src/scale.o
+_OBJ =  src/type/boolean.o src/type/compact.o src/type/enumeration.o src/type/fixed_int.o src/type/option.o src/type/string.o src/type/tuple.o src/type/vector.o src/util/hex.o src/scale.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 

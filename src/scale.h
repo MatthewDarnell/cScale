@@ -273,12 +273,12 @@ void cleanup_vector(scale_vector *vec);
 //Helper Function To Create a scale_vector Structure from String
 //string_length length of all chars, each codepoint 1-4 bytes
 //Utf8 accepted
-//Returns total number of bytes read
+//Returns total number of bytes read, including compact prefix of string
 size_t create_utf8_string(scale_vector *vec, uint8_t *string, size_t string_length);
 
 
 //Helper Function To Create a scale_vector Structure from String
-//Chars must be width 1
+//Chars must be width 1 (ASCII)
 void inline create_string(scale_vector *vec, unsigned char *string, size_t len) {
   size_t i;
   for(i=0; i < len; i++) {
@@ -291,10 +291,11 @@ void inline serialize_string(uint8_t *serialized, size_t *serialized_len, scale_
   serialize_vector(serialized, serialized_len, vec);
 }
 
-//Helper Function To Deserialize a String Vector Structure
-void inline deserialize_string(scale_vector *vec, uint8_t *serialized, size_t serialized_len) {
-  deserialize_vector(vec, serialized, serialized_len);
-}
+//Deserialize a Utf8 String Vector Structure
+//Reads serialized and populates vec
+//Returns total bytes of string
+size_t deserialize_string(scale_vector *vec, uint8_t *serialized);
+
 
 //Helper Function To Clean up a String Vector Structure
 void inline cleanup_string(scale_vector *vec) {
