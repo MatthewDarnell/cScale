@@ -65,7 +65,9 @@ size_t create_utf8_string(scale_vector *vec, uint8_t *string, size_t string_leng
     total_size += codepoint_size;
     utf8catcodepoint(out_str, codepoint, 15);
     push_vector(vec, out_str, codepoint_size);
-    next_codepoint = utf8codepoint(next_codepoint, &codepoint);
+    if(i+1 < string_length) {
+      next_codepoint = utf8codepoint(next_codepoint, &codepoint);
+    }
   }
   return total_size;
 }
