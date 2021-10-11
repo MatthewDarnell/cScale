@@ -74,7 +74,7 @@ printf(" --- %u\n", output);
 #### Serializing and Deserializing a Compact Integer:
 
 ```c
-  scale_compact_int compact = { 0 };
+  scale_compact_int compact = SCALE_COMPACT_INT_INIT;
   encode_compact(&compact, (uint32_t)69);
   uint8_t serialized[64] = { 0 };
   size_t serialized_len = 0;

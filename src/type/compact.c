@@ -270,7 +270,6 @@ int8_t encode_compact_hex_to_scale(scale_compact_int *compact_int_elem, const ch
     return -1;
   }
 
-  memset(compact_int_elem, 0, sizeof(scale_compact_int));
   enum scale_compact_int_mode mode = data[0] & 0x03; //00000011
   uint8_t upper_bits = (data[0] & 0xFC);  //11111100
 
@@ -279,7 +278,6 @@ int8_t encode_compact_hex_to_scale(scale_compact_int *compact_int_elem, const ch
       uint8_t value = upper_bits >> 2;
       free(data);
       return encode_uint8_to_compact_int_scale(compact_int_elem, value);
-      break;
     }
     case SCALE_COMPACT_TWO_BYTE: {
       uint16_t value = data[1];
@@ -288,7 +286,6 @@ int8_t encode_compact_hex_to_scale(scale_compact_int *compact_int_elem, const ch
       value >>=2;
       free(data);
       return encode_uint16_to_compact_int_scale(compact_int_elem, value);
-      break;
     }
     case SCALE_COMPACT_FOUR_BYTE: {
       uint32_t value = data[3];
@@ -301,10 +298,8 @@ int8_t encode_compact_hex_to_scale(scale_compact_int *compact_int_elem, const ch
       value >>= 2;
       free(data);
       return encode_uint32_to_compact_int_scale(compact_int_elem, value);
-      break;
     }
     case SCALE_COMPACT_BIGNUM: {
-
       uint8_t byte_length = (upper_bits >> 2) + 4;
       if(byte_length <= 8) {
         uint64_t value = 0;
@@ -324,21 +319,19 @@ int8_t encode_compact_hex_to_scale(scale_compact_int *compact_int_elem, const ch
       uint8_t bytes[byte_length + 1];
       memset(bytes, 0, byte_length+1);
       int offset = 0;
-      int i;
 
       char stack_raw_hex[byte_length + 1];
       memset(stack_raw_hex, 0, byte_length + 1);
 
-    for(i=byte_length; i>= 1; i--) {
-        char temp[4]  ={0};
-        sprintf(temp, "%02X", data[i]);
+      size_t i = 0;
+      for(i = byte_length; i>= 1; i--) {
+        char temp[4] = {0};
+        snprintf(temp, 3, "%02X", data[i]);
         strcat(stack_raw_hex, temp);
         bytes[offset++] = data[i];
       }
       free(data);
       return encode_u128_string_to_compact_int_scale(compact_int_elem, stack_raw_hex);
-
-      break;
     }
     default: {
       fprintf(stderr, "Invalid Scale! Unknown Compact Mode\n");
@@ -346,9 +339,6 @@ int8_t encode_compact_hex_to_scale(scale_compact_int *compact_int_elem, const ch
       return -1;
     }
   }
-
-  free(data);
-  return 0;
 }
 
 
@@ -356,7 +346,6 @@ int8_t encode_compact_hex_to_scale(scale_compact_int *compact_int_elem, const ch
 
 //remember to free
 char* decode_compact_to_hex(scale_compact_int *compact_int_elem) {
-
   if(compact_int_elem->mode == SCALE_COMPACT_SINGLE_BYTE) {
     char *hex = calloc(1 + 1, sizeof(char));
     if(!hex) {
@@ -395,14 +384,14 @@ char* decode_compact_to_hex(scale_compact_int *compact_int_elem) {
   }
 
   else if(compact_int_elem->mode == SCALE_COMPACT_BIGNUM) {
-    int8_t byte_len = compact_int_elem->mode_upper_bits + 4;
+    size_t byte_len = compact_int_elem->mode_upper_bits + 4;
     char *hex = calloc(byte_len + 1, sizeof(char));
     if(!hex) {
       fprintf(stderr, "Failed to Decode value to hex. Out of Memory\n");
       return NULL;
     }
-    int i;
 
+    int32_t i = 0;
     for(i = byte_len-1; i >= 0; i--) {
       char temp[16] = { 0 };
       snprintf(temp, 8, "%02X", compact_int_elem->data[i]);
@@ -410,12 +399,10 @@ char* decode_compact_to_hex(scale_compact_int *compact_int_elem) {
     }
     return hex;
   }
-
   else {
    fprintf(stderr, "Failed to Decode 128 to hex. Unknown Mode\n");
    return NULL;
   }
-  return NULL;
 }
 
 
