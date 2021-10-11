@@ -39,7 +39,7 @@ static void run_test(uint64_t value, size_t width, const char *expected_hex_seri
       }
     }
 
-  printf("Verifying ByteWidth=(%u)\t", width);
+  printf("Verifying ByteWidth=(%u)\t", (unsigned)width);
   size_t num_bytes = compact_int_get_byte_length(&s_e);
   assert(num_bytes == width);
 

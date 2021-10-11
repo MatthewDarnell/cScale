@@ -10,7 +10,7 @@
 #define t fprintf(stderr, "%s %d\n", __func__, __LINE__);
 int8_t encode_scale_enum_type(scale_enum_type *enum_type, size_t num_elements, char *keys[], char *values[]) {
   if(num_elements < 1) {
-    fprintf(stderr, "Error Encoding Scale Enum Type. Invalid Number of Elements.(%u)\n", num_elements);
+    fprintf(stderr, "Error Encoding Scale Enum Type. Invalid Number of Elements.(%u)\n", (unsigned)num_elements);
     return -1;
   }
   enum_type->num_elements = num_elements;
@@ -42,7 +42,7 @@ void encode_enumeration(uint8_t *bytes, scale_enum_type *enum_types, const char 
     char *temp_key = keys[i];
     if(strcasecmp(temp_key, key) == 0) {
       bytes[0] = i;
-      printf("%s matches %s at index %u\n", temp_key, key, i);
+      printf("%s matches %s at index %u\n", temp_key, key, (unsigned)i);
       memcpy(&bytes[1], serialized, *serialized_len);
       return;
     }

@@ -201,7 +201,7 @@ int8_t encode_u128_string_to_compact_int_scale(scale_compact_int *compact_int_el
   size_t num_bytes = cscale_hex_to_data((const char *) pHex, &bytes);
   if(num_bytes < 1) {
     free(bytes);
-    fprintf(stderr, "Error getting Byte Array, len.(%u)\n", num_bytes);
+    fprintf(stderr, "Error getting Byte Array, len.(%u)\n", (unsigned)num_bytes);
     return -1;
   }
 

@@ -90,7 +90,7 @@ size_t cscale_hex_to_data(const char *hex, uint8_t **out) {
 
 	size_t len = strlen(hex);
 	if (len % 2 != 0) {
-    fprintf(stderr, "Malformed Hex String has an odd-numbered length.(%u)\n", len);
+    fprintf(stderr, "Malformed Hex String has an odd-numbered length.(%u)\n", (unsigned)len);
     return 0;
   }
 	len /= 2;
