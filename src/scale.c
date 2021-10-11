@@ -43,6 +43,3 @@
     return true;
   }
 
-  void cleanup_scale_compact_int(scale_compact_int *compact) {
-    if(compact->data) free(compact->data);
-  }

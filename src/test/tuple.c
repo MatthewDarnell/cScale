@@ -18,7 +18,7 @@ int run_tuple_test() {
   uint8_t bytes[32] = { 0 };
   size_t len = 0;
 
-  scale_compact_int compact = { 0 };
+  scale_compact_int compact = SCALE_COMPACT_INT_INIT;
   encode_compact(&compact, (uint8_t)3);
 
   scale_boolean boolean = { 0 };
@@ -32,7 +32,7 @@ int run_tuple_test() {
   scale_fixed_int fixed = { 0 };
   encode_int_to_fixed_int_scale(&fixed, (uint32_t)645);
 
-  scale_vector vec = { 0 };
+  scale_vector vec = SCALE_VECTOR_INIT;
   create_string(&vec, (unsigned char*)"Hello, World!", strlen("Hello, World!"));
 
   serialize_as_tuple(bytes, &len, FIXED_INT, (void*)&fixed, STRING, (void*)&vec);

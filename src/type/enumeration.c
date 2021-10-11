@@ -29,7 +29,7 @@ void decode_enumeration(uint8_t *bytes, uint16_t *enum_type_index, scale_enum_ty
   char **keys = enum_types->keys;
   char *temp_key = keys[enum_type];
   *enum_type_index = enum_type;
-  printf("%s matchesat index %u\n", temp_key, enum_type);
+  printf("%s matches at index %u\n", temp_key, enum_type);
   memcpy(bytes, &serialized[1], *serialized_len);
 }
 

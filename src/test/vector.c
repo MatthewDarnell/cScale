@@ -11,7 +11,7 @@
 #include "../scale.h"
 
 int run_vector_test() {
-  scale_vector vector = { 0 };
+  scale_vector vector = SCALE_VECTOR_INIT;
   uint16_t values[6] = { 4, 8, 15, 16, 23, 42 };
   int i;
   uint8_t serialized[64] = { 0 };
@@ -35,7 +35,7 @@ int run_vector_test() {
   printf(">\n");
   cleanup_vector(&vector);
 
-  scale_vector decoded = { 0 };
+  scale_vector decoded = SCALE_VECTOR_INIT;
   deserialize_vector(&decoded, bytes, data_len);
 
 
@@ -55,6 +55,7 @@ int run_vector_test() {
   }
 
   printf("]\n");
+  cleanup_vector(&decoded);
 
   return 0;
 }

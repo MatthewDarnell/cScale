@@ -81,6 +81,7 @@ int8_t encode_uint8_to_compact_int_scale(scale_compact_int *compact_int_elem, ui
   compact_int_elem->mode = SCALE_COMPACT_SINGLE_BYTE;
   uint8_t upper = data & 0x3F;
   compact_int_elem->mode_upper_bits = upper;
+  compact_int_elem->data = NULL;
   return 0;
 }
 
@@ -98,7 +99,7 @@ int8_t encode_uint16_to_compact_int_scale(scale_compact_int *compact_int_elem, u
   uint8_t lsb = data & 0xFF;
   uint8_t upper = lsb & 0x3F;  //Get last 6 bits of lsb
   compact_int_elem->mode_upper_bits = upper;
-  compact_int_elem->data = (uint8_t*)calloc(1, sizeof(uint8_t));
+  compact_int_elem->data = calloc(1, sizeof(uint8_t));
   if(!compact_int_elem->data) {
     fprintf(stderr, "Error Encoding Two Byte Compact!\n");
     return -1;
@@ -124,7 +125,7 @@ int8_t encode_uint32_to_compact_int_scale(scale_compact_int *compact_int_elem, u
 
 
   compact_int_elem->mode_upper_bits = upper;
-  compact_int_elem->data = (uint8_t*)calloc(3, sizeof(uint8_t));
+  compact_int_elem->data = calloc(3, sizeof(uint8_t));
   if(!compact_int_elem->data) {
     fprintf(stderr, "Error Encoding Four Byte Compact!\n");
     return -1;
@@ -167,7 +168,7 @@ int8_t encode_uint64_to_compact_int_scale(scale_compact_int *compact_int_elem, u
     return -1;
   }
 
-  compact_int_elem->data = (uint8_t*)calloc(byte_len, sizeof(uint8_t));
+  compact_int_elem->data = calloc(byte_len, sizeof(uint8_t));
   if(!compact_int_elem->data) {
     fprintf(stderr, "Error Encoding Eight Byte Compact!\n");
     return -1;
@@ -183,8 +184,6 @@ int8_t encode_uint64_to_compact_int_scale(scale_compact_int *compact_int_elem, u
 }
 
 int8_t encode_u128_string_to_compact_int_scale(scale_compact_int *compact_int_elem, char *hex) {
-  memset(compact_int_elem, 0, sizeof(scale_compact_int));
-
   char *pHex = hex;
   if(pHex[0] == '0' && (pHex[1] == 'x' || pHex[1] == 'X')) {
     pHex +=2;
@@ -236,13 +235,14 @@ int8_t encode_u128_string_to_compact_int_scale(scale_compact_int *compact_int_el
     value |= bytes[num_bytes-1] & 0xFF;
 
     if(value <= 4611686018427387903) {
+      fprintf(stderr, "freeing bytes in compact\n");
       free(bytes);
       return encode_uint64_to_compact_int_scale(compact_int_elem, value);
     }
   }
 
   compact_int_elem->mode = SCALE_COMPACT_BIGNUM;
-  compact_int_elem->data = (uint8_t*)calloc(num_bytes, sizeof(uint8_t));
+  compact_int_elem->data = calloc(num_bytes, sizeof(uint8_t));
   if(!compact_int_elem->data) {
     fprintf(stderr, "Error Encoding Sixteen Byte Compact!\n");
     return -1;
@@ -359,7 +359,7 @@ int8_t encode_compact_hex_to_scale(scale_compact_int *compact_int_elem, const ch
 char* decode_compact_to_hex(scale_compact_int *compact_int_elem) {
 
   if(compact_int_elem->mode == SCALE_COMPACT_SINGLE_BYTE) {
-    char *hex = (char*)calloc(1 + 1, sizeof(char));
+    char *hex = calloc(1 + 1, sizeof(char));
     if(!hex) {
       fprintf(stderr, "Failed to Decode value to hex. Out of Memory\n");
       return NULL;
@@ -369,7 +369,7 @@ char* decode_compact_to_hex(scale_compact_int *compact_int_elem) {
   }
 
   else if(compact_int_elem->mode == SCALE_COMPACT_TWO_BYTE) {
-    char *hex = (char*)calloc(8 + 1, sizeof(char));
+    char *hex = calloc(8 + 1, sizeof(char));
     if(!hex) {
       fprintf(stderr, "Failed to Decode value to hex. Out of Memory\n");
       return NULL;
@@ -382,7 +382,7 @@ char* decode_compact_to_hex(scale_compact_int *compact_int_elem) {
 
 
   else if(compact_int_elem->mode == SCALE_COMPACT_FOUR_BYTE) {
-    char *hex = (char*)calloc(32 + 1, sizeof(char));
+    char *hex = calloc(32 + 1, sizeof(char));
     if(!hex) {
       fprintf(stderr, "Failed to Decode value to hex. Out of Memory\n");
       return NULL;
@@ -397,7 +397,7 @@ char* decode_compact_to_hex(scale_compact_int *compact_int_elem) {
 
   else if(compact_int_elem->mode == SCALE_COMPACT_BIGNUM) {
     int8_t byte_len = compact_int_elem->mode_upper_bits + 4;
-    char *hex = (char*)calloc(byte_len + 1, sizeof(char));
+    char *hex = calloc(byte_len + 1, sizeof(char));
     if(!hex) {
       fprintf(stderr, "Failed to Decode value to hex. Out of Memory\n");
       return NULL;
@@ -428,4 +428,13 @@ uint64_t decode_compact_to_u64(scale_compact_int *compact_int_elem) {
   uint64_t ret_val = strtoull(hex, NULL, 16);
   free(hex);
   return ret_val;
+}
+
+
+void cleanup_scale_compact_int(scale_compact_int *compact) {
+  fprintf(stderr, "inside free compact\n");
+  if(compact->data) {
+    fprintf(stderr, "Freeing %02X\n", compact->data);
+    free(compact->data);
+  }
 }

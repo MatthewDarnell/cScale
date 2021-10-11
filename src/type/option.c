@@ -7,22 +7,6 @@
 #include "../util/hex.h"
 #include "../scale.h"
 
-/*
-typedef enum _option_type { FIXED_INT, COMPACT_INT, BOOLEAN };
-typedef struct option_value {
-  enum _option_type type;
-  union value {
-    scale_fixed_int _fixed_int;
-    scale_compact_int _compact_int;
-    scale_boolean _boolean;
-  };
-} option_value;
-typedef struct scale_option {
-  scale_boolean option;
-  option_value value;
-} scale_option;
-
-*/
 int8_t encode_option_fixed_int(scale_option *option, scale_fixed_int *fixed_int) {
   memset(option, 0, sizeof(scale_option));
   if(fixed_int) {

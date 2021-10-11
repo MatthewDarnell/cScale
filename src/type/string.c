@@ -42,14 +42,14 @@ size_t deserialize_vector_of_strings(scale_vector *vec, size_t *num_string_elems
     fprintf(stderr, "Error deserializing vector! Memory failed to initialize\n");
     return 0;
   }
-  scale_compact_int compact = { 0 };
+  scale_compact_int compact = SCALE_COMPACT_INT_INIT;
   encode_compact_hex_to_scale(&compact, hex);
   free(hex);
   *num_string_elems = decode_compact_to_u64(&compact);
   size_t compact_int_length = compact_int_get_byte_length(&compact);
   size_t i, length = 0;
   for(i = 0; i < *num_string_elems; i++) {
-    scale_vector scale_string = { 0 };
+    scale_vector scale_string = SCALE_VECTOR_INIT;
     size_t str_len = deserialize_string(&scale_string, &serialized[compact_int_length + length]);
     uint8_t scale_vec_serialized[str_len+1];
     memset(scale_vec_serialized, 0, str_len+1);
@@ -94,7 +94,7 @@ size_t deserialize_string(scale_vector *vec, uint8_t *serialized) {
     fprintf(stderr, "Error deserializing vector! Memory failed to initialize\n");
     return 0;
   }
-  scale_compact_int compact = { 0 };
+  scale_compact_int compact = SCALE_COMPACT_INT_INIT;
   encode_compact_hex_to_scale(&compact, hex);
   free(hex);
   size_t string_length = decode_compact_to_u64(&compact);

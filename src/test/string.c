@@ -24,14 +24,14 @@ int run_string_test() {
   };
 
   int8_t i;
-  scale_vector VecOfStrings = { 0 };
+  scale_vector VecOfStrings = SCALE_VECTOR_INIT;
 
   for(i=0; i < 4; i++) {
     unsigned char serialized[64] = { 0 };
     size_t len = 0;
     void *string = utf8dup((char*)strings[i]);
     size_t utf_len = utf8size_lazy(string);
-    scale_vector scale_string = { 0 }, scale_string_deserialized = { 0 };
+    scale_vector scale_string = SCALE_VECTOR_INIT, scale_string_deserialized = SCALE_VECTOR_INIT;
     create_string(&scale_string, (unsigned char*)string, utf_len);
     free(string);
     serialize_string(serialized, &len, &scale_string);
@@ -86,7 +86,7 @@ int run_string_test() {
   //Utf8 string
   uint8_t *data_str = utf8dup("📚Hamlet"); //4 byte utf8 + six single byte ascii chars = 10 bytes
   size_t vecs_len = strlen((char*)data_str);
-  scale_vector utfvec = { 0 };
+  scale_vector utfvec = SCALE_VECTOR_INIT;
   create_string(&utfvec, data_str, vecs_len);
   uint8_t data[64] = { 0 };
   serialize_string(data, &vecs_len, &utfvec);
@@ -119,7 +119,7 @@ int run_string_test() {
   //Testing read already serialized utf8 strings
   const char *contains_encoded_vec = "011c4163636f756e740101";  //1c 41 63 63 6f 75 6e 74
   uint8_t account[] = { 0x1c, 0x41, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74 };
-  scale_vector encoded_vec = { 0 };
+  scale_vector encoded_vec = SCALE_VECTOR_INIT;
   size_t offset = 1;
   cscale_hex_to_data(contains_encoded_vec, &data_str);
   size_t utf8_str_len = deserialize_string(&encoded_vec, &data_str[offset]);
@@ -131,7 +131,7 @@ int run_string_test() {
 
 
   const char *second_encoded_vec = "30543a3a4163636f756e74496494";
-  scale_vector encoded_vec_2 = { 0 };
+  scale_vector encoded_vec_2 = SCALE_VECTOR_INIT;
   cscale_hex_to_data(second_encoded_vec, &data_str);
   size_t utf8_str_len_2 = deserialize_string(&encoded_vec_2, data_str);
   printf("\tVerifying Reading Utf8 String returns Correct Byte Length, (%s) - (%lu)\n", encoded_vec_2.data, strlen((char*)encoded_vec_2.data));

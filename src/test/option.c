@@ -12,7 +12,7 @@
 int run_option_test() {
   scale_option option;
 
-  scale_compact_int s_c;
+  scale_compact_int s_c = SCALE_COMPACT_INT_INIT;
   encode_uint64_to_compact_int_scale(&s_c, (uint64_t)4611686018427387903);
   char *compact = decode_compact_to_hex(&s_c);
   free(compact);

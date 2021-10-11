@@ -13,7 +13,7 @@
 extern void assert_hash_matches_bytes(uint8_t* bytes, size_t byte_len, const char *hex);
 
 static void run_test(uint64_t value, size_t width, const char *expected_hex_serialized) {
-    scale_compact_int s_e;
+    scale_compact_int s_e = SCALE_COMPACT_INT_INIT;
 
     printf("\t\tEncoding <%llu>: ", value);
 
@@ -48,32 +48,35 @@ static void run_test(uint64_t value, size_t width, const char *expected_hex_seri
   uint64_t serialized_len = 0;
 
   assert(serialize_compact_int(serialized, &serialized_len, &s_e) == 0);
+  cleanup_scale_compact_int(&s_e);
+
   assert(serialized_len > 0);
 
   char *hex = cscale_byte_array_to_hex(serialized, serialized_len);
   printf("Comparing: <%s> / <%s>\n", expected_hex_serialized, hex);
   assert(strcasecmp(expected_hex_serialized, hex) == 0);
   free(hex);
-  cleanup_scale_compact_int(&s_e);
 }
 
 void run_compact_128(const char *value, const char *expected_hex_serialized) {
-  scale_compact_int compact;
+  scale_compact_int compact = SCALE_COMPACT_INT_INIT;
   printf("\n\t\tEncoding <%s>: ", value);
   assert(encode_u128_string_to_compact_int_scale(&compact, (char*)value) == 0);
   uint8_t serialized[64] = { 0 };
   uint64_t serialized_len = 0;
   serialize_compact_int(serialized, &serialized_len, &compact);
+  cleanup_scale_compact_int(&compact);
+
   char *str_serialized = cscale_byte_array_to_hex(serialized, serialized_len);
   assert(str_serialized);
+  fprintf(stderr, "str serialized: %s\n", str_serialized);
   free(str_serialized);
 
   assert_hash_matches_bytes(serialized, serialized_len, expected_hex_serialized);
-  cleanup_scale_compact_int(&compact);
 }
 
 static void run_test_fixed_hex(const char *hex, uint64_t expected) {
-  scale_compact_int s_e;
+  scale_compact_int s_e = SCALE_COMPACT_INT_INIT;
   printf("\t\tRe-Encoding: <%s> --- ", hex);
   assert(encode_compact_hex_to_scale(&s_e, hex) == 0);
   char *hex_out = decode_compact_to_hex(&s_e);
@@ -85,7 +88,7 @@ static void run_test_fixed_hex(const char *hex, uint64_t expected) {
 }
 
 static void run_test_fixed_hex_128(const char *hex, const char *expected) {
-  scale_compact_int s_e;
+  scale_compact_int s_e = SCALE_COMPACT_INT_INIT;
   printf("\t\tRe-Encoding (128 bit hex value): <%s> --- ", hex);
   assert(encode_compact_hex_to_scale(&s_e, hex) == 0);
   char *hex_out = decode_compact_to_hex(&s_e);

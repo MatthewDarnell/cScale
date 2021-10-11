@@ -104,6 +104,8 @@ typedef struct {
   uint8_t *data;
 } scale_compact_int;
 
+#define SCALE_COMPACT_INT_INIT { .mode = 0, .mode_upper_bits = 0, .data = NULL }
+
 
 //These functions encode integer values into a scale_compact_int struct
 //encode_uint64_to_fixed_int_scale
@@ -236,6 +238,9 @@ typedef struct {
   uint64_t data_len;
   scale_compact_int prefix_num_elements;
 } scale_vector;
+
+#define SCALE_VECTOR_INIT { .data = NULL, .data_len = 0, .prefix_num_elements = SCALE_COMPACT_INT_INIT }
+
 
 //Pushes an Array of Bytes of Length len Into a scale_vector Structure
 //Array of Bytes Should be Serialized SCALE of Same Type (This is Not Currently Enforced)
