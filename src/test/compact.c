@@ -9,7 +9,6 @@
 #include <assert.h>
 #include "../scale.h"
 #include "../util/hex.h"
-
 extern void assert_hash_matches_bytes(uint8_t* bytes, size_t byte_len, const char *hex);
 
 static void run_test(uint64_t value, size_t width, const char *expected_hex_serialized) {
@@ -40,7 +39,7 @@ static void run_test(uint64_t value, size_t width, const char *expected_hex_seri
       }
     }
 
-  printf("Verifying ByteWidth=(%lu)\t", width);
+  printf("Verifying ByteWidth=(%u)\t", width);
   size_t num_bytes = compact_int_get_byte_length(&s_e);
   assert(num_bytes == width);
 
@@ -53,6 +52,11 @@ static void run_test(uint64_t value, size_t width, const char *expected_hex_seri
   assert(serialized_len > 0);
 
   char *hex = cscale_byte_array_to_hex(serialized, serialized_len);
+  if(!hex) {
+    fprintf(stderr, "Failed to Allocate Memory to Convert Data to hex!\n");
+    assert(1 == 0);
+  }
+
   printf("Comparing: <%s> / <%s>\n", expected_hex_serialized, hex);
   assert(strcasecmp(expected_hex_serialized, hex) == 0);
   free(hex);
@@ -66,11 +70,9 @@ void run_compact_128(const char *value, const char *expected_hex_serialized) {
   uint64_t serialized_len = 0;
   serialize_compact_int(serialized, &serialized_len, &compact);
   cleanup_scale_compact_int(&compact);
-
   char *str_serialized = cscale_byte_array_to_hex(serialized, serialized_len);
   assert(str_serialized);
   free(str_serialized);
-
   assert_hash_matches_bytes(serialized, serialized_len, expected_hex_serialized);
 }
 
@@ -80,8 +82,9 @@ static void run_test_fixed_hex(const char *hex, uint64_t expected) {
   assert(encode_compact_hex_to_scale(&s_e, hex) == 0);
   char *hex_out = decode_compact_to_hex(&s_e);
   assert(hex_out);
-  uint64_t value = strtoul(hex_out, NULL, 16);
+  uint64_t value = strtoull(hex_out, NULL, 16);
   printf("Output: <0x%s> Yields: %llu\n", hex_out, value);
+  free(hex_out);
   assert(expected == value);
   cleanup_scale_compact_int(&s_e);
 }
@@ -94,6 +97,7 @@ static void run_test_fixed_hex_128(const char *hex, const char *expected) {
   assert(hex_out);
   printf("Output: <0x%s>\n", hex_out);
   assert(strcasecmp(expected, hex_out) == 0);
+  free(hex_out);
   cleanup_scale_compact_int(&s_e);
 }
 

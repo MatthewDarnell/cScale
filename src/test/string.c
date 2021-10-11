@@ -39,8 +39,10 @@ int run_string_test() {
     cscale_print_hash(serialized, len);
     push_vector(&VecOfStrings, serialized, len);
     deserialize_string(&scale_string_deserialized, serialized);
-    cleanup_string(&scale_string);
-    printf(">\tDeserialized: <%s>\tLength.(%lu)\n", (char*)scale_string_deserialized.data, utf8len((void*)scale_string_deserialized.data));
+    assert(memcmp(scale_string.data, scale_string_deserialized.data, scale_string.data_len) == 0);
+    cleanup_string(&scale_string);    
+    printf(">\tDeserialized: <%s>\tLength.(%u)\n", (char*)scale_string_deserialized.data, utf8len((void*)scale_string_deserialized.data));
+    cleanup_string(&scale_string_deserialized);
   }
   printf("\tSerializing Vec<String>: ");
   uint8_t bytes[128] = { 0 };
@@ -88,11 +90,12 @@ int run_string_test() {
   size_t vecs_len = strlen((char*)data_str);
   scale_vector utfvec = SCALE_VECTOR_INIT;
   create_string(&utfvec, data_str, vecs_len);
-  uint8_t data[64] = { 0 };
+  uint8_t data[32] = { 0 };
+  printf("\tVerifying Utf8 String <%s>, Serialized: ", (char*)data_str);
   serialize_string(data, &vecs_len, &utfvec);
   assert(vecs_len == 11);  //vecs_len now contains str length + compact byte length for prefix num elements
-  printf("\tVerifying Utf8 String <%s>, Serialized: ", data_str);
   free(data_str);
+  data_str = NULL;
   assert_hash_matches_bytes(data, vecs_len, "28f09f939a48616d6c6574");
   printf("\n");
   cleanup_vector(&utfvec);
@@ -105,13 +108,15 @@ int run_string_test() {
   cscale_hex_to_data(str_of_vecs, &data_str);
   vecs_len = strlen("Hamlet");
   memset(&utfvec, 0, sizeof(scale_vector));
-  memset(data, 0, 64);
+  memset(data, 0, 32);
   create_string(&utfvec, data_str+1, vecs_len);
   serialize_string(data, &vecs_len, &utfvec);
 
+  cleanup_vector(&utfvec);
   assert(vecs_len == 7);  //vecs_len now contains str length + compact byte length for prefix num elements
   printf("\n\tVerifying Utf8 String of Vectors can Retrieve First String: <%s>, Serialized: ", data_str);
   free(data_str);
+  data_str = NULL;
   assert_hash_matches_bytes(data, vecs_len, "1848616d6c6574");
   printf("\n");
 
@@ -123,7 +128,7 @@ int run_string_test() {
   size_t offset = 1;
   cscale_hex_to_data(contains_encoded_vec, &data_str);
   size_t utf8_str_len = deserialize_string(&encoded_vec, &data_str[offset]);
-  printf("\tVerifying Reading Utf8 String returns Correct Byte Length, (%s) - (%lu)\n", encoded_vec.data, strlen((char*)encoded_vec.data));
+  printf("\tVerifying Reading Utf8 String returns Correct Byte Length, (%s) - (%u)\n", encoded_vec.data, strlen((char*)encoded_vec.data));
   assert(utf8_str_len == 8);  //utf8_str_len contains raw utf8 len + compact prefix byte length from vector
   assert(memcmp(encoded_vec.data, &account[1], 7) == 0);
   free(data_str);
@@ -134,7 +139,7 @@ int run_string_test() {
   scale_vector encoded_vec_2 = SCALE_VECTOR_INIT;
   cscale_hex_to_data(second_encoded_vec, &data_str);
   size_t utf8_str_len_2 = deserialize_string(&encoded_vec_2, data_str);
-  printf("\tVerifying Reading Utf8 String returns Correct Byte Length, (%s) - (%lu)\n", encoded_vec_2.data, strlen((char*)encoded_vec_2.data));
+  printf("\tVerifying Reading Utf8 String returns Correct Byte Length, (%s) - (%u)\n", encoded_vec_2.data, strlen((char*)encoded_vec_2.data));
   assert(utf8_str_len_2 == 13);
   free(data_str);
   cleanup_vector(&encoded_vec_2);

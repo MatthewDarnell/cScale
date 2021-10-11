@@ -2,6 +2,7 @@
     2021 cScale - A SCALE Library written in C
     Created by Matthew Darnell
 */
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "../util/hex.h"
@@ -30,26 +31,28 @@ int8_t serialize_compact_int(uint8_t *serialized, uint64_t *serialized_len, scal
   uint8_t lsb = mode_upper_bits; //0011111111
   lsb <<= 2; //11111100
   lsb |= (mode & 0x03); //11111100 & 00000011
-
-  serialized[0] = lsb;
-
   if (mode == SCALE_COMPACT_SINGLE_BYTE) {
     *serialized_len = 1;
+    serialized[0] = lsb;
+    return 0;
   } else if (mode == SCALE_COMPACT_TWO_BYTE) {
-    serialized[1] = data[0];
     *serialized_len = 2;
+    serialized[0] = lsb;
+    serialized[1] = data[0];
   } else if (mode == SCALE_COMPACT_FOUR_BYTE) {
+    *serialized_len = 4;    
+    serialized[0] = lsb;
     serialized[1] = data[0];
     serialized[2] = data[1];
     serialized[3] = data[2];
-    *serialized_len = 4;
   } else {  //SCALE_COMPACT_BIGNUM
     uint64_t num_bytes = mode_upper_bits + 4;
+    *serialized_len = num_bytes + 1;        
     size_t i;
+    serialized[0] = lsb;    
     for(i = 0; i < num_bytes; i++) {
       serialized[i+1] = data[i];
     }
-    *serialized_len = num_bytes + 1;
   }
   return 0;
 }
@@ -198,7 +201,7 @@ int8_t encode_u128_string_to_compact_int_scale(scale_compact_int *compact_int_el
   size_t num_bytes = cscale_hex_to_data((const char *) pHex, &bytes);
   if(num_bytes < 1) {
     free(bytes);
-    fprintf(stderr, "Error getting Byte Array, len.(%lu)\n", num_bytes);
+    fprintf(stderr, "Error getting Byte Array, len.(%u)\n", num_bytes);
     return -1;
   }
 
@@ -385,7 +388,7 @@ char* decode_compact_to_hex(scale_compact_int *compact_int_elem) {
 
   else if(compact_int_elem->mode == SCALE_COMPACT_BIGNUM) {
     size_t byte_len = compact_int_elem->mode_upper_bits + 4;
-    char *hex = calloc(byte_len + 1, sizeof(char));
+    char *hex = calloc(byte_len*2 + 1, sizeof(char));
     if(!hex) {
       fprintf(stderr, "Failed to Decode value to hex. Out of Memory\n");
       return NULL;

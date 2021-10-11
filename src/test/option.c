@@ -11,20 +11,21 @@
 
 int run_option_test() {
   scale_option option;
-
   scale_compact_int s_c = SCALE_COMPACT_INT_INIT;
   encode_uint64_to_compact_int_scale(&s_c, (uint64_t)4611686018427387903);
   char *compact = decode_compact_to_hex(&s_c);
   free(compact);
   assert(encode_option_compact_int(&option, &s_c) == 0);
+  cleanup_scale_compact_int(&s_c);
   compact = decode_compact_to_hex(&option.value._compact_int);
   printf("value=%s\n", compact);
   assert(strcasecmp(compact, "3FFFFFFFFFFFFFFF") == 0);
   free(compact);
-  assert(option.value._compact_int.mode_upper_bits = 0x04);
+  assert(option.value._compact_int.mode_upper_bits == 0x04);
   char *decoded = decode_option_to_hex(&option);
   assert(strcasecmp(decoded, "0x0113FFFFFFFFFFFFFF3F") == 0);
   free(decoded);
+  cleanup_scale_compact_int(&option.value._compact_int);
 
 
   scale_fixed_int fixed;

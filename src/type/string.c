@@ -57,6 +57,7 @@ size_t deserialize_vector_of_strings(scale_vector *vec, size_t *num_string_elems
     serialize_string(scale_vec_serialized, &serialized_len, &scale_string);
     push_vector(vec, scale_vec_serialized, serialized_len);
     length += str_len;
+    cleanup_string(&scale_string);
   }
   return compact_int_length + length;
 }

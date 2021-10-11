@@ -3,6 +3,7 @@
     Created by Matthew Darnell
 */
 
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -36,7 +37,7 @@ int run_tuple_test() {
   create_string(&vec, (unsigned char*)"Hello, World!", strlen("Hello, World!"));
 
   serialize_as_tuple(bytes, &len, FIXED_INT, (void*)&fixed, STRING, (void*)&vec);
-
+  cleanup_vector(&vec);
   printf("\n\tTuple<u32, String> = (645, \"Hello, World!\")\t");
   assert_hash_matches_bytes(bytes, len, "850200003448656c6c6f2c20576f726c6421");
   printf("\n");

@@ -27,10 +27,10 @@ int run_vector_test() {
     push_vector(&vector, serialized, serialized_len);
   }
   printf("]\n");
-  uint8_t bytes[128] = { 0 };
+  uint8_t bytes[256] = { 0 };
   size_t data_len = 0;
   serialize_vector(bytes, &data_len, &vector);
-  printf("\tSerialized Vector<u16>: <");
+  printf("\n\tSerialized Vector<u16>: <");
   cscale_print_hash(bytes, data_len);
   printf(">\n");
   cleanup_vector(&vector);
@@ -40,10 +40,11 @@ int run_vector_test() {
 
 
   uint64_t num_elems = decode_compact_to_u64(&decoded.prefix_num_elements);
+  printf("\tNumber Elements Read.(%llu)", num_elems);
   assert(num_elems == 6);
 
   uint16_t output = 0;
-  printf("\n\tDeserialized Vector: [ ");
+  printf("\tDeserialized Vector: [ ");
   uint16_t offset = 0;
 
   uint8_t *b;

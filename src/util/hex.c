@@ -10,12 +10,11 @@
 
 
 char* cscale_fixed_byte_array_to_hex(uint8_t* data, int8_t byte_width) {
-  char *encoded = calloc( 2 + byte_width + 1, sizeof(char));
+  char *encoded = calloc((2 * byte_width) + 1, sizeof(char));
   if(!encoded) {
     fprintf(stderr, "Failed to malloc hex string in getencoded_hex_fromscale_fixed_int\n");
     return NULL;
   }
-  //strncpy(encoded, "0x", 2);
   int i;
   for(i = (FIXED_INT_MAX_BYTES - byte_width); i < FIXED_INT_MAX_BYTES; i++) {
     char temp[4] = { 0 };
@@ -26,7 +25,7 @@ char* cscale_fixed_byte_array_to_hex(uint8_t* data, int8_t byte_width) {
 }
 
 char* cscale_byte_array_to_hex(uint8_t* data, size_t len) {
-  char *encoded = calloc( 2 + len + 1, sizeof(char));
+  char *encoded = calloc( (2 * len) + 1, sizeof(char));
   if(!encoded) {
     fprintf(stderr, "Failed to malloc hex string in getencoded_hex_fromscale_fixed_int\n");
     return NULL;
@@ -91,7 +90,7 @@ size_t cscale_hex_to_data(const char *hex, uint8_t **out) {
 
 	size_t len = strlen(hex);
 	if (len % 2 != 0) {
-    fprintf(stderr, "Malformed Hex String has an odd-numbered length.(%lu)\n", len);
+    fprintf(stderr, "Malformed Hex String has an odd-numbered length.(%u)\n", len);
     return 0;
   }
 	len /= 2;

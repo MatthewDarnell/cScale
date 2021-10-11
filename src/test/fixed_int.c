@@ -10,7 +10,6 @@
 #include "../util/hex.h"
 #include "../scale.h"
 
-
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
 #define BYTE_TO_BINARY(byte)  \
   (byte & 0x80 ? '1' : '0'), \
@@ -25,10 +24,11 @@
 extern void assert_hash_matches_bytes(uint8_t* bytes, size_t byte_len, const char *hex);
 
 static void run_test(uint64_t value, size_t width, uint8_t is_signed, const char *expected_hex_serialized) {
+
   scale_fixed_int s_e;
   uint8_t serialized[64] = { 0 };
   uint64_t serialized_len = 0;
-  char *hex = NULL;
+  
   printf("\t\tEncoding <%llu>: ", value);
 
   switch (width) {
@@ -57,16 +57,23 @@ static void run_test(uint64_t value, size_t width, uint8_t is_signed, const char
       assert(1==0);
     }
   }
-  hex = decode_scale_fixed_to_hex(&s_e);
+  
+  char *hex = decode_scale_fixed_to_hex(&s_e);
   uint64_t output = 0;
   decode_scale_fixed_int((void*)&output, &s_e);
+  
   printf("output: %llu %llu ", value, output);
   assert(value == output);
+  
   free(hex);
+  
   memset(serialized, 0, 64 * sizeof(uint8_t));
   serialized_len = 0;
+  
   serialize_fixed_int(serialized, &serialized_len, &s_e);
+  
   assert_hash_matches_bytes(serialized, serialized_len, expected_hex_serialized);
+  
   if(is_signed) printf(" -- Decoded: <%lld>\n", (int64_t)output);
   else printf(" -- Decoded: <%llu>\n", output);
 
@@ -139,6 +146,7 @@ static void run_test_fixed_hex(const char *hex, uint8_t is_signed, uint64_t expe
   assert(hex_out);
   assert(strcasecmp(hex, hex_out) == 0);
   assert(strlen(hex) == strlen(hex_out));
+  free(hex_out);
   if(is_signed) {
     int64_t out = 0;
     decode_scale_fixed_int((void*)&out, &s_e);

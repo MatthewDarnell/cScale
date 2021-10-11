@@ -20,16 +20,18 @@ extern int run_string_test();
 extern int run_tuple_test();
 
 void assert_hash_matches_bytes(uint8_t* bytes, size_t byte_len, const char *hex) {
-  size_t i, hex_offset = 0;
+  size_t i = 0, hex_offset = 0;
   printf("Comparing: <%s> / <", hex);
   cscale_print_hash(bytes, byte_len);
   printf("> ");
   assert(strlen(hex) == byte_len * 2);  //otherwise 2A could match with 2A00 for fixed length int
+  char temp[4] = { 0 };
   for(i = 0; i < byte_len; i++) {
     char *pHex = (char*)hex + hex_offset;
-    char temp[4] = { 0 };
+    memset(temp, 0, 4*sizeof(char));
     memcpy(temp, pHex, 2);
-    uint8_t hex_byte = strtol(temp, NULL, 16);
+    uint8_t hex_byte = 0;
+    hex_byte = strtol(temp, NULL, 16);
     assert(bytes[i] == hex_byte);
     hex_offset += 2;
   }
