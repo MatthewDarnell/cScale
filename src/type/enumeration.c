@@ -7,7 +7,6 @@
 #include "../util/hex.h"
 #include "../scale.h"
 
-#define t fprintf(stderr, "%s %d\n", __func__, __LINE__);
 int8_t encode_scale_enum_type(scale_enum_type *enum_type, size_t num_elements, char *keys[], char *values[]) {
   if(num_elements < 1) {
     fprintf(stderr, "Error Encoding Scale Enum Type. Invalid Number of Elements.(%u)\n", (unsigned)num_elements);
