@@ -10,7 +10,7 @@
 
 
 char* cscale_fixed_byte_array_to_hex(uint8_t* data, int8_t byte_width) {
-  char *encoded = (char*)calloc( 2 + byte_width + 1, sizeof(char));
+  char *encoded = calloc( 2 + byte_width + 1, sizeof(char));
   if(!encoded) {
     fprintf(stderr, "Failed to malloc hex string in getencoded_hex_fromscale_fixed_int\n");
     return NULL;
@@ -26,7 +26,7 @@ char* cscale_fixed_byte_array_to_hex(uint8_t* data, int8_t byte_width) {
 }
 
 char* cscale_byte_array_to_hex(uint8_t* data, size_t len) {
-  char *encoded = (char*)calloc( 2 + len + 1, sizeof(char));
+  char *encoded = calloc( 2 + len + 1, sizeof(char));
   if(!encoded) {
     fprintf(stderr, "Failed to malloc hex string in getencoded_hex_fromscale_fixed_int\n");
     return NULL;
@@ -95,7 +95,7 @@ size_t cscale_hex_to_data(const char *hex, uint8_t **out) {
     return 0;
   }
 	len /= 2;
-	*out = (uint8_t*)malloc(len);
+	*out = malloc(len);
   memset(*out, 0, len*sizeof(uint8_t));
 
 	for (size_t i = 0; i < len; i++) {

@@ -69,7 +69,6 @@ void run_compact_128(const char *value, const char *expected_hex_serialized) {
 
   char *str_serialized = cscale_byte_array_to_hex(serialized, serialized_len);
   assert(str_serialized);
-  fprintf(stderr, "str serialized: %s\n", str_serialized);
   free(str_serialized);
 
   assert_hash_matches_bytes(serialized, serialized_len, expected_hex_serialized);

@@ -50,7 +50,7 @@ int8_t encode_boolean_from_hex(scale_boolean *boolean_elem, char *boolean_hex_va
 char *decode_boolean_to_hex(scale_boolean *boolean_elem) {
   uint8_t serialized = 0;
   serialize_boolean(&serialized, boolean_elem);
-  char *hex = (char*)calloc(6, sizeof(char));
+  char *hex = calloc(6, sizeof(char));
   if(!hex) {
     fprintf(stderr, "Error Decoding Boolean To Hex. Out of Memory\n");
     return NULL;

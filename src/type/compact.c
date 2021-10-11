@@ -235,7 +235,6 @@ int8_t encode_u128_string_to_compact_int_scale(scale_compact_int *compact_int_el
     value |= bytes[num_bytes-1] & 0xFF;
 
     if(value <= 4611686018427387903) {
-      fprintf(stderr, "freeing bytes in compact\n");
       free(bytes);
       return encode_uint64_to_compact_int_scale(compact_int_elem, value);
     }
@@ -432,9 +431,7 @@ uint64_t decode_compact_to_u64(scale_compact_int *compact_int_elem) {
 
 
 void cleanup_scale_compact_int(scale_compact_int *compact) {
-  fprintf(stderr, "inside free compact\n");
   if(compact->data) {
-    fprintf(stderr, "Freeing %02X\n", compact->data);
     free(compact->data);
   }
 }
