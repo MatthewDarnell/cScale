@@ -117,7 +117,7 @@ int8_t encode_uint64_to_compact_int_scale(scale_compact_int *compact_int_elem, u
 //Encode a valid U128 Hex String To a Compact Int SCALE structure
 int8_t encode_u128_string_to_compact_int_scale(scale_compact_int *compact_int_elem, char *hex);
 
-//C11 Generic Helper to infer int type
+//C11 Generic Helper to infer int type. For u128 use encode_u128_string_to_compact_int_scale
 #define encode_compact(elem, value) \
   _Generic( \
     (value), \
@@ -130,7 +130,7 @@ int8_t encode_u128_string_to_compact_int_scale(scale_compact_int *compact_int_el
 //Reads the serialized Compact/General Int byte array into a scale_compact_int Structure
 //Returns the total number of bytes read
 //Returns 0 if fails to read
-size_t read_next_compact_from_data(scale_compact_int *compact_int_elem, uint8_t *serialized);
+size_t read_compact_int_from_data(scale_compact_int *compact_int_elem, uint8_t *serialized);
 
 //Encode a valid Hex encoded Compact/General Int string into a scale_compact_int Structure
 //Returns 0 on success, -1 otherwise
@@ -255,19 +255,26 @@ int8_t push_vector(scale_vector *vec, uint8_t *bytes, size_t len);
 //Serialize a scale_vector Structure Into a SCALE-encode Array of Bytes of Length serialized_len
 void serialize_vector(uint8_t *serialized, size_t *serialized_len, scale_vector *vec);
 
-//Deserialize a SCALE_encoded Array of Bytes of Length serialized_len into a scale_vector Structure
-void deserialize_vector(scale_vector *vec, uint8_t *serialized, size_t serialized_len);
+//Reads the serialized Vector byte array starting at serialized[0] into a scale_vector Structure
+//element_width should contain the byte length of each element. (u16=2, char=1)
+//Returns the total number of bytes read
+//Returns 0 if fails to read
+size_t read_vector_from_data(scale_vector *vec, uint8_t element_width, uint8_t *serialized);
 
 //Points elem to the index'th element of the scale_vector vec.
 //elem_width is byte width of each element in the vector. (won't work for variable length types)
 //Returns true if successful, false if out of bounds
 bool get_vector_index_element(uint8_t **elem, uint64_t index, uint8_t elem_width, scale_vector *vec);
 
+//Macro for looping over each element in a scale_vector structure
+//elem is a uint8_t** pointer to each returned serialized vector element
+//width is the byte width of each element (u16=2, char=1)
+//vec is a scale_vector*
 #define scale_vector_foreach(elem, width, vec) \
           for( \
-          uint64_t i=1;         \
-          get_vector_index_element(elem, i-1, width, vec) == true; \
-          i++ \
+          uint64_t vec_index=1;         \
+          get_vector_index_element(elem, vec_index-1, width, vec) == true; \
+          vec_index++ \
           )
 
 //Frees malloc'd scale_vector Data
@@ -296,7 +303,9 @@ void inline serialize_string(uint8_t *serialized, size_t *serialized_len, scale_
 //Deserialize a Utf8 String Vector Structure
 //Reads serialized and populates vec
 //Returns total bytes of string
-size_t deserialize_string(scale_vector *vec, uint8_t *serialized);
+size_t inline deserialize_string(scale_vector *vec, uint8_t *serialized) {
+  return read_vector_from_data(vec, 1, serialized);
+}
 
 //Deserialize a vector of Utf8 Strings into a vec structure
 //Places the number of strings read (length of *vec) into num_string_elems

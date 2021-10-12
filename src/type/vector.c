@@ -10,52 +10,24 @@
 #include "../util/utf8.h"
 #include "../scale.h"
 
-void deserialize_vector(scale_vector *vec, uint8_t *serialized, size_t serialized_len) {
-  cleanup_vector(vec);
-  uint8_t lsb = serialized[0];
-  enum scale_compact_int_mode mode = lsb & 0x03;
-  uint64_t compact_num_bytes = 0;
-  switch(mode) {
-    case SCALE_COMPACT_SINGLE_BYTE: {
-      compact_num_bytes = 1;
-      break;
-    }
-    case SCALE_COMPACT_TWO_BYTE: {
-      compact_num_bytes = 2;
-      break;
-    }
-    case SCALE_COMPACT_FOUR_BYTE: {
-      compact_num_bytes = 4;
-      break;
-    }
-    default:
-    case SCALE_COMPACT_BIGNUM: {
-      compact_num_bytes = lsb >> 2;
-      break;
-    }
-  }
+//Reads the serialized Vector byte array starting at serialized[0] into a scale_vector Structure
+//element_width should contain the byte length of each element. (u16=2, char=1)
+//Returns the total number of bytes read
+//Returns 0 if fails to read
+size_t read_vector_from_data(scale_vector *vec, uint8_t element_width, uint8_t *serialized) {
+  size_t prefix_num_element_byte_length = read_compact_int_from_data(&vec->prefix_num_elements, serialized);
 
-  char *hex = cscale_byte_array_to_hex(serialized, compact_num_bytes);
-  if(!hex) {
-    fprintf(stderr, "Error deserializing vector! Memory failed to initialize\n");
-    return;
-  }
-  encode_compact_hex_to_scale(&vec->prefix_num_elements, hex);
-  free(hex);
+  uint64_t data_length = decode_compact_to_u64(&vec->prefix_num_elements) * element_width;
 
-  vec->data_len = serialized_len * sizeof(uint8_t);
-  vec->data = calloc(serialized_len, sizeof(uint8_t));
+  vec->data_len = data_length * sizeof(uint8_t);
+  vec->data = calloc(data_length, sizeof(uint8_t));
   if(!vec->data) {
     fprintf(stderr, "Error deserializing vector! Vector Memory failed to initialize\n");
-    return;
+    return 0;
   }
-  serialized_len -= 1;
 
-  if(mode == SCALE_COMPACT_BIGNUM) {
-    memcpy(vec->data, &serialized[1], compact_num_bytes);
-  } else {
-    memcpy(vec->data, &serialized[1], serialized_len);
-  }
+  memcpy(vec->data, &serialized[prefix_num_element_byte_length], data_length);
+  return prefix_num_element_byte_length + data_length;
 }
 
 void serialize_vector(uint8_t *serialized, size_t *serialized_len, scale_vector *vec) {

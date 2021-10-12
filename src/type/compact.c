@@ -8,18 +8,6 @@
 #include "../util/hex.h"
 #include "../scale.h"
 
-#define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
-#define BYTE_TO_BINARY(byte)  \
-  (byte & 0x80 ? '1' : '0'), \
-  (byte & 0x40 ? '1' : '0'), \
-  (byte & 0x20 ? '1' : '0'), \
-  (byte & 0x10 ? '1' : '0'), \
-  (byte & 0x08 ? '1' : '0'), \
-  (byte & 0x04 ? '1' : '0'), \
-  (byte & 0x02 ? '1' : '0'), \
-  (byte & 0x01 ? '1' : '0')
-
-
 //Encode functions
 int8_t serialize_compact_int(uint8_t *serialized, uint64_t *serialized_len, scale_compact_int *compact_int_elem) {
   *serialized_len = 0;
@@ -87,7 +75,6 @@ int8_t encode_uint8_to_compact_int_scale(scale_compact_int *compact_int_elem, ui
   compact_int_elem->data = NULL;
   return 0;
 }
-
 int8_t encode_uint16_to_compact_int_scale(scale_compact_int *compact_int_elem, uint16_t data) {
   if(data < 63) {
     return encode_uint8_to_compact_int_scale(compact_int_elem, (uint8_t)data);
@@ -185,7 +172,6 @@ int8_t encode_uint64_to_compact_int_scale(scale_compact_int *compact_int_elem, u
 
   return 0;
 }
-
 size_t encode_u128_data_to_compact_int_scale(scale_compact_int *compact_int_elem, const uint8_t *data) {
   enum scale_compact_int_mode mode = data[0] & 0x03; //00000011
   uint8_t upper_bits = (data[0] & 0xFC);  //11111100
@@ -219,11 +205,9 @@ size_t encode_u128_data_to_compact_int_scale(scale_compact_int *compact_int_elem
   }
 
   int offset = 0;
- // for(i=byte_length; i > 0; i--) {
   for(i=1; i <= byte_length; i++) {
     compact_int_elem->data[offset++] = data[i];
   }
-
   compact_int_elem->mode_upper_bits = byte_length - 4;
   return byte_length;
 }
@@ -300,8 +284,6 @@ int8_t encode_u128_string_to_compact_int_scale(scale_compact_int *compact_int_el
   free(bytes);
   return 0;
 }
-
-
 
 int8_t encode_compact_hex_to_scale(scale_compact_int *compact_int_elem, const char *hex) {
   uint8_t *data;
@@ -463,13 +445,10 @@ uint64_t decode_compact_to_u64(scale_compact_int *compact_int_elem) {
   return ret_val;
 }
 
-
-
-
 //Reads the serialized Compact/General Int byte array into a scale_compact_int Structure
 //Returns the total number of bytes read
 //Returns 0 if fails to read
-size_t read_next_compact_from_data(scale_compact_int *compact_int_elem, uint8_t *serialized) {
+size_t read_compact_int_from_data(scale_compact_int *compact_int_elem, uint8_t *serialized) {
   enum scale_compact_int_mode mode = serialized[0] & 0x03; //00000011
   uint8_t upper_bits = (serialized[0] & 0xFC);  //11111100
 
@@ -534,8 +513,6 @@ size_t read_next_compact_from_data(scale_compact_int *compact_int_elem, uint8_t 
     }
   }
 }
-
-
 
 void cleanup_scale_compact_int(scale_compact_int *compact) {
   if(compact->data) {

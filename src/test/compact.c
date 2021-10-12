@@ -53,7 +53,7 @@ static void run_test(uint64_t value, size_t width, const char *expected_hex_seri
 
   //Read Byte Stream Into Compact
   scale_compact_int read_from_bytes = SCALE_COMPACT_INT_INIT;
-  size_t bytes_read = read_next_compact_from_data(&read_from_bytes, serialized);
+  size_t bytes_read = read_compact_int_from_data(&read_from_bytes, serialized);
   if(s_e.mode == SCALE_COMPACT_BIGNUM) {
     assert(bytes_read == num_bytes+1);  //BigNum Compact stores data from index 1, compact_int_get_byte_length does not include prefix
   } else {
@@ -115,7 +115,7 @@ static void run_test_fixed_hex_128(const char *hex, const char *expected) {
 static void run_test_read_data_to_compact(uint8_t *data, size_t byte_length, uint64_t expected) {
   //Read Byte Stream Into Compact
   scale_compact_int read_from_bytes = SCALE_COMPACT_INT_INIT;
-  size_t bytes_read = read_next_compact_from_data(&read_from_bytes, data);
+  size_t bytes_read = read_compact_int_from_data(&read_from_bytes, data);
   uint64_t read_back_byte_length = compact_int_get_byte_length(&read_from_bytes);
   uint64_t value = decode_compact_to_u64(&read_from_bytes);
 
@@ -140,7 +140,7 @@ static void run_test_read_data_to_compact(uint8_t *data, size_t byte_length, uin
 static void run_test_read_data_128_to_compact(uint8_t *data, size_t byte_length, const char *expected_raw_hex_value, const char *expected) {
   //Read Byte Stream Into Compact
   scale_compact_int read_from_bytes = SCALE_COMPACT_INT_INIT;
-  size_t bytes_read = read_next_compact_from_data(&read_from_bytes, data);
+  size_t bytes_read = read_compact_int_from_data(&read_from_bytes, data);
   uint64_t read_back_byte_length = compact_int_get_byte_length(&read_from_bytes);
 
   printf("\n\t\tReading u128 Bignum Compact Value: <");
