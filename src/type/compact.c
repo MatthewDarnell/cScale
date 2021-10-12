@@ -186,6 +186,48 @@ int8_t encode_uint64_to_compact_int_scale(scale_compact_int *compact_int_elem, u
   return 0;
 }
 
+size_t encode_u128_data_to_compact_int_scale(scale_compact_int *compact_int_elem, const uint8_t *data) {
+  enum scale_compact_int_mode mode = data[0] & 0x03; //00000011
+  uint8_t upper_bits = (data[0] & 0xFC);  //11111100
+  if(mode != SCALE_COMPACT_BIGNUM) {
+    fprintf(stderr, "Invalid Scale! Unknown Compact Mode\n");
+    return 0;
+  }
+  size_t i = 0;
+  uint8_t byte_length = (upper_bits >> 2) + 4;
+  if(byte_length <= 8) {
+    uint64_t value = 0;
+    for(i = byte_length; i > 1; i--) {
+      value |= data[i] & 0xFF;
+      value <<= 8;
+    }
+    value |= data[1] & 0xFF;
+    if(value <= 4611686018427387903) {  //2^62 - 1 is MAX compact 8 byte scale value
+      if(encode_compact(compact_int_elem, value) < 0) {
+        fprintf(stderr, "Error Reading Compact Byte!\n");
+        return 0;
+      }
+      return byte_length + 1;
+    }
+  }
+
+  compact_int_elem->mode = SCALE_COMPACT_BIGNUM;
+  compact_int_elem->data = calloc(byte_length, sizeof(uint8_t));
+  if(!compact_int_elem->data) {
+    fprintf(stderr, "Error Encoding Sixteen Byte Compact!\n");
+    return 0;
+  }
+
+  int offset = 0;
+ // for(i=byte_length; i > 0; i--) {
+  for(i=1; i <= byte_length; i++) {
+    compact_int_elem->data[offset++] = data[i];
+  }
+
+  compact_int_elem->mode_upper_bits = byte_length - 4;
+  return byte_length;
+}
+
 int8_t encode_u128_string_to_compact_int_scale(scale_compact_int *compact_int_elem, char *hex) {
   char *pHex = hex;
   if(pHex[0] == '0' && (pHex[1] == 'x' || pHex[1] == 'X')) {
@@ -258,6 +300,8 @@ int8_t encode_u128_string_to_compact_int_scale(scale_compact_int *compact_int_el
   free(bytes);
   return 0;
 }
+
+
 
 int8_t encode_compact_hex_to_scale(scale_compact_int *compact_int_elem, const char *hex) {
   uint8_t *data;
@@ -418,6 +462,79 @@ uint64_t decode_compact_to_u64(scale_compact_int *compact_int_elem) {
   free(hex);
   return ret_val;
 }
+
+
+
+
+//Reads the serialized Compact/General Int byte array into a scale_compact_int Structure
+//Returns the total number of bytes read
+//Returns 0 if fails to read
+size_t read_next_compact_from_data(scale_compact_int *compact_int_elem, uint8_t *serialized) {
+  enum scale_compact_int_mode mode = serialized[0] & 0x03; //00000011
+  uint8_t upper_bits = (serialized[0] & 0xFC);  //11111100
+
+  switch (mode) {
+    case SCALE_COMPACT_SINGLE_BYTE: {
+      uint8_t value = upper_bits >> 2;
+      if(encode_compact(compact_int_elem, value) < 0) {
+        fprintf(stderr, "Error Reading Compact Byte!\n");
+        return 0;
+      }
+      return 1;
+    }
+    case SCALE_COMPACT_TWO_BYTE: {
+      uint16_t value = serialized[1];
+      value <<= 8;
+      value |= upper_bits & 0xFF;
+      value >>=2;
+      if(encode_compact(compact_int_elem, value) < 0) {
+        fprintf(stderr, "Error Reading Compact Byte!\n");
+        return 0;
+      }
+      return 2;
+    }
+    case SCALE_COMPACT_FOUR_BYTE: {
+      uint32_t value = serialized[3];
+      value <<= 8;
+      value |= serialized[2] & 0xFF;
+      value <<= 8;
+      value |= serialized[1] & 0xFF;
+      value <<= 8;
+      value |= upper_bits & 0xFF;
+      value >>= 2;
+      if(encode_compact(compact_int_elem, value) < 0) {
+        fprintf(stderr, "Error Reading Compact Byte!\n");
+        return 0;
+      }
+      return 4;
+    }
+    case SCALE_COMPACT_BIGNUM: {
+      uint8_t byte_length = (upper_bits >> 2) + 4;
+      if(byte_length <= 8) {
+        uint64_t value = 0;
+        int i;
+        for(i = byte_length; i > 1; i--) {
+          value |= serialized[i] & 0xFF;
+          value <<= 8;
+        }
+        value |= serialized[1] & 0xFF;
+        if(value <= 4611686018427387903) {  //2^62 - 1 is MAX compact 8 byte scale value
+          if(encode_compact(compact_int_elem, value) < 0) {
+            fprintf(stderr, "Error Reading Compact Byte!\n");
+            return 0;
+          }
+          return byte_length + 1;
+        }
+      }
+      return encode_u128_data_to_compact_int_scale(compact_int_elem, serialized);
+    }
+    default: {
+      fprintf(stderr, "Invalid Scale! Unknown Compact Mode\n");
+      return 0;
+    }
+  }
+}
+
 
 
 void cleanup_scale_compact_int(scale_compact_int *compact) {

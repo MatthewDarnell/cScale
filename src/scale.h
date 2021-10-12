@@ -127,6 +127,10 @@ int8_t encode_u128_string_to_compact_int_scale(scale_compact_int *compact_int_el
     uint64_t:  encode_uint64_to_compact_int_scale \
   ) (elem, value)
 
+//Reads the serialized Compact/General Int byte array into a scale_compact_int Structure
+//Returns the total number of bytes read
+//Returns 0 if fails to read
+size_t read_next_compact_from_data(scale_compact_int *compact_int_elem, uint8_t *serialized);
 
 //Encode a valid Hex encoded Compact/General Int string into a scale_compact_int Structure
 //Returns 0 on success, -1 otherwise
@@ -150,6 +154,7 @@ char* decode_compact_to_hex(scale_compact_int *compact_int_elem);
 uint64_t decode_compact_to_u64(scale_compact_int *compact_int_elem);
 
 //Get the length, in bytes, of the serialized compact_int_elem
+//Returned length does not include prefix byte for BIGNUM scale_compact_int values
 size_t compact_int_get_byte_length(scale_compact_int *compact_int_elem);
 
 /*
