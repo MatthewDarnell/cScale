@@ -319,15 +319,36 @@ int8_t encode_fixed_hex_to_scale(scale_fixed_int *fixed_int_elem, bool is_signed
 
 
 //Decode functions
-int8_t deserialize_fixed_int(void *output, uint8_t *bytes, size_t len, bool is_signed) {
-  char *hex = cscale_byte_array_to_hex(bytes, len);
+
+
+//Reads the serialized Fixed Int byte array into a scale_fixed_int Structure
+//fixed_int_width is the number of bytes of the fixed int. (i8,u8=1, i64,u64=8, etc)
+//is_signed is whether or not the value is signed
+//Returns the total number of bytes read
+//Returns 0 if fails to read
+size_t read_fixed_int_from_data(scale_fixed_int *fixed_int_elem, size_t fixed_int_width, bool is_signed, const uint8_t *restrict serialized) {
+  if(fixed_int_width != 1 && fixed_int_width % 2 != 0) {
+    fprintf(stderr, "Invalid Byte Width for Reading Fixed Int! Invalid Length.(%u)\n", (unsigned)fixed_int_width);
+    return 0;
+  }
+  char *hex = cscale_byte_array_to_hex((uint8_t*)serialized, fixed_int_width);
+  if(!hex) {
+    fprintf(stderr, "Memory Error in Reading Compact Int From Data!\n");
+    return 0;
+  }
   char stack_hex[256] = { 0 };
   strcpy(stack_hex, hex);
   free(hex);
+  encode_fixed_hex_to_scale(fixed_int_elem, is_signed, stack_hex);
+  return fixed_int_width;
+}
+
+int8_t deserialize_fixed_int(void *output, uint8_t *bytes, size_t len, bool is_signed) {
   scale_fixed_int fixed;
-  encode_fixed_hex_to_scale(&fixed, is_signed, stack_hex);
+  read_fixed_int_from_data(&fixed, len, is_signed, bytes);
   return decode_scale_fixed_int(output, &fixed);
 }
+
 
 //remember to free
 char *decode_scale_fixed_to_hex(scale_fixed_int *fixed_int_elem) {

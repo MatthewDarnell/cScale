@@ -14,7 +14,7 @@
 //element_width should contain the byte length of each element. (u16=2, char=1)
 //Returns the total number of bytes read
 //Returns 0 if fails to read
-size_t read_vector_from_data(scale_vector *vec, uint8_t element_width, uint8_t *serialized) {
+size_t read_vector_from_data(scale_vector *vec, uint8_t element_width, const uint8_t *restrict serialized) {
   size_t prefix_num_element_byte_length = read_compact_int_from_data(&vec->prefix_num_elements, serialized);
 
   uint64_t data_length = decode_compact_to_u64(&vec->prefix_num_elements) * element_width;

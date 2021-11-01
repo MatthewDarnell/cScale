@@ -7,114 +7,47 @@
 #include "../util/hex.h"
 #include "../scale.h"
 
-int8_t encode_option_fixed_int(scale_option *option, scale_fixed_int *fixed_int) {
-  memset(option, 0, sizeof(scale_option));
-  if(fixed_int) {
-    encode_boolean(&option->option, true);
+//Serializes a SCALE option value and places the data into serialized, of length serialized_len
+//User is responsible for ensuring that serialized can hold at least data_len+1 bytes
+//scale_option enum defines how to encode this Option
+//data and data_len represent the SCALE-serialized data of some other object. data can be NULL if option value is None
+void serialize_scale_option(uint8_t *serialized, size_t *serialized_len, enum scale_option option, uint8_t* data, size_t data_len) {
+  if(option == None) {
+    memset(serialized, 0, 1);
+    *serialized = 0x00;
+    *serialized_len = 1;
+  } else if(option == Some) {
+    memset(serialized, 0, data_len + 1);
+    *serialized = 0x01;
+    *serialized_len = data_len + 1;
+    memmove(&serialized[1], data, data_len);
   }
-  else {
-    encode_boolean(&option->option, false);
-    return 0;
+  else if(option == BoolFalse) {
+    memset(serialized, 0, 1);
+    *serialized = 0x02;
+    *serialized_len = 1;
   }
-  memset(&option->value, 0, sizeof(option_value));
-  option->value.type = FIXED_INT;
-  memmove(&option->value._fixed_int, fixed_int, sizeof(scale_fixed_int));
-  return 0;
 }
 
-int8_t encode_option_boolean(scale_option *option, scale_boolean *boolean) {
-  memset(option, 0, sizeof(scale_option));
-  if(boolean) {
-    encode_boolean(&option->option, true);
-  }
-  else {
-    encode_boolean(&option->option, false);
-    return 0;
-  }
-  memset(&option->value, 0, sizeof(option_value));
-  option->value.type = BOOLEAN;
-  memmove(&option->value._boolean, boolean, sizeof(scale_boolean));
-  return 0;
-}
-
-int8_t encode_option_compact_int(scale_option *option, scale_compact_int *compact_int) {
-  memset(option, 0, sizeof(scale_option));
-  if(compact_int) {
-    encode_boolean(&option->option, true);
-  }
-  else {
-    encode_boolean(&option->option, false);
-    return 0;
-  }
-  memset(&option->value, 0, sizeof(option_value));
-  option->value.type = COMPACT_INT;
-  memmove(&option->value._compact_int, compact_int, sizeof(scale_compact_int));
-
-  option->value._compact_int.data = compact_int->data;
-  compact_int->data = NULL;
-  return 0;
-}
-
-char *decode_option_to_hex(scale_option *option) {
-  if(!option) {
-    fprintf(stderr, "Error Decoding Option\n");
-    return NULL;
-  }
-
-  char *out = NULL;
-
-  if(decode_boolean(&option->option) == 0x00) {
-    out = calloc(4, sizeof(char));
-    if(!out) {
-      fprintf(stderr, "Error Initializing Memory For Option Hex\n");
-      return NULL;
+//Value of this Option placed into pointer option
+//data+1 now points to the raw value, if option is Some value
+int8_t deserialize_scale_option(enum scale_option *option, const uint8_t *serialized) {
+  switch(serialized[0]) {
+    case 0x00: {
+      *option = None;
+      return 0;
     }
-    strcpy(out, "0x00");
-    return out;
-  }
-
-  if(option->value.type == FIXED_INT) {
-    char *serialized = NULL;
-    if(!(serialized = decode_scale_fixed_to_hex(&option->value._fixed_int))) {
-      fprintf(stderr, "Error Serializing Fixed Int For Option Hex\n");
-      return NULL;
+    case 0x01: {
+      *option = Some;
+      return 0;
     }
-    out = calloc(3 + strlen(serialized) + 1, sizeof(char));
-    if(!out) {
-      fprintf(stderr, "Error Initializing Memory For Option Hex\n");
-      return NULL;
+    case 0x02: {
+      *option = BoolFalse;
+      return 0;
     }
-    strcpy(out, "0x01");
-    strcat(out, serialized);
-    free(serialized);
-    return out;
-  } else if(option->value.type == COMPACT_INT) {
-
-    uint8_t serialized[64] = { 0 };
-    uint64_t serialized_len = 0;
-    serialize_compact_int(serialized, &serialized_len, &option->value._compact_int);
-    char *hex = cscale_byte_array_to_hex(serialized, serialized_len);
-    if(!hex) {
-      fprintf(stderr, "Error Initializing Memory For Option Hex\n");
-      return NULL;
+    default: {
+      fprintf(stderr, "Decoding Invalid Option!\n");
+      return -1;
     }
-    out = calloc(3 + strlen(hex) + 1, sizeof(char));
-    strcpy(out, "0x01");
-    strcat(out, hex);
-    free(hex);
-
-    return out;
-
-  } else if(option->value.type == BOOLEAN) {
-    char *out = calloc(3, sizeof(char));
-    if(decode_boolean(&option->value._boolean) == 0x01) {
-      strcpy(out, "0x01");
-    } else {
-      strcpy(out, "0x02");
-    }
-    return out;
-  } else {
-    fprintf(stderr, "Unknown Option Type\n");
-    return NULL;
   }
 }

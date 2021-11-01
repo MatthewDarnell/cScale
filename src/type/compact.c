@@ -448,7 +448,7 @@ uint64_t decode_compact_to_u64(scale_compact_int *compact_int_elem) {
 //Reads the serialized Compact/General Int byte array into a scale_compact_int Structure
 //Returns the total number of bytes read
 //Returns 0 if fails to read
-size_t read_compact_int_from_data(scale_compact_int *compact_int_elem, uint8_t *serialized) {
+size_t read_compact_int_from_data(scale_compact_int *compact_int_elem, const uint8_t *restrict serialized) {
   enum scale_compact_int_mode mode = serialized[0] & 0x03; //00000011
   uint8_t upper_bits = (serialized[0] & 0xFC);  //11111100
 

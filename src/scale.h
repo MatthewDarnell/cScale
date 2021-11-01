@@ -60,7 +60,7 @@ int8_t encode_u128_string_to_fixed_int_scale(scale_fixed_int *fixed_int_elem, ch
 //Returns 0 if ok, -1 if got 00000 le string
 int8_t swap_u128_le_to_be(char *be_out, char *le);
 
-//Tries to convert a fixed-int hex string "0xFFFFFF00" to a scale_fixed_int Structure
+//Tries to convert a SCALE encoded fixed int hex string to a scale_fixed_int Structure
 //Returns 0 if successful, -1 otherwise
 int8_t encode_fixed_hex_to_scale(scale_fixed_int *fixed_int_elem, bool is_signed, const char *hex);
 
@@ -70,12 +70,19 @@ int8_t encode_fixed_hex_to_scale(scale_fixed_int *fixed_int_elem, bool is_signed
 int8_t serialize_fixed_int(uint8_t *serialized, uint64_t *serialized_len, scale_fixed_int *fixed_int_elem);
 
 
+//Reads the serialized Fixed Int byte array into a scale_fixed_int Structure
+//fixed_int_width is the number of bytes of the fixed int. (i8,u8=1, i64,u64=8, etc)
+//is_signed is whether or not the value is signed
+//Returns the total number of bytes read
+//Returns 0 if fails to read
+size_t read_fixed_int_from_data(scale_fixed_int *fixed_int_elem, size_t fixed_int_width, bool is_signed, const uint8_t *restrict serialized);
+
 
 //Returns a malloc'd (remember to free) hex string of the encoded scale_fixed_int value
 //Returns NULL if invalid
 char *decode_scale_fixed_to_hex(scale_fixed_int *fixed_int_elem);
 
-//Decodes a fixed int scale element into an integer. User is responsible for passing a valid int type. Max currently is uint64_t
+//Decodes a fixed int SCALE element into an integer. User is responsible for passing a valid int type. Max currently is uint64_t
 //Returns 0 on success, -1 otherwise
 int8_t decode_scale_fixed_int(void *output, scale_fixed_int *fixed_int_elem);
 
@@ -83,6 +90,8 @@ int8_t decode_scale_fixed_int(void *output, scale_fixed_int *fixed_int_elem);
 //Returns 0 on success, -1 otherwise
 int8_t deserialize_fixed_int(void *output, uint8_t *bytes, size_t len, bool is_signed);
 
+
+//TODO: size_t read_next_fixed_int(scale_fixed_int *out, char *stream);
 
 
 /*
@@ -130,7 +139,7 @@ int8_t encode_u128_string_to_compact_int_scale(scale_compact_int *compact_int_el
 //Reads the serialized Compact/General Int byte array into a scale_compact_int Structure
 //Returns the total number of bytes read
 //Returns 0 if fails to read
-size_t read_compact_int_from_data(scale_compact_int *compact_int_elem, uint8_t *serialized);
+size_t read_compact_int_from_data(scale_compact_int *compact_int_elem, const uint8_t *restrict serialized);
 
 //Encode a valid Hex encoded Compact/General Int string into a scale_compact_int Structure
 //Returns 0 on success, -1 otherwise
@@ -196,39 +205,19 @@ char *decode_boolean_to_hex(scale_boolean *boolean_elem);
   *
 */
 
-//Struct containing a union of several possible SCALE types
-//TODO: add more supported types
-typedef struct {
-  enum scale_type type;
-  union {
-    scale_fixed_int _fixed_int;
-    scale_compact_int _compact_int;
-    scale_boolean _boolean;
-  };
-} option_value;
+//Enum Containing A SCALE Option Value.
+enum scale_option { None = 0x00, Some = 0x01, BoolFalse = 0x02 };
 
-//Struct Containing A SCALE Option Value.
-typedef struct {
-  scale_boolean option;
-  option_value value;
-} scale_option;
+//Serializes a SCALE option value and places the data into serialized, of length serialized_len
+//User is responsible for ensuring that serialized can hold at least data_len+1 bytes
+//scale_option enum defines how to encode this Option
+//data and data_len represent the SCALE-serialized data of some other object. data can be NULL if option value is None
+void serialize_scale_option(uint8_t *serialized, size_t *serialized_len, enum scale_option option, uint8_t* data, size_t data_len);
 
-
-//Encodes a scale_fixed SCALE Struct into an Option. Pass NULL as fixed_int to make Option None
-int8_t encode_option_fixed_int(scale_option *option, scale_fixed_int *fixed_int);
-
-//Encodes a compact_int SCALE Struct into an Option. Pass NULL as compact_int to make Option None
-//This operation moves compact_int->data array, so remember to release this Option and no longer reference
-//the compact_int->data
-int8_t encode_option_compact_int(scale_option *option, scale_compact_int *compact_int);
-
-//Encodes a boolean SCALE Struct into an Option. Pass NULL as boolean to make Option None
-int8_t encode_option_boolean(scale_option *option, scale_boolean *boolean);
-
-//Returns a malloc'd (remember to free) hex SCALE-encoded Option string
-//Returns NULL if unsuccessful
-char *decode_option_to_hex(scale_option *option);
-
+//Value of this Option placed into pointer option
+//data+1 now points to the raw value, if option is Some value
+//Returns 0 if successful, -1 if invalid option
+int8_t deserialize_scale_option(enum scale_option *option, const uint8_t *serialized);
 
 
 /*
@@ -259,7 +248,7 @@ void serialize_vector(uint8_t *serialized, size_t *serialized_len, scale_vector 
 //element_width should contain the byte length of each element. (u16=2, char=1)
 //Returns the total number of bytes read
 //Returns 0 if fails to read
-size_t read_vector_from_data(scale_vector *vec, uint8_t element_width, uint8_t *serialized);
+size_t read_vector_from_data(scale_vector *vec, uint8_t element_width, const uint8_t *restrict serialized);
 
 //Points elem to the index'th element of the scale_vector vec.
 //elem_width is byte width of each element in the vector. (won't work for variable length types)
@@ -303,14 +292,14 @@ void inline serialize_string(uint8_t *serialized, size_t *serialized_len, scale_
 //Deserialize a Utf8 String Vector Structure
 //Reads serialized and populates vec
 //Returns total bytes of string
-size_t inline deserialize_string(scale_vector *vec, uint8_t *serialized) {
+size_t inline deserialize_string(scale_vector *vec, const uint8_t *restrict serialized) {
   return read_vector_from_data(vec, 1, serialized);
 }
 
 //Deserialize a vector of Utf8 Strings into a vec structure
 //Places the number of strings read (length of *vec) into num_string_elems
 //Returns total bytes read
-size_t deserialize_vector_of_strings(scale_vector *vec, size_t *num_string_elems, uint8_t *serialized);
+size_t deserialize_vector_of_strings(scale_vector *vec, size_t *num_string_elems, const uint8_t *restrict serialized);
 
 
 //Helper Function To Clean up a String Vector Structure
@@ -355,8 +344,21 @@ typedef struct {
 int8_t encode_scale_enum_type(scale_enum_type *enum_type, size_t num_elements, char *keys[], char *values[]);
 
 //Struct Containing A SCALE Enumeration.
+
+//TODO: add more supported types
 typedef struct {
-  option_value value;
+  enum scale_type type;
+  union {
+    scale_fixed_int _fixed_int;
+    scale_compact_int _compact_int;
+    scale_boolean _boolean;
+  };
+} enum_value;
+
+
+
+typedef struct {
+  enum_value value;
   scale_enum_type enum_types;
   char *key;
 } scale_enumeration;

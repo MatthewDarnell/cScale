@@ -10,17 +10,6 @@
 #include "../util/hex.h"
 #include "../scale.h"
 
-#define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
-#define BYTE_TO_BINARY(byte)  \
-  (byte & 0x80 ? '1' : '0'), \
-  (byte & 0x40 ? '1' : '0'), \
-  (byte & 0x20 ? '1' : '0'), \
-  (byte & 0x10 ? '1' : '0'), \
-  (byte & 0x08 ? '1' : '0'), \
-  (byte & 0x04 ? '1' : '0'), \
-  (byte & 0x02 ? '1' : '0'), \
-  (byte & 0x01 ? '1' : '0')
-
 extern void assert_hash_matches_bytes(uint8_t* bytes, size_t byte_len, const char *hex);
 
 static void run_test(uint64_t value, size_t width, uint8_t is_signed, const char *expected_hex_serialized) {
@@ -60,8 +49,20 @@ static void run_test(uint64_t value, size_t width, uint8_t is_signed, const char
   
   char *hex = decode_scale_fixed_to_hex(&s_e);
   uint64_t output = 0;
+
+  scale_fixed_int fixed;
+  uint64_t len = 0;
+  uint8_t serialized_data[128] = { 1 }; //fill with 1s, make sure we can read data slices
+  serialize_fixed_int(&serialized_data[2], &len, &s_e);
+  size_t bytes_read = read_fixed_int_from_data(&fixed, width, (bool)is_signed, (const uint8_t*)&serialized_data[2]);
+  assert(bytes_read == width);
+  char *fixed_read_back_from_data = decode_scale_fixed_to_hex(&fixed);
+
+  assert(strcasecmp(hex, fixed_read_back_from_data) == 0);  //Make sure we can read this data back correctly as a slice of a larger array
+
+  free(fixed_read_back_from_data);
   decode_scale_fixed_int((void*)&output, &s_e);
-  
+
   printf("output: %llu %llu ", value, output);
   assert(value == output);
   
