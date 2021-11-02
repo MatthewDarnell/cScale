@@ -40,7 +40,7 @@ Data Type | cScale Structure
 Fixed Width Integer | `scale_fixed_int`
 Compact/General Integer | `scale_compact_int`
 Boolean | `scale_boolean`
-Option | `scale_option`
+Option | `scale_option` (enum)
 Vector | `scale_vector`
 String | `scale_vector`
 Data Structures | User-defined `struct` containing a `scale_structure`
@@ -101,7 +101,7 @@ This is a working build that has not been subject to any extensive audits.
 
 #### Current Limitations:
 |Type | Reason
-:---: | :---:
+:---: | :---
 |u128 | C does not support native uint128_t. GCC extension exists but literal u128 values too long. Hex Strings currently used.|
 |Enum | Currently only supporting fixed int/compact int/boolean types|
-|Vector | Due to lack of u128, vector length is currently limited to uint64 max values as max elements
+|Vector | Due to lack of u128, vector length is currently limited to uint64 max values as max elements. <br /> <br /> Helper Functions rely on same byte-width elements, such as fixed int or characters. Parsing can be done manually for variable width elements, such as Options. |

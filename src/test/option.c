@@ -71,10 +71,38 @@ int run_option_test() {
   //https://github.com/paritytech/parity-scale-codec/blob/master/src/codec.rs#L1336
   assert_hash_matches_bytes(serialized_vector, serialized_vector_len, "0c010101ff00");
 
+  //Parse Vector Data (can't use standard foreach because options have differing byte widths)
+  scale_compact_int compact_num_elems = SCALE_COMPACT_INT_INIT;
+  read_compact_int_from_data(&compact_num_elems, serialized_vector);
+  uint8_t num_elems = (uint8_t)decode_compact_to_u64(&compact_num_elems);
+  uint32_t offset = 0;  //index into data
+  printf("\n\t\tReading (Variable Byte-Width) Vec<Option<i8>> Back: (%u elems) --> [", num_elems);
+  for(uint8_t i=0; i < num_elems; i++) {
+    uint8_t *temp = &vec.data[offset];
+    enum scale_option op;
+    deserialize_scale_option(&op, temp);
+    if(op == None) {  //1 byte
+      assert(i == 2);
+      offset++;
+      printf(" None ");
+    } else if(op == Some) { //1 byte + 1 byte for int8_t data type
+      assert(i == 0 ||  i == 1);
+      scale_fixed_int fixed = { 0 };
+      read_fixed_int_from_data(&fixed, 1, true, &vec.data[offset+1]);
+      offset+=2;
+      int8_t output = 0;
+      decode_scale_fixed_int((void*)&output, &fixed);
+      printf(" Some(%d) ", output);
+      if(i == 0) {
+        assert(output == 1);
+      } else {
+        assert(output == -1);
+      }
+    }
+  }
+  printf("]\n");
 
   cleanup_vector(&vec);
-
-
 
   return 0;
 }
