@@ -41,7 +41,12 @@ static void run_test(uint64_t value, size_t width, const char *expected_hex_seri
 
   printf("Verifying ByteWidth=(%u)\t", (unsigned)width);
   size_t num_bytes = compact_int_get_byte_length(&s_e);
-  assert(num_bytes == width);
+  printf("Num Bytes: %llu\n", num_bytes);
+  if(width < 8) {
+    assert(num_bytes == width);
+  } else {  //bignum, num_bytes are variable but should be, at maximum, width
+    assert(num_bytes >= 4 && num_bytes <= width);
+  }
 
   uint8_t serialized[64] = { 0 };
   uint64_t serialized_len = 0;
@@ -174,7 +179,9 @@ int run_compact_test() {
   run_test(127, 2, "fd01"); //uint16_t
   run_test(60, 1, "f0"); //uint8_t
   run_test(254, 2, "f903"); //uint16_t
+  run_test(65535, 4, "feff0300"); //uint32_t
   run_test(16161616, 4, "426dda03"); //uint32_t max 32 uint compact: 2^30 - 1
+  run_test(100000000000000, 8, "0b00407a10f35a"); //uint64_t max 64 uint compact: 2^62 - 1
   run_test(4611686018427387903, 8, "13ffffffffffffff3f"); //uint64_t max 64 uint compact: 2^62 - 1
 
   printf("\tEncoding Hex to Compact Scale:");
