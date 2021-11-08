@@ -10,7 +10,6 @@
 
 
 char* cscale_fixed_byte_array_to_hex(uint8_t* data, int8_t byte_width);
-char* cscale_byte_array_to_hex(uint8_t* data, size_t len);
 
 bool cscale_hex_digit_to_bin(const char hex, char *out);
 bool cscale_is_valid_hex(const char *hex);

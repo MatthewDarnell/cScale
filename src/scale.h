@@ -12,6 +12,16 @@
 
 #define FIXED_INT_MAX_BYTES 16
 
+
+/*
+  *  Helper functions
+*/
+
+//Convert a uint8_t* of length @len to a malloc'd (remember to free!) char array.
+//Returns NULL if malloc fails
+char* cscale_byte_array_to_hex(uint8_t* data, size_t len);
+
+
 typedef enum scale_type { FIXED_INT, COMPACT_INT, BOOLEAN, OPTION, ENUM, VECTOR, STRING, STRUCT  } scale_type;
 
 /*

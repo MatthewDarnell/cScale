@@ -41,7 +41,7 @@ static void run_test(uint64_t value, size_t width, const char *expected_hex_seri
 
   printf("Verifying ByteWidth=(%u)\t", (unsigned)width);
   size_t num_bytes = compact_int_get_byte_length(&s_e);
-  printf("Num Bytes: %llu\n", num_bytes);
+  printf("Num Bytes: %u\n", (unsigned)num_bytes);
   if(width < 8) {
     assert(num_bytes == width);
   } else {  //bignum, num_bytes are variable but should be, at maximum, width
