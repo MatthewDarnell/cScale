@@ -22,8 +22,6 @@
 char* cscale_byte_array_to_hex(uint8_t* data, size_t len);
 
 
-typedef enum scale_type { FIXED_INT, COMPACT_INT, BOOLEAN, OPTION, ENUM, VECTOR, STRING, STRUCT  } scale_type;
-
 /*
   *
   *   Fixed Width Int: https://substrate.dev/docs/en/knowledgebase/advanced/codec#fixed-width-integers
@@ -393,6 +391,9 @@ void decode_enumeration(uint8_t *bytes, uint16_t *enum_type_index, scale_enum_ty
   *   Tuples: https://substrate.dev/docs/en/knowledgebase/advanced/codec#tuples
   *
 */
+
+//Probably should refactor this or add Enum, Option, Struct
+typedef enum scale_type { FIXED_INT, COMPACT_INT, BOOLEAN, VECTOR, STRING  } scale_type;
 
 //Serialize two SCALE-encoded objects, data_a and data_b, as well as their respective types, a and b, into a
 //SCALE_encoded Tuple of the two objects, bytes, as well as its Length len

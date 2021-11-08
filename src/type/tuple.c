@@ -7,7 +7,6 @@
 #include "../scale.h"
 
 int8_t serialize_as_tuple(uint8_t *bytes, size_t *len, scale_type a, void *data_a, scale_type b, void *data_b) {
-  //typedef enum { FIXED_INT, COMPACT_INT, BOOLEAN, OPTION, ENUM, VECTOR, STRING, STRUCT  } scale_type;
   *len = 0;
   switch(a) {
     case FIXED_INT: {
