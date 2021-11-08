@@ -109,7 +109,7 @@ int run_enumeration_test() {
   uint16_t offset = 0;
   decode_enumeration(bytes, &offset, &CustomEnum, enum_bytes, (size_t*)&len);
   hex = cscale_byte_array_to_hex(bytes, len);
-  printf("\t\tStruct Enum Deserialzied: %s --- <0x%s>\n", type, hex);
+  printf("\t\tStruct Enum Deserialized: %s --- <0x%s>\n", type, hex);
   assert(strcasecmp(hex, "01000000020000000000000000012A") == 0);
   free(hex);
 
