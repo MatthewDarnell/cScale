@@ -92,7 +92,7 @@ SCALE=<1501> --- Hex=<45> --- Decoded=<69>
 ```
 
 
-For more information, you can have a look over the test files in `src/test/` to see examples of each kind. 
+For more information, you can have a look over the docs in `doc/` and the test files in `src/test/` to see examples of each kind. 
 
 
 ## Current Status/Limitations
