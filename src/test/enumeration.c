@@ -96,7 +96,7 @@ int run_enumeration_test() {
   t.scaleencoder.deserialize = &struct_MyStruct_deserialize;
 
   printf("\t\tSerializing Struct {\n\t\t\ta: <u32> = %u\n\t\t\tb: <u64> = %llu\n\t\t\tc: { \n\t\t\t\ta: <bool> = %d\n\t\t\t\tb: <bool> = %d\n\t\t\t\tc: <int8_t> = %d\n\t\t\t} \n    \t\t\t}\n",
-  t.a, t.b, t.c.a, t.c.b, t.c.c);
+  t.a, (unsigned long long)t.b, t.c.a, t.c.b, t.c.c);
 
   t.scaleencoder.serialize(bytes, (size_t*)&len, &t);
   encode_enumeration(enum_bytes, &CustomEnum, type, bytes, (size_t*)&len);
@@ -123,6 +123,6 @@ int run_enumeration_test() {
   t2.scaleencoder.deserialize(&t2, bytes, len);
 
   printf("\t\tDeserialized Struct From Enum {\n\t\t\ta: <u32> = %u\n\t\t\tb: <u64> = %llu\n\t\t\tc: { \n\t\t\t\ta: <bool> = %d\n\t\t\t\tb: <bool> = %d\n\t\t\t\tc: <int8_t> = %d\n\t\t\t} \n    \t\t\t}\n",
-  t2.a, t2.b, t2.c.a, t2.c.b, t2.c.c);
+  t2.a, (unsigned long long)t2.b, t2.c.a, t2.c.b, t2.c.c);
   return 0;
 }

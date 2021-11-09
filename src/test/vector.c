@@ -16,7 +16,7 @@ static void run_vector_test_read_from_bytes(uint8_t width, uint8_t *bytes, size_
   size_t bytes_read = read_vector_from_data(&vector, width, bytes);
   uint64_t num_elements = decode_compact_to_u64(&vector.prefix_num_elements);
   printf("\n\t\tNum bytes read.(%u) vs expected.(%u)", (unsigned)bytes_read, (unsigned)expected_bytes_read);
-  printf("\n\t\tNum elements read.(%llu) vs expected.(%u)\n", num_elements, (unsigned)expected_num_elements);
+  printf("\n\t\tNum elements read.(%llu) vs expected.(%u)\n", (unsigned long long)num_elements, (unsigned)expected_num_elements);
   assert(bytes_read == expected_bytes_read);
   assert(num_elements == expected_num_elements);
   cleanup_vector(&vector);
@@ -52,7 +52,7 @@ int run_vector_test() {
   assert(data_len == data_len_read_back);
 
   uint64_t num_elems = decode_compact_to_u64(&decoded.prefix_num_elements);
-  printf("\tNumber Elements Read.(%llu)", num_elems);
+  printf("\tNumber Elements Read.(%llu)", (unsigned long long)num_elems);
   assert(num_elems == 6);
 
   uint16_t output = 0;

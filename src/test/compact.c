@@ -14,7 +14,7 @@ extern void assert_hash_matches_bytes(uint8_t* bytes, size_t byte_len, const cha
 static void run_test(uint64_t value, size_t width, const char *expected_hex_serialized) {
     scale_compact_int s_e = SCALE_COMPACT_INT_INIT;
 
-    printf("\t\tEncoding <%llu>: ", value);
+    printf("\t\tEncoding <%llu>: ", (unsigned long long)value);
 
     switch (width) {
       case 1: {
@@ -99,7 +99,7 @@ static void run_test_fixed_hex(const char *hex, uint64_t expected) {
   char *hex_out = decode_compact_to_hex(&s_e);
   assert(hex_out);
   uint64_t value = strtoull(hex_out, NULL, 16);
-  printf("Output: <0x%s> Yields: %llu\n", hex_out, value);
+  printf("Output: <0x%s> Yields: %llu\n", hex_out, (unsigned long long)value);
   free(hex_out);
   assert(expected == value);
   cleanup_scale_compact_int(&s_e);
@@ -134,7 +134,7 @@ static void run_test_read_data_to_compact(uint8_t *data, size_t byte_length, uin
       (read_from_bytes.mode == SCALE_COMPACT_TWO_BYTE ? "Two" : "Four");
     printf("\t\tReading %s Byte Compact Value: <", mode);
     cscale_print_hash(data, byte_length);
-    printf("> As Data Stream. Got (%u) Bytes, Expected.(%u).\tVerifying Read Back Value.(%llu) == (%llu)\n", (unsigned)bytes_read, (unsigned)byte_length, value, expected);
+    printf("> As Data Stream. Got (%u) Bytes, Expected.(%u).\tVerifying Read Back Value.(%llu) == (%llu)\n", (unsigned)bytes_read, (unsigned)byte_length, (unsigned long long)value, (unsigned long long)expected);
     assert(bytes_read == byte_length);
   }
   assert(byte_length == read_back_byte_length);

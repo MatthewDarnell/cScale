@@ -98,7 +98,7 @@ int run_structure_test() {
   uint8_t bytes[32] = { 0 };
   size_t len = 0;
   printf("\t\tSerializing Struct {\n\t\t\ta: <u32> = %u\n\t\t\tb: <u64> = %llu\n\t\t\tc: { \n\t\t\t\ta: <bool> = %d\n\t\t\t\tb: <bool> = %d\n\t\t\t\tc: <int8_t> = %d\n\t\t\t} \n    \t\t\t}\n",
-  t.a, t.b, t.c.a, t.c.b, t.c.c);
+  t.a, (unsigned long long)t.b, t.c.a, t.c.b, t.c.c);
 
   t.scaleencoder.serialize(bytes, &len, &t);
   int i;
@@ -115,7 +115,7 @@ int run_structure_test() {
   t.scaleencoder.deserialize(&decoded, bytes, len);
 
   printf("\t\tDeserialized Struct {\n\t\t\ta: <u32> = %u\n\t\t\tb: <u64> = %llu\n\t\t\tc: { \n\t\t\t\ta: <bool> = %d\n\t\t\t\tb: <bool> = %d\n\t\t\t\tc: <int8_t> = %d\n\t\t\t} \n    \t\t\t}\n",
-  decoded.a, decoded.b, decoded.c.a, decoded.c.b, decoded.c.c);
+  decoded.a, (unsigned long long)decoded.b, decoded.c.a, decoded.c.b, decoded.c.c);
 
   assert(t.a == decoded.a && t.b == decoded.b && t.c.a == decoded.c.a && t.c.b == decoded.c.b && t.c.c == decoded.c.c);
   return 0;

@@ -18,7 +18,7 @@ static void run_test(uint64_t value, size_t width, uint8_t is_signed, const char
   uint8_t serialized[64] = { 0 };
   uint64_t serialized_len = 0;
   
-  printf("\t\tEncoding <%llu>: ", value);
+  printf("\t\tEncoding <%llu>: ", (unsigned long long)value);
 
   switch (width) {
     case 1: {
@@ -63,7 +63,7 @@ static void run_test(uint64_t value, size_t width, uint8_t is_signed, const char
   free(fixed_read_back_from_data);
   decode_scale_fixed_int((void*)&output, &s_e);
 
-  printf("output: %llu %llu ", value, output);
+  printf("output: %llu %llu ", (unsigned long long)value, (unsigned long long)output);
   assert(value == output);
   
   free(hex);
@@ -75,8 +75,8 @@ static void run_test(uint64_t value, size_t width, uint8_t is_signed, const char
   
   assert_hash_matches_bytes(serialized, serialized_len, expected_hex_serialized);
   
-  if(is_signed) printf(" -- Decoded: <%lld>\n", (int64_t)output);
-  else printf(" -- Decoded: <%llu>\n", output);
+  if(is_signed) printf(" -- Decoded: <%lld>\n", (signed long long)output);
+  else printf(" -- Decoded: <%llu>\n", (unsigned long long)output);
 
 }
 
@@ -105,7 +105,7 @@ static void run_test_128(char *value, uint8_t is_signed, const char *expected_he
   free(hex);
   hex = cscale_byte_array_to_hex(&serialized[7], 8);
   two = strtoull(hex, NULL, 16);
-  printf("Got Number Value: <%llu%llu>\t", one, two);
+  printf("Got Number Value: <%llu%llu>\t", (unsigned long long)one, (unsigned long long)two);
   free(hex);
   assert_hash_matches_bytes(serialized, 16, expected_hex_serialized);
 }
@@ -132,7 +132,7 @@ static void run_test_128_no_swap(char *value, uint8_t is_signed, const char *exp
   free(hex);
   hex = cscale_byte_array_to_hex(&serialized[7], 8);
   two = strtoull(hex, NULL, 16);
-  printf("Got Number Value: <%llu%llu>\t", one, two);
+  printf("Got Number Value: <%llu%llu>\t", (unsigned long long)one, (unsigned long long)two);
   free(hex);
   assert_hash_matches_bytes(serialized, 16, expected_hex_serialized);
 }
@@ -151,12 +151,12 @@ static void run_test_fixed_hex(const char *hex, uint8_t is_signed, uint64_t expe
   if(is_signed) {
     int64_t out = 0;
     decode_scale_fixed_int((void*)&out, &s_e);
-    printf("Yields: %lld\n", out);
+    printf("Yields: %lld\n", (signed long long)out);
     assert((int64_t)expected == out);
   } else {
     uint64_t out = 0;
     decode_scale_fixed_int((void*)&out, &s_e);
-    printf("Yields: %llu\n", out);
+    printf("Yields: %llu\n", (unsigned long long)out);
     assert(expected == out);
   }
 }
