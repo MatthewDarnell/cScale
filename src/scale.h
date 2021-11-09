@@ -351,6 +351,10 @@ typedef struct {
 //Takes an Array of Data Types and Possible Data Primitives and Defines this scale_enum_type Enumeration
 int8_t encode_scale_enum_type(scale_enum_type *enum_type, size_t num_elements, char *keys[], char *values[]);
 
+
+//Probably should refactor this or add Enum, Option, Struct
+typedef enum scale_type { FIXED_INT, COMPACT_INT, BOOLEAN, VECTOR, STRING  } scale_type;
+
 //Struct Containing A SCALE Enumeration.
 
 //TODO: add more supported types
@@ -391,9 +395,6 @@ void decode_enumeration(uint8_t *bytes, uint16_t *enum_type_index, scale_enum_ty
   *   Tuples: https://substrate.dev/docs/en/knowledgebase/advanced/codec#tuples
   *
 */
-
-//Probably should refactor this or add Enum, Option, Struct
-typedef enum scale_type { FIXED_INT, COMPACT_INT, BOOLEAN, VECTOR, STRING  } scale_type;
 
 //Serialize two SCALE-encoded objects, data_a and data_b, as well as their respective types, a and b, into a
 //SCALE_encoded Tuple of the two objects, bytes, as well as its Length len
