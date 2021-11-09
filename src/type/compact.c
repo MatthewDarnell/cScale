@@ -135,7 +135,7 @@ int8_t encode_uint64_to_compact_int_scale(scale_compact_int *compact_int_elem, u
     return encode_compact(compact_int_elem, (uint32_t)data);
   }
   if(data > 4611686018427387903) {  //Max: 2^62 -1 or 00111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111
-    fprintf(stderr, "Error Encoding Eight Byte Compact. Data Too Large.(%llu)\n", data);
+    fprintf(stderr, "Error Encoding Eight Byte Compact. Data Too Large.(%llu)\n", (unsigned long long)data);
     return -1;
   }
   memset(compact_int_elem, 0, sizeof(scale_compact_int));
