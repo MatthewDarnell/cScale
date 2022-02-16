@@ -38,7 +38,7 @@ int run_string_test() {
     printf("\tSerializing: %s: <", (char*)strings[i]);
     cscale_print_hash(serialized, len);
     push_vector(&VecOfStrings, serialized, len);
-    deserialize_string(&scale_string_deserialized, serialized);
+    deserialize_string(&scale_string_deserialized, serialized, len);
     assert(memcmp(scale_string.data, scale_string_deserialized.data, scale_string.data_len) == 0);
     cleanup_string(&scale_string);    
     printf(">\tDeserialized: <%s>\tLength.(%u)\n", (char*)scale_string_deserialized.data, (unsigned)utf8len((void*)scale_string_deserialized.data));
@@ -65,7 +65,7 @@ int run_string_test() {
   printf("\tDeserializing Vec<String>: ");
   memset(&VecOfStrings, 0, sizeof(scale_vector));
   size_t num_strings = 0;
-  size_t bytes_read = deserialize_vector_of_strings(&VecOfStrings, &num_strings, bytes);
+  size_t bytes_read = deserialize_vector_of_strings(&VecOfStrings, &num_strings, bytes, bytes_len);
   assert(num_strings == 4);
   assert(bytes_read == 90);
   uint8_t bytes_read_back[128] = { 0 };
@@ -126,8 +126,8 @@ int run_string_test() {
   uint8_t account[] = { 0x1c, 0x41, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74 };
   scale_vector encoded_vec = SCALE_VECTOR_INIT;
   size_t offset = 1;
-  cscale_hex_to_data(contains_encoded_vec, &data_str);
-  size_t utf8_str_len = deserialize_string(&encoded_vec, &data_str[offset]);
+  size_t data_str_len = cscale_hex_to_data(contains_encoded_vec, &data_str);
+  size_t utf8_str_len = deserialize_string(&encoded_vec, &data_str[offset], data_str_len);
   printf("\tVerifying Reading Utf8 String returns Correct Byte Length, (%s) - (%u)\n", encoded_vec.data, (unsigned)strlen((char*)encoded_vec.data));
   assert(utf8_str_len == 8);  //utf8_str_len contains raw utf8 len + compact prefix byte length from vector
   assert(memcmp(encoded_vec.data, &account[1], 7) == 0);
@@ -137,8 +137,8 @@ int run_string_test() {
 
   const char *second_encoded_vec = "30543a3a4163636f756e74496494";
   scale_vector encoded_vec_2 = SCALE_VECTOR_INIT;
-  cscale_hex_to_data(second_encoded_vec, &data_str);
-  size_t utf8_str_len_2 = deserialize_string(&encoded_vec_2, data_str);
+  data_str_len = cscale_hex_to_data(second_encoded_vec, &data_str);
+  size_t utf8_str_len_2 = deserialize_string(&encoded_vec_2, data_str, data_str_len);
   printf("\tVerifying Reading Utf8 String returns Correct Byte Length, (%s) - (%u)\n", encoded_vec_2.data, (unsigned)strlen((char*)encoded_vec_2.data));
   assert(utf8_str_len_2 == 13);
   free(data_str);

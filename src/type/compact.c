@@ -172,7 +172,7 @@ int8_t encode_uint64_to_compact_int_scale(scale_compact_int *compact_int_elem, u
 
   return 0;
 }
-size_t encode_u128_data_to_compact_int_scale(scale_compact_int *compact_int_elem, const uint8_t *data) {
+size_t encode_u128_data_to_compact_int_scale(scale_compact_int *compact_int_elem, const uint8_t *data, size_t size) {
   enum scale_compact_int_mode mode = data[0] & 0x03; //00000011
   uint8_t upper_bits = (data[0] & 0xFC);  //11111100
   if(mode != SCALE_COMPACT_BIGNUM) {
@@ -181,6 +181,9 @@ size_t encode_u128_data_to_compact_int_scale(scale_compact_int *compact_int_elem
   }
   size_t i = 0;
   uint8_t byte_length = (upper_bits >> 2) + 4;
+  if(byte_length > size) {
+    return 0;
+  }
   if(byte_length <= 8) {
     uint64_t value = 0;
     for(i = byte_length; i > 1; i--) {
@@ -212,7 +215,7 @@ size_t encode_u128_data_to_compact_int_scale(scale_compact_int *compact_int_elem
   return byte_length;
 }
 
-int8_t encode_u128_string_to_compact_int_scale(scale_compact_int *compact_int_elem, char *hex) {
+int8_t encode_u128_string_to_compact_int_scale(scale_compact_int *compact_int_elem, char *hex, size_t size) {
   char *pHex = hex;
   if(pHex[0] == '0' && (pHex[1] == 'x' || pHex[1] == 'X')) {
     pHex +=2;
@@ -285,7 +288,7 @@ int8_t encode_u128_string_to_compact_int_scale(scale_compact_int *compact_int_el
   return 0;
 }
 
-int8_t encode_compact_hex_to_scale(scale_compact_int *compact_int_elem, const char *hex) {
+int8_t encode_compact_hex_to_scale(scale_compact_int *compact_int_elem, const char *hex, size_t size) {
   uint8_t *data;
   char *pHex = (char*)hex;
   if(hex[0] == '0' && (hex[1] == 'x' || hex[1] == 'X')) {
@@ -360,7 +363,7 @@ int8_t encode_compact_hex_to_scale(scale_compact_int *compact_int_elem, const ch
         bytes[offset++] = data[i];
       }
       free(data);
-      return encode_u128_string_to_compact_int_scale(compact_int_elem, stack_raw_hex);
+      return encode_u128_string_to_compact_int_scale(compact_int_elem, stack_raw_hex, size);
     }
     default: {
       fprintf(stderr, "Invalid Scale! Unknown Compact Mode\n");
@@ -448,7 +451,11 @@ uint64_t decode_compact_to_u64(scale_compact_int *compact_int_elem) {
 //Reads the serialized Compact/General Int byte array into a scale_compact_int Structure
 //Returns the total number of bytes read
 //Returns 0 if fails to read
-size_t read_compact_int_from_data(scale_compact_int *compact_int_elem, const uint8_t *restrict serialized) {
+size_t read_compact_int_from_data(scale_compact_int *compact_int_elem, const uint8_t *restrict serialized, size_t size) {
+  if(size == 0) {
+    return 0;
+  }
+
   enum scale_compact_int_mode mode = serialized[0] & 0x03; //00000011
   uint8_t upper_bits = (serialized[0] & 0xFC);  //11111100
 
@@ -463,6 +470,9 @@ size_t read_compact_int_from_data(scale_compact_int *compact_int_elem, const uin
     }
     case SCALE_COMPACT_TWO_BYTE: {
       uint16_t value = serialized[1];
+      if(size < 2) {
+        return 0;
+      }
       value <<= 8;
       value |= upper_bits & 0xFF;
       value >>=2;
@@ -473,6 +483,9 @@ size_t read_compact_int_from_data(scale_compact_int *compact_int_elem, const uin
       return 2;
     }
     case SCALE_COMPACT_FOUR_BYTE: {
+      if(size < 4) {
+        return 0;
+      }
       uint32_t value = serialized[3];
       value <<= 8;
       value |= serialized[2] & 0xFF;
@@ -489,6 +502,9 @@ size_t read_compact_int_from_data(scale_compact_int *compact_int_elem, const uin
     }
     case SCALE_COMPACT_BIGNUM: {
       uint8_t byte_length = (upper_bits >> 2) + 4;
+      if(byte_length > size) {
+        return 0;
+      }
       if(byte_length <= 8) {
         uint64_t value = 0;
         int i;
@@ -505,7 +521,7 @@ size_t read_compact_int_from_data(scale_compact_int *compact_int_elem, const uin
           return byte_length + 1;
         }
       }
-      return encode_u128_data_to_compact_int_scale(compact_int_elem, serialized);
+      return encode_u128_data_to_compact_int_scale(compact_int_elem, serialized, size);
     }
     default: {
       fprintf(stderr, "Invalid Scale! Unknown Compact Mode\n");

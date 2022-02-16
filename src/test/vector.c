@@ -13,7 +13,7 @@
 static void run_vector_test_read_from_bytes(uint8_t width, uint8_t *bytes, size_t expected_num_elements, size_t expected_bytes_read) {
   scale_vector vector = SCALE_VECTOR_INIT;
   printf("\tReading Vector From Unknown Length of Bytes: ");
-  size_t bytes_read = read_vector_from_data(&vector, width, bytes);
+  size_t bytes_read = read_vector_from_data(&vector, width, bytes, expected_bytes_read);
   uint64_t num_elements = decode_compact_to_u64(&vector.prefix_num_elements);
   printf("\n\t\tNum bytes read.(%u) vs expected.(%u)", (unsigned)bytes_read, (unsigned)expected_bytes_read);
   printf("\n\t\tNum elements read.(%llu) vs expected.(%u)\n", (unsigned long long)num_elements, (unsigned)expected_num_elements);
@@ -47,7 +47,7 @@ int run_vector_test() {
   cleanup_vector(&vector);
 
   scale_vector decoded = SCALE_VECTOR_INIT;
-  size_t data_len_read_back = read_vector_from_data(&decoded, sizeof(uint16_t), bytes);
+  size_t data_len_read_back = read_vector_from_data(&decoded, sizeof(uint16_t), bytes, data_len);
 
   assert(data_len == data_len_read_back);
 

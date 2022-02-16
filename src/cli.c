@@ -77,7 +77,7 @@
   void decode_compact(const char *value) {
     scale_compact_int scale_compact = SCALE_COMPACT_INT_INIT;
     printf("decoding %s\n", value);
-    if(encode_compact_hex_to_scale(&scale_compact, value) < 0) {
+    if(encode_compact_hex_to_scale(&scale_compact, value, strlen(value)) < 0) {
       fprintf(stderr, "Failed to Decode!\n Valid Hex?");
       return;
     }
@@ -105,7 +105,7 @@
       if(encode_compact(&scale_compact, (uint64_t)value) < 0) return;
     } else if(byte_length == 16) {
       if(hexValue) {
-        if(encode_u128_string_to_compact_int_scale(&scale_compact, hexValue) < 0) return;
+        if(encode_u128_string_to_compact_int_scale(&scale_compact, hexValue, strlen(hexValue)) < 0) return;
       } else {
         printf("Unable to Encode to u128. Did you pass a valid hex string?\n");
         return;

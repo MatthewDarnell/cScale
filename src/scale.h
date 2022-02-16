@@ -132,7 +132,7 @@ int8_t encode_uint32_to_compact_int_scale(scale_compact_int *compact_int_elem, u
 int8_t encode_uint64_to_compact_int_scale(scale_compact_int *compact_int_elem, uint64_t data);
 
 //Encode a valid U128 Hex String To a Compact Int SCALE structure
-int8_t encode_u128_string_to_compact_int_scale(scale_compact_int *compact_int_elem, char *hex);
+int8_t encode_u128_string_to_compact_int_scale(scale_compact_int *compact_int_elem, char *hex, size_t size);
 
 //C11 Generic Helper to infer int type. For u128 use encode_u128_string_to_compact_int_scale
 #define encode_compact(elem, value) \
@@ -147,11 +147,11 @@ int8_t encode_u128_string_to_compact_int_scale(scale_compact_int *compact_int_el
 //Reads the serialized Compact/General Int byte array into a scale_compact_int Structure
 //Returns the total number of bytes read
 //Returns 0 if fails to read
-size_t read_compact_int_from_data(scale_compact_int *compact_int_elem, const uint8_t *restrict serialized);
+size_t read_compact_int_from_data(scale_compact_int *compact_int_elem, const uint8_t *restrict serialized, size_t size);
 
 //Encode a valid Hex encoded Compact/General Int string into a scale_compact_int Structure
 //Returns 0 on success, -1 otherwise
-int8_t encode_compact_hex_to_scale(scale_compact_int *compact_int_elem, const char *hex);
+int8_t encode_compact_hex_to_scale(scale_compact_int *compact_int_elem, const char *hex, size_t size);
 
 
 //Frees malloc'd uint8_t *data pointer
@@ -256,7 +256,7 @@ void serialize_vector(uint8_t *serialized, size_t *serialized_len, scale_vector 
 //element_width should contain the byte length of each element. (u16=2, char=1)
 //Returns the total number of bytes read
 //Returns 0 if fails to read
-size_t read_vector_from_data(scale_vector *vec, uint8_t element_width, const uint8_t *restrict serialized);
+size_t read_vector_from_data(scale_vector *vec, uint8_t element_width, const uint8_t *restrict serialized, size_t size);
 
 //Points elem to the index'th element of the scale_vector vec.
 //elem_width is byte width of each element in the vector. (won't work for variable length types)
@@ -300,14 +300,14 @@ void inline serialize_string(uint8_t *serialized, size_t *serialized_len, scale_
 //Deserialize a Utf8 String Vector Structure
 //Reads serialized and populates vec
 //Returns total bytes of string
-size_t inline deserialize_string(scale_vector *vec, const uint8_t *restrict serialized) {
-  return read_vector_from_data(vec, 1, serialized);
+size_t inline deserialize_string(scale_vector *vec, const uint8_t *restrict serialized, size_t size) {
+  return read_vector_from_data(vec, 1, serialized, size);
 }
 
 //Deserialize a vector of Utf8 Strings into a vec structure
 //Places the number of strings read (length of *vec) into num_string_elems
 //Returns total bytes read
-size_t deserialize_vector_of_strings(scale_vector *vec, size_t *num_string_elems, const uint8_t *restrict serialized);
+size_t deserialize_vector_of_strings(scale_vector *vec, size_t *num_string_elems, const uint8_t *restrict serialized, size_t size);
 
 
 //Helper Function To Clean up a String Vector Structure

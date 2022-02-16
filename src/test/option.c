@@ -73,7 +73,7 @@ int run_option_test() {
 
   //Parse Vector Data (can't use standard foreach because options have differing byte widths)
   scale_compact_int compact_num_elems = SCALE_COMPACT_INT_INIT;
-  read_compact_int_from_data(&compact_num_elems, serialized_vector);
+  read_compact_int_from_data(&compact_num_elems, serialized_vector, serialized_vector_len);
   uint8_t num_elems = (uint8_t)decode_compact_to_u64(&compact_num_elems);
   uint32_t offset = 0;  //index into data
   printf("\n\t\tReading (Variable Byte-Width) Vec<Option<i8>> Back: (%u elems) --> [", num_elems);
